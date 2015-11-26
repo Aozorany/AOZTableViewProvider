@@ -13,6 +13,8 @@
 		4ACC11B71C072CCE00DBAA05 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4ACC11B51C072CCE00DBAA05 /* LaunchScreen.storyboard */; };
 		4ACC11C21C072CCE00DBAA05 /* AOZTableViewProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACC11C11C072CCE00DBAA05 /* AOZTableViewProviderTests.m */; };
 		4ACC11CD1C072CCE00DBAA05 /* AOZTableViewProviderUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACC11CC1C072CCE00DBAA05 /* AOZTableViewProviderUITests.m */; };
+		4ACC11DC1C072E0400DBAA05 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACC11DB1C072E0400DBAA05 /* ViewController.m */; };
+		4ACC11DF1C072E3900DBAA05 /* AOZTableViewProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACC11DE1C072E3900DBAA05 /* AOZTableViewProvider.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +48,10 @@
 		4ACC11C81C072CCE00DBAA05 /* AOZTableViewProviderUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AOZTableViewProviderUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4ACC11CC1C072CCE00DBAA05 /* AOZTableViewProviderUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AOZTableViewProviderUITests.m; sourceTree = "<group>"; };
 		4ACC11CE1C072CCE00DBAA05 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4ACC11DA1C072E0400DBAA05 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		4ACC11DB1C072E0400DBAA05 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		4ACC11DD1C072E3900DBAA05 /* AOZTableViewProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AOZTableViewProvider.h; sourceTree = "<group>"; };
+		4ACC11DE1C072E3900DBAA05 /* AOZTableViewProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AOZTableViewProvider.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +104,10 @@
 			children = (
 				4ACC11B01C072CCE00DBAA05 /* AppDelegate.h */,
 				4ACC11B11C072CCE00DBAA05 /* AppDelegate.m */,
+				4ACC11DA1C072E0400DBAA05 /* ViewController.h */,
+				4ACC11DB1C072E0400DBAA05 /* ViewController.m */,
+				4ACC11DD1C072E3900DBAA05 /* AOZTableViewProvider.h */,
+				4ACC11DE1C072E3900DBAA05 /* AOZTableViewProvider.m */,
 				4ACC11B31C072CCE00DBAA05 /* Assets.xcassets */,
 				4ACC11B51C072CCE00DBAA05 /* LaunchScreen.storyboard */,
 				4ACC11B81C072CCE00DBAA05 /* Info.plist */,
@@ -261,6 +271,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4ACC11DC1C072E0400DBAA05 /* ViewController.m in Sources */,
+				4ACC11DF1C072E3900DBAA05 /* AOZTableViewProvider.m in Sources */,
 				4ACC11B21C072CCE00DBAA05 /* AppDelegate.m in Sources */,
 				4ACC11AF1C072CCE00DBAA05 /* main.m in Sources */,
 			);
@@ -480,6 +492,7 @@
 				4ACC11D31C072CCE00DBAA05 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		4ACC11D41C072CCE00DBAA05 /* Build configuration list for PBXNativeTarget "AOZTableViewProviderTests" */ = {
 			isa = XCConfigurationList;
@@ -488,6 +501,7 @@
 				4ACC11D61C072CCE00DBAA05 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		4ACC11D71C072CCE00DBAA05 /* Build configuration list for PBXNativeTarget "AOZTableViewProviderUITests" */ = {
 			isa = XCConfigurationList;
@@ -496,6 +510,7 @@
 				4ACC11D91C072CCE00DBAA05 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
