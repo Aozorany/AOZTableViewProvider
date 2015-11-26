@@ -1,0 +1,13 @@
+Version 1.0
+
+mode 0
+section -s _titlesArray
+section -s _titlesArray2
+
+mode 1
+section -c SampleTableViewCell -s _titlesArray
+section -c SampleTableViewCell2 -s _titlesArray2
+
+mode 2
+row -s _titlesArray
+row -s _titlesArray2 -all

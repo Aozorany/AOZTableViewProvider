@@ -8,6 +8,7 @@
 
 
 #import "AOZTableViewProvider.h"
+#import "AOZTableViewConfigFileParser.h"
 
 
 @implementation AOZTableViewProvider {
@@ -26,9 +27,32 @@
 
 #pragma mark public: general
 - (BOOL)parseConfigFile:(NSError **)pError {
-    if (_configFileUrl == nil) {
+    if (_configBundleFileName.length == 0) {
         return NO;
     }
+    
+    //检查配置文件存在性
+    NSString *configFileName = [_configBundleFileName stringByDeletingPathExtension];
+    NSString *configFileExtention = [_configBundleFileName pathExtension];
+    if (configFileExtention.length == 0) {
+        configFileExtention = @"tableViewConfig";
+    }
+    NSString *configFilePath = [[NSBundle mainBundle] pathForResource:configFileName ofType:configFileExtention];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:configFilePath]) {
+        if (pError) {
+            *pError = [NSError errorWithDomain:AOZTableViewProviderErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey: @"配置文件不存在"}];
+        }
+        return NO;
+    }
+    
+    //解析配置文件
+    AOZTableViewConfigFileParser *parser = [[AOZTableViewConfigFileParser alloc] initWithFilePath:configFilePath];
+    NSArray *newModesArray = [parser parseFile:pError];
+    if (*pError) {
+        return NO;
+    }
+    [_modesArray removeAllObjects];
+    [_modesArray addObjectsFromArray:newModesArray];
     
     return YES;
 }

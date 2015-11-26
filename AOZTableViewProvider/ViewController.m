@@ -6,29 +6,30 @@
 //  Copyright © 2015 Aozorany. All rights reserved.
 //
 
+
 #import "ViewController.h"
+#import "AOZTableViewProvider.h"
 
 
-@implementation ViewController
+@implementation ViewController {
+    AOZTableViewProvider *_tableViewProvider;
+}
 
+#pragma mark lifeCircle
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    
+    self.view.backgroundColor = [UIColor whiteColor];
+    
+    _tableViewProvider = [[AOZTableViewProvider alloc] init];
+    _tableViewProvider.configBundleFileName = @"ViewController.tableViewConfig";
+    [_tableViewProvider connectToTableView:nil];
+    
+    NSError *error = nil;
+    [_tableViewProvider parseConfigFile:&error];
+    if (error) {
+        NSLog(@"%@", error);
+    }
 }
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3015D5E31C0744EE00E071E7 /* ViewController.tableViewConfig in Resources */ = {isa = PBXBuildFile; fileRef = 3015D5E21C0744EE00E071E7 /* ViewController.tableViewConfig */; };
+		3015D5E61C07472600E071E7 /* AOZTableViewConfigFileParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 3015D5E51C07472600E071E7 /* AOZTableViewConfigFileParser.m */; };
 		4ACC11AF1C072CCE00DBAA05 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACC11AE1C072CCE00DBAA05 /* main.m */; };
 		4ACC11B21C072CCE00DBAA05 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACC11B11C072CCE00DBAA05 /* AppDelegate.m */; };
 		4ACC11B41C072CCE00DBAA05 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4ACC11B31C072CCE00DBAA05 /* Assets.xcassets */; };
@@ -35,6 +37,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3015D5E21C0744EE00E071E7 /* ViewController.tableViewConfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ViewController.tableViewConfig; sourceTree = "<group>"; };
+		3015D5E41C07472600E071E7 /* AOZTableViewConfigFileParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AOZTableViewConfigFileParser.h; sourceTree = "<group>"; };
+		3015D5E51C07472600E071E7 /* AOZTableViewConfigFileParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AOZTableViewConfigFileParser.m; sourceTree = "<group>"; };
 		4ACC11AA1C072CCE00DBAA05 /* AOZTableViewProvider.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AOZTableViewProvider.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4ACC11AE1C072CCE00DBAA05 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4ACC11B01C072CCE00DBAA05 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -108,6 +113,9 @@
 				4ACC11DB1C072E0400DBAA05 /* ViewController.m */,
 				4ACC11DD1C072E3900DBAA05 /* AOZTableViewProvider.h */,
 				4ACC11DE1C072E3900DBAA05 /* AOZTableViewProvider.m */,
+				3015D5E41C07472600E071E7 /* AOZTableViewConfigFileParser.h */,
+				3015D5E51C07472600E071E7 /* AOZTableViewConfigFileParser.m */,
+				3015D5E21C0744EE00E071E7 /* ViewController.tableViewConfig */,
 				4ACC11B31C072CCE00DBAA05 /* Assets.xcassets */,
 				4ACC11B51C072CCE00DBAA05 /* LaunchScreen.storyboard */,
 				4ACC11B81C072CCE00DBAA05 /* Info.plist */,
@@ -245,6 +253,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3015D5E31C0744EE00E071E7 /* ViewController.tableViewConfig in Resources */,
 				4ACC11B41C072CCE00DBAA05 /* Assets.xcassets in Resources */,
 				4ACC11B71C072CCE00DBAA05 /* LaunchScreen.storyboard in Resources */,
 			);
@@ -274,6 +283,7 @@
 				4ACC11DC1C072E0400DBAA05 /* ViewController.m in Sources */,
 				4ACC11DF1C072E3900DBAA05 /* AOZTableViewProvider.m in Sources */,
 				4ACC11B21C072CCE00DBAA05 /* AppDelegate.m in Sources */,
+				3015D5E61C07472600E071E7 /* AOZTableViewConfigFileParser.m in Sources */,
 				4ACC11AF1C072CCE00DBAA05 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
