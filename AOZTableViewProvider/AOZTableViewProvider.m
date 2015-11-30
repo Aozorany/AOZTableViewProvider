@@ -8,11 +8,12 @@
 
 
 #import "AOZTableViewProvider.h"
+#import "AOZTableViewProviderUtils.h"
 #import "AOZTableViewConfigFileParser.h"
 
 
 @implementation AOZTableViewProvider {
-    NSMutableArray *_modesArray;
+    NSMutableArray<AOZTVPMode *> *_modesArray;
     NSMutableDictionary *_currentConfigDictionary;
 }
 

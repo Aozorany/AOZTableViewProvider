@@ -8,6 +8,7 @@
 
 
 #import <Foundation/Foundation.h>
+#import "AOZTableViewProviderUtils.h"
 
 
 #ifndef AOZTableViewConfigFileParserErrorDomain
@@ -17,7 +18,6 @@
 
 /** 配置文件解析器 */
 @interface AOZTableViewConfigFileParser : NSObject
-@property (nonatomic, readonly) NSString *filePath;
 - (instancetype)initWithFilePath:(NSString *)filePath;
-- (NSArray *)parseFile:(NSError **)pError;
+- (NSArray<AOZTVPMode *> *)parseFile:(NSError **)pError;
 @end
