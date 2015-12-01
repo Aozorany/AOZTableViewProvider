@@ -32,10 +32,10 @@
     if (matchesArray.count <= 1) {
         return nil;
     }
+    BOOL haveAvaliableParams = NO;
     for (int index = 1; index < matchesArray.count;) {
         NSTextCheckingResult *checkingResult = matchesArray[index];
-        if (checkingResult.range.location == NSNotFound
-            || checkingResult.range.length == 0) {
+        if (checkingResult.range.location == NSNotFound || checkingResult.range.length == 0) {
             continue;
         }
         NSString *chunk = [lineStr substringWithRange:checkingResult.range];
@@ -57,7 +57,7 @@
                 source = [_dataProvider valueForKey:nextChunk];
             }
             @catch (NSException *exception) {
-                NSLog(@"%@ not found", nextChunk);
+                return nil;
             }
             rowCollection.dataConfig.source = source;
             index += 2;
@@ -89,6 +89,8 @@
             index += 2;
         } else if ([chunk isEqualToString:@"-all"]) {
             rowCollection.dataConfig.elementsPerRow = -1;
+            index ++;
+        } else {
             index ++;
         }
     }
