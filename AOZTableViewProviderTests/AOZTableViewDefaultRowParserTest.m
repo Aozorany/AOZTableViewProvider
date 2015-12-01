@@ -96,6 +96,10 @@
     rowCollection = [_rowParser parseNewConfig:@"row 1 2 3 4 5"];
     NSAssert([rowCollection isEqual:rowCollectionResult], @"row 1 2 3 4 5与预期结果不相等");
     
+    rowCollectionResult.rowRange = NSMakeRange(0, 0);
+    rowCollection = [_rowParser parseNewConfig:@"row -s _nilArray"];
+    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _nilArray与预期结果不相等");
+    
     //row -s
     /*
     AOZTVPRowCollection *rowCollectionResult = [[AOZTVPRowCollection alloc] init];
