@@ -12,6 +12,7 @@
 #import "AOZTableViewCell.h"
 
 
+/** 从一个正则表达式匹配结果中取得第index个字符串 */
 NSString *getChunkFromMatchesArray(NSString *str, NSArray<NSTextCheckingResult *> *matchesArray, int index);
 NSString *getChunkFromMatchesArray(NSString *str, NSArray<NSTextCheckingResult *> *matchesArray, int index) {
     if (matchesArray == nil || str == nil) {
@@ -31,6 +32,7 @@ NSString *getChunkFromMatchesArray(NSString *str, NSArray<NSTextCheckingResult *
     return subStr;
 }
 
+/** 检查str是否是int */
 BOOL stringIsInt(NSString *str);
 BOOL stringIsInt(NSString *str) {
     if (str.length == 0) {
@@ -39,6 +41,28 @@ BOOL stringIsInt(NSString *str) {
     NSScanner* scan = [NSScanner scannerWithString:str];
     int val;
     return [scan scanInt:&val] && [scan isAtEnd];
+}
+
+/** 检查derivedClass是否是baseClass的派生类 */
+BOOL checkClassRelation(Class derivedClass, Class baseClass);
+BOOL checkClassRelation(Class derivedClass, Class baseClass) {
+    if (derivedClass == NULL || baseClass == NULL) {
+        return NO;
+    }
+    if ([NSStringFromClass(baseClass) isEqualToString:NSStringFromClass([NSObject class])]) {
+        return YES;
+    }
+    Class currentClass = derivedClass;
+    while (YES) {
+        if ([NSStringFromClass(currentClass) isEqualToString:NSStringFromClass(baseClass)]) {
+            return YES;
+        }
+        currentClass = class_getSuperclass(currentClass);
+        if ([NSStringFromClass(currentClass) isEqualToString:NSStringFromClass([NSObject class])]) {
+            return NO;
+        }
+    }
+    return NO;
 }
 
 
@@ -97,9 +121,14 @@ BOOL stringIsInt(NSString *str) {
             }
             Class cellClass = objc_getClass([nextChunk UTF8String]);
             if (cellClass == NULL) {
+                //如果没查找到对应的类，则非法
                 return nil;
             }
-            rowCollection.dataConfig.cellClass = cellClass? cellClass: [AOZTableViewCell class];
+            if (!checkClassRelation(cellClass, [AOZTableViewCell class])) {
+                //如果不是AOZTableViewCell的派生类，则非法
+                return nil;
+            }
+            rowCollection.dataConfig.cellClass = cellClass;
             index += 2;
         } else if ([chunk isEqualToString:@"-n"]) {
             //-n指示符，下一参数是每一行元素个数

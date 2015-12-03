@@ -11,6 +11,15 @@
 #import "AOZTableViewCell.h"
 
 
+/** 测试的cell派生类 */
+@interface DerivedAOZTableViewCell : AOZTableViewCell
+@end
+
+
+@implementation DerivedAOZTableViewCell
+@end
+
+
 @interface AOZTableViewDefaultRowParserTest : XCTestCase
 @end
 
@@ -68,6 +77,12 @@
     rowCollection = [_rowParser parseNewConfig:@"row -c"];
     NSAssert(rowCollection == nil, @"输入参数为row -c的时候结果不为空");
     
+    rowCollection = [_rowParser parseNewConfig:@"row -c FakeClass"];
+    NSAssert(rowCollection == nil, @"输入参数为row -c FakeClass的时候结果不为空");
+    
+    rowCollection = [_rowParser parseNewConfig:@"row -c NSDictionary"];
+    NSAssert(rowCollection == nil, @"输入参数为row -c NSDictionary的时候结果不为空");
+    
     rowCollection = [_rowParser parseNewConfig:@"row -s -c"];
     NSAssert(rowCollection == nil, @"输入参数为row -s -c的时候结果不为空");
     
@@ -83,7 +98,6 @@
 
 /** 测试合法输入情形 */
 - (void)testRegularLines {
-    //row
     AOZTVPRowCollection *rowCollectionResult = [[AOZTVPRowCollection alloc] init];
     rowCollectionResult.rowRange = NSMakeRange(0, 1);
     rowCollectionResult.dataConfig.cellClass = [AOZTableViewCell class];
@@ -92,13 +106,32 @@
     AOZTVPRowCollection *rowCollection = [_rowParser parseNewConfig:@"row"];
     NSAssert([rowCollection isEqual:rowCollectionResult], @"row与预期结果不相等");
     
-    //row 1 2 3 4 5
     rowCollection = [_rowParser parseNewConfig:@"row 1 2 3 4 5"];
     NSAssert([rowCollection isEqual:rowCollectionResult], @"row 1 2 3 4 5与预期结果不相等");
     
     rowCollectionResult.rowRange = NSMakeRange(0, 0);
     rowCollection = [_rowParser parseNewConfig:@"row -s _nilArray"];
     NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _nilArray与预期结果不相等");
+    
+    rowCollection = [_rowParser parseNewConfig:@"row -s _emptyArray"];
+    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _emptyArray与预期结果不相等");
+    
+    rowCollectionResult.rowRange = NSMakeRange(0, _array.count);
+    rowCollection = [_rowParser parseNewConfig:@"row -s _array"];
+    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _array与预期结果不相等");
+    
+    rowCollectionResult.rowRange = NSMakeRange(0, 1);
+    rowCollection = [_rowParser parseNewConfig:@"row -s _emptyDictionary"];
+    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _emptyDictionary与预期结果不相等");
+    
+    rowCollection = [_rowParser parseNewConfig:@"row -s _dictionary"];
+    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _dictionary与预期结果不相等");
+    
+    rowCollectionResult.dataConfig.cellClass = [DerivedAOZTableViewCell class];
+    rowCollection = [_rowParser parseNewConfig:@"row -c DerivedAOZTableViewCell"];
+    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -c DerivedAOZTableViewCell与预期结果不相等");
+    
+    
     
     //row -s
     /*
