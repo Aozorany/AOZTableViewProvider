@@ -159,32 +159,6 @@
     rowCollectionResult.rowRange = NSMakeRange(0, 0);
     rowCollection = [_rowParser parseNewConfig:@"row -s _nilArray -all"];
     NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _nilArray -all与预期结果不相等");
-    
-    //row -s
-    /*
-    AOZTVPRowCollection *rowCollectionResult = [[AOZTVPRowCollection alloc] init];
-    rowCollectionResult.rowRange = NSMakeRange(0, _array.count);
-    rowCollectionResult.dataConfig.cellClass = [AOZTableViewCell class];
-    rowCollectionResult.dataConfig.source = _array;
-    rowCollectionResult.dataConfig.elementsPerRow = 1;
-    AOZTVPRowCollection *rowCollection = [_rowParser parseNewConfig:@"row -s _datasArray"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _datasArray与预期结果不相等");
-    
-    rowCollectionResult.dataConfig.elementsPerRow = 2;
-    rowCollectionResult.rowRange = NSMakeRange(0, ceil(_array.count / 2.0f));
-    rowCollection = [_rowParser parseNewConfig:@"row -s _datasArray -n 2"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _datasArray -n 2与预期结果不相等");
-    
-    rowCollectionResult.dataConfig.elementsPerRow = -1;
-    rowCollectionResult.rowRange = NSMakeRange(0, 1);
-    rowCollection = [_rowParser parseNewConfig:@"row -s _datasArray -all"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _datasArray -all与预期结果不相等");
-    
-    rowCollectionResult.dataConfig.elementsPerRow = 2;
-    rowCollectionResult.rowRange = NSMakeRange(0, 0);
-    rowCollection = [_rowParser parseNewConfig:@"row -s _emptyDatasArray -n 2"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _emptyDatasArray -n 2与预期结果不相等");
-     */
 }
 
 @end

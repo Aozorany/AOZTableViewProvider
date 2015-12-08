@@ -9,6 +9,12 @@
 /* Begin PBXBuildFile section */
 		3015D5E31C0744EE00E071E7 /* ViewController.tableViewConfig in Resources */ = {isa = PBXBuildFile; fileRef = 3015D5E21C0744EE00E071E7 /* ViewController.tableViewConfig */; };
 		3015D5E61C07472600E071E7 /* AOZTableViewConfigFileParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 3015D5E51C07472600E071E7 /* AOZTableViewConfigFileParser.m */; };
+		304CD2C21C172960000CD302 /* AOZTableViewDefaultSectionParserTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 304CD2C11C172960000CD302 /* AOZTableViewDefaultSectionParserTest.m */; };
+		304CD2C31C172979000CD302 /* AOZTableViewProviderUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AC0F4D1C09F93A00B2685B /* AOZTableViewProviderUtils.m */; };
+		304CD2C41C17297F000CD302 /* AOZTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AC0F501C09FBAA00B2685B /* AOZTableViewCell.m */; };
+		304CD2C51C17298B000CD302 /* AOZTableViewConfigFileParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 3015D5E51C07472600E071E7 /* AOZTableViewConfigFileParser.m */; };
+		304CD2C61C172996000CD302 /* AOZTableViewDefaultConfigFileParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AC0F531C0A021E00B2685B /* AOZTableViewDefaultConfigFileParser.m */; };
+		304CD2C71C17299B000CD302 /* AOZTableViewDefaultConfigFileParserAddons.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AC0F591C0ACB2A00B2685B /* AOZTableViewDefaultConfigFileParserAddons.m */; };
 		30AC0F4E1C09F93A00B2685B /* AOZTableViewProviderUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AC0F4D1C09F93A00B2685B /* AOZTableViewProviderUtils.m */; };
 		30AC0F511C09FBAA00B2685B /* AOZTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AC0F501C09FBAA00B2685B /* AOZTableViewCell.m */; };
 		30AC0F541C0A021E00B2685B /* AOZTableViewDefaultConfigFileParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AC0F531C0A021E00B2685B /* AOZTableViewDefaultConfigFileParser.m */; };
@@ -50,6 +56,7 @@
 		3015D5E21C0744EE00E071E7 /* ViewController.tableViewConfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ViewController.tableViewConfig; sourceTree = "<group>"; };
 		3015D5E41C07472600E071E7 /* AOZTableViewConfigFileParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AOZTableViewConfigFileParser.h; sourceTree = "<group>"; };
 		3015D5E51C07472600E071E7 /* AOZTableViewConfigFileParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AOZTableViewConfigFileParser.m; sourceTree = "<group>"; };
+		304CD2C11C172960000CD302 /* AOZTableViewDefaultSectionParserTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AOZTableViewDefaultSectionParserTest.m; sourceTree = "<group>"; };
 		30AC0F4C1C09F93A00B2685B /* AOZTableViewProviderUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AOZTableViewProviderUtils.h; sourceTree = "<group>"; };
 		30AC0F4D1C09F93A00B2685B /* AOZTableViewProviderUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AOZTableViewProviderUtils.m; sourceTree = "<group>"; };
 		30AC0F4F1C09FBAA00B2685B /* AOZTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AOZTableViewCell.h; sourceTree = "<group>"; };
@@ -163,6 +170,7 @@
 			isa = PBXGroup;
 			children = (
 				30AC0F5F1C0ACC6300B2685B /* AOZTableViewDefaultRowParserTest.m */,
+				304CD2C11C172960000CD302 /* AOZTableViewDefaultSectionParserTest.m */,
 				4ACC11C11C072CCE00DBAA05 /* AOZTableViewProviderTests.m */,
 				4ACC11C31C072CCE00DBAA05 /* Info.plist */,
 			);
@@ -329,6 +337,7 @@
 				30AC0F5D1C0ACC1800B2685B /* AOZTableViewConfigFileParser.m in Sources */,
 				30AC0F5E1C0ACC2100B2685B /* AOZTableViewDefaultConfigFileParser.m in Sources */,
 				30AC0F5C1C0ACC0F00B2685B /* AOZTableViewProviderUtils.m in Sources */,
+				304CD2C21C172960000CD302 /* AOZTableViewDefaultSectionParserTest.m in Sources */,
 				30AC0F601C0ACC6300B2685B /* AOZTableViewDefaultRowParserTest.m in Sources */,
 				4ACC11C21C072CCE00DBAA05 /* AOZTableViewProviderTests.m in Sources */,
 			);
@@ -339,6 +348,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				4ACC11CD1C072CCE00DBAA05 /* AOZTableViewProviderUITests.m in Sources */,
+				304CD2C51C17298B000CD302 /* AOZTableViewConfigFileParser.m in Sources */,
+				304CD2C71C17299B000CD302 /* AOZTableViewDefaultConfigFileParserAddons.m in Sources */,
+				304CD2C61C172996000CD302 /* AOZTableViewDefaultConfigFileParser.m in Sources */,
+				304CD2C41C17297F000CD302 /* AOZTableViewCell.m in Sources */,
+				304CD2C31C172979000CD302 /* AOZTableViewProviderUtils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
