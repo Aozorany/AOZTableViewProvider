@@ -81,7 +81,7 @@ BOOL checkClassRelation(Class derivedClass, Class baseClass) {
         return nil;
     }
     
-    //如果第一个部分不是row开头，则返回
+    //如果第一个部分不是row，则返回
     NSString *prefix = getChunkFromMatchesArray(lineStr, matchesArray, 0);
     if (![prefix isEqualToString:@"row"]) {
         return nil;
@@ -158,13 +158,50 @@ BOOL checkClassRelation(Class derivedClass, Class baseClass) {
 
 
 #pragma mark -
-@implementation AOZTableViewDefaultSectionParser
-- (void)addNewConfig:(NSString *)lineStr {
-    
+@implementation AOZTableViewDefaultSectionParser {
+    AOZTVPSectionCollection *_sectionCollection;
 }
 
-- (AOZTVPSectionCollection *)flushAndParse {
-    return nil;
+- (AOZTVPSectionCollection *)parseNewConfigs:(NSArray<NSString *> *)linesArray {
+    if (linesArray.count == 0) {
+        return nil;
+    }
+    
+    AOZTVPSectionCollection *sectionCollection = nil;
+    for (NSString *lineStr in linesArray) {
+        //对每一行，把表达式分开
+        NSRegularExpression *regEx = [NSRegularExpression regularExpressionWithPattern:@"-{0,1}\\w+" options:NSRegularExpressionCaseInsensitive error:nil];
+        NSArray<NSTextCheckingResult *> *matchesArray = [regEx matchesInString:lineStr options:0 range:NSMakeRange(0, lineStr.length)];
+        
+        //如果一行里面没有内容，则继续下一行
+        if (matchesArray.count < 1) {
+            continue;
+        }
+        
+        //如果第一个部分不是row，则返回
+        NSString *prefix = getChunkFromMatchesArray(lineStr, matchesArray, 0);
+        if ([prefix isEqualToString:@"section"]) {
+            //如果是以section开头
+            if (sectionCollection == nil) {
+                sectionCollection = [[AOZTVPSectionCollection alloc] init];
+            }
+            
+        } else if ([prefix isEqualToString:@"row"]) {
+            //如果是以row开头，则交给row解析器
+            if (sectionCollection == nil) {
+                sectionCollection = [[AOZTVPSectionCollection alloc] init];
+            }
+            AOZTableViewDefaultRowParser *rowParser = [[AOZTableViewDefaultRowParser alloc] init];
+            AOZTVPRowCollection *rowCollection = [rowParser parseNewConfig:lineStr];
+            if (rowCollection) {
+                [sectionCollection.rowCollectionsArray addObject:rowCollection];
+            }
+        } else {
+            //其他情况，继续下一行
+            continue;
+        }
+    }
+    return sectionCollection;
 }
 @end
 

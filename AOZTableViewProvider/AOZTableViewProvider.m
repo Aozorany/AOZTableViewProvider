@@ -26,6 +26,19 @@
     return self;
 }
 
+#pragma mark delegate: UITableViewDataSource
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 0;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 0;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return nil;
+}
+
 #pragma mark public: general
 - (BOOL)parseConfigFile:(NSError **)pError {
     if (_configBundleFileName.length == 0) {

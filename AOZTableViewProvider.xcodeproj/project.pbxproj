@@ -29,7 +29,6 @@
 		4ACC11B21C072CCE00DBAA05 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACC11B11C072CCE00DBAA05 /* AppDelegate.m */; };
 		4ACC11B41C072CCE00DBAA05 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4ACC11B31C072CCE00DBAA05 /* Assets.xcassets */; };
 		4ACC11B71C072CCE00DBAA05 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4ACC11B51C072CCE00DBAA05 /* LaunchScreen.storyboard */; };
-		4ACC11C21C072CCE00DBAA05 /* AOZTableViewProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACC11C11C072CCE00DBAA05 /* AOZTableViewProviderTests.m */; };
 		4ACC11CD1C072CCE00DBAA05 /* AOZTableViewProviderUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACC11CC1C072CCE00DBAA05 /* AOZTableViewProviderUITests.m */; };
 		4ACC11DC1C072E0400DBAA05 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACC11DB1C072E0400DBAA05 /* ViewController.m */; };
 		4ACC11DF1C072E3900DBAA05 /* AOZTableViewProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACC11DE1C072E3900DBAA05 /* AOZTableViewProvider.m */; };
@@ -74,7 +73,6 @@
 		4ACC11B61C072CCE00DBAA05 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4ACC11B81C072CCE00DBAA05 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4ACC11BD1C072CCE00DBAA05 /* AOZTableViewProviderTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AOZTableViewProviderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		4ACC11C11C072CCE00DBAA05 /* AOZTableViewProviderTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AOZTableViewProviderTests.m; sourceTree = "<group>"; };
 		4ACC11C31C072CCE00DBAA05 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4ACC11C81C072CCE00DBAA05 /* AOZTableViewProviderUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AOZTableViewProviderUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4ACC11CC1C072CCE00DBAA05 /* AOZTableViewProviderUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AOZTableViewProviderUITests.m; sourceTree = "<group>"; };
@@ -171,7 +169,6 @@
 			children = (
 				30AC0F5F1C0ACC6300B2685B /* AOZTableViewDefaultRowParserTest.m */,
 				304CD2C11C172960000CD302 /* AOZTableViewDefaultSectionParserTest.m */,
-				4ACC11C11C072CCE00DBAA05 /* AOZTableViewProviderTests.m */,
 				4ACC11C31C072CCE00DBAA05 /* Info.plist */,
 			);
 			path = AOZTableViewProviderTests;
@@ -339,7 +336,6 @@
 				30AC0F5C1C0ACC0F00B2685B /* AOZTableViewProviderUtils.m in Sources */,
 				304CD2C21C172960000CD302 /* AOZTableViewDefaultSectionParserTest.m in Sources */,
 				30AC0F601C0ACC6300B2685B /* AOZTableViewDefaultRowParserTest.m in Sources */,
-				4ACC11C21C072CCE00DBAA05 /* AOZTableViewProviderTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

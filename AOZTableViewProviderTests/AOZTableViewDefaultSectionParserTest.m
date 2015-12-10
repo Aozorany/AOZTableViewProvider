@@ -6,34 +6,58 @@
 //  Copyright © 2015年 Aozorany. All rights reserved.
 //
 
+
 #import <XCTest/XCTest.h>
+#import "AOZTableViewDefaultConfigFileParserAddons.h"
 
+
+#pragma mark -
 @interface AOZTableViewDefaultSectionParserTest : XCTestCase
-
 @end
 
-@implementation AOZTableViewDefaultSectionParserTest
+
+#pragma mark -
+@implementation AOZTableViewDefaultSectionParserTest {
+    AOZTableViewDefaultSectionParser *_sectionParser;
+    NSArray *_array;
+    NSArray *_emptyArray;
+    NSArray *_nilArray;
+    NSDictionary *_dictionary;
+    NSDictionary *_emptyDictionary;
+}
 
 - (void)setUp {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+    
+    _sectionParser = [[AOZTableViewDefaultSectionParser alloc] init];
+    _sectionParser.dataProvider = self;
+    
+    _array = @[@"1", @"2", @"3"];
+    _emptyArray = @[];
+    _nilArray = nil;
+    _dictionary = @{@"1": @1, @"2": @2};
+    _emptyDictionary = @{};
 }
 
 - (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
 }
 
-- (void)testExample {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
+/** 测试存在性 */
+- (void)testExistance {
+    NSAssert(_sectionParser != nil, @"_sectionParser初始化后为空");
 }
 
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
+/** 测试非法输入情形 */
+- (void)testIrregularLines {
+    [_sectionParser addNewConfig:@""];
+    AOZTVPSectionCollection *sectionCollection = [_sectionParser flushAndParse];
+    NSAssert(sectionCollection == nil, @"结果不符");
+}
+
+/** 测试合法输入情形 */
+- (void)testRegularLines {
+    
 }
 
 @end

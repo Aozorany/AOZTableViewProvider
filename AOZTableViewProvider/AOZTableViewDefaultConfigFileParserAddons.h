@@ -18,8 +18,8 @@
 
 #pragma mark -
 @interface AOZTableViewDefaultSectionParser : NSObject
-- (void)addNewConfig:(NSString *)lineStr;
-- (AOZTVPSectionCollection *)flushAndParse;
+@property (nonatomic, assign) id dataProvider;
+- (AOZTVPSectionCollection *)parseNewConfigs:(NSArray<NSString *> *)linesArray;
 @end
 
 

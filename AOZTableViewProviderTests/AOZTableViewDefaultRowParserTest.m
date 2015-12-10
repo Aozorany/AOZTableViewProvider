@@ -47,7 +47,6 @@
 }
 
 - (void)tearDown {
-    _rowParser = nil;
     [super tearDown];
 }
 
