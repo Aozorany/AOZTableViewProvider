@@ -22,4 +22,5 @@
 - (BOOL)parseConfigFile:(NSError **)pError;
 - (void)connectToTableView:(UITableView *)tableView;
 - (void)reloadTableView;
+- (void)reloadData;
 @end

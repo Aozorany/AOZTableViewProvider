@@ -29,6 +29,8 @@
     [_tableViewProvider parseConfigFile:&error];
     if (error) {
         NSLog(@"%@", error);
+    } else {
+        [_tableViewProvider reloadTableView];
     }
 }
 

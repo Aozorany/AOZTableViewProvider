@@ -185,6 +185,7 @@ BOOL checkClassRelation(Class derivedClass, Class baseClass) {
             if (sectionCollection == nil) {
                 sectionCollection = [[AOZTVPSectionCollection alloc] init];
             }
+            //*********
             
         } else if ([prefix isEqualToString:@"row"]) {
             //如果是以row开头，则交给row解析器
