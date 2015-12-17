@@ -50,9 +50,6 @@
 
 /** 测试非法输入情形 */
 - (void)testIrregularLines {
-    [_sectionParser addNewConfig:@""];
-    AOZTVPSectionCollection *sectionCollection = [_sectionParser flushAndParse];
-    NSAssert(sectionCollection == nil, @"结果不符");
 }
 
 /** 测试合法输入情形 */

@@ -32,6 +32,22 @@ NSString *getChunkFromMatchesArray(NSString *str, NSArray<NSTextCheckingResult *
     return subStr;
 }
 
+NSArray<NSString *> *getChunksArray(NSString *lineStr) {
+    if (lineStr.length == 0) {
+        return nil;
+    }
+    NSRegularExpression *regEx = [NSRegularExpression regularExpressionWithPattern:@"-{0,1}\\w+" options:NSRegularExpressionCaseInsensitive error:nil];
+    NSArray<NSTextCheckingResult *> *matchesArray = [regEx matchesInString:lineStr options:0 range:NSMakeRange(0, lineStr.length)];
+    NSMutableArray<NSString *> *chunksArray = [NSMutableArray array];
+    for (int index = 0; index < matchesArray.count; index++) {
+        NSString *chunkStr = getChunkFromMatchesArray(lineStr, matchesArray, index);
+        if (chunkStr) {
+            [chunksArray addObject:chunkStr];
+        }
+    }
+    return chunksArray;
+}
+
 /** 检查str是否是int */
 BOOL stringIsInt(NSString *str);
 BOOL stringIsInt(NSString *str) {
@@ -52,18 +68,126 @@ BOOL checkClassRelation(Class derivedClass, Class baseClass) {
     if ([NSStringFromClass(baseClass) isEqualToString:NSStringFromClass([NSObject class])]) {
         return YES;
     }
+    if ([NSStringFromClass(derivedClass) isEqualToString:NSStringFromClass([NSObject class])]) {
+        return NO;
+    }
     Class currentClass = derivedClass;
     while (YES) {
         if ([NSStringFromClass(currentClass) isEqualToString:NSStringFromClass(baseClass)]) {
             return YES;
         }
         currentClass = class_getSuperclass(currentClass);
-        if ([NSStringFromClass(currentClass) isEqualToString:NSStringFromClass([NSObject class])]) {
+        if (currentClass == NULL || [NSStringFromClass(currentClass) isEqualToString:NSStringFromClass([NSObject class])]) {
             return NO;
         }
     }
     return NO;
 }
+
+/** 根据传入的class和错误原因创建错误，把这个错误保存在pError中，如果传入的pError为nil，则不创建这个错误 */
+void createAndLogError(Class class, NSString *localizedDescription, NSError **pError);
+void createAndLogError(Class class, NSString *localizedDescription, NSError **pError) {
+    if (localizedDescription.length == 0) {
+        localizedDescription = @"Unknown error";
+    }
+    
+#if DEBUG
+    NSLog(@"%@", localizedDescription);
+#endif
+    
+    if (pError && class) {
+        NSString *className = NSStringFromClass(class);
+        NSString *errorDomain = [NSString stringWithFormat:@"%@Domain", className];
+        *pError = [NSError errorWithDomain:errorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey: localizedDescription}];
+    }
+}
+
+
+#pragma mark -
+NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefaultDataConfigParserDomain";
+@implementation AOZTableViewDefaultDataConfigParser
+
+#pragma mark public: general
+- (AOZTVPDataConfig *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError {
+    if (chunksArray.count == 0) {
+        createAndLogError(self.class, @"chunksArray has nothing, return nil", pError);
+        return nil;
+    }
+    
+    AOZTVPDataConfig *dataConfig = [[AOZTVPDataConfig alloc] init];
+    if (chunksArray.count == 1) {
+        return dataConfig;
+    }
+    
+    for (int index = 1; index < chunksArray.count;) {
+        NSString *chunk = chunksArray[index];
+        if ([chunk isEqualToString:@"-s"]) {//-s指示符，下一个参数是数据源
+            if (index < chunksArray.count - 1) {
+                if (_dataProvider) {
+                    NSString *nextChunk = chunksArray[index + 1];
+                    @try {
+                        dataConfig.source = [_dataProvider valueForKey:nextChunk];
+                    }
+                    @catch (NSException *exception) {
+                        //如果根据参数找到数据源，则返回空
+                        createAndLogError(self.class, [NSString stringWithFormat:@"No value for -s arg %@, ignore", nextChunk], NULL);
+                    }
+                } else {//如果_dataProvider为空，报错并忽略
+                    createAndLogError(self.class, @"_dataProvider is nil, ignore", NULL);
+                }
+            } else {//如果-s是最后一个，报错并忽略
+                createAndLogError(self.class, @"-s is last, ignore", NULL);
+            }
+            index += 2;
+        } else if ([chunk isEqualToString:@"-c"]) {//-c指示符，下一个参数是单元格类型
+            if (index < chunksArray.count - 1) {//如果-c不是最后一个参数
+                NSString *nextChunk = chunksArray[index + 1];
+                Class cellClass = objc_getClass([nextChunk UTF8String]);
+                if (cellClass) {
+                    if (checkClassRelation(cellClass, [AOZTableViewCell class])) {//如果cellClass符合条件
+                        dataConfig.cellClass = cellClass;
+                    } else {//如果cellClass不符合条件，则报错并忽略
+                        createAndLogError(self.class, [NSString stringWithFormat:@"Irregular class for -c arg %@", nextChunk], NULL);
+                    }
+                } else {//如果没查找到对应的类，则报错并忽略
+                    createAndLogError(self.class, [NSString stringWithFormat:@"No class for -c arg %@", nextChunk], NULL);
+                }
+            } else {//如果是最后一个参数，报错并忽略
+                createAndLogError(self.class, @"-c is last, ignore", NULL);
+            }
+            index += 2;
+        } else if ([chunk isEqualToString:@"-n"]) {
+            //-n指示符，下一参数是每一行元素个数
+            if (index < chunksArray.count - 1) {
+                //如果-n不是最后一个参数
+                NSString *nextChunk = chunksArray[index + 1];
+                if (stringIsInt(nextChunk)) {//如果nextChunk是整数
+                    int elementsPerRow = [nextChunk intValue];
+                    if (elementsPerRow > 0) {//如果nextChunk大于0，则直接指定
+                        dataConfig.elementsPerRow = elementsPerRow;
+                    } else {//如果是负数，报错，并且忽略
+                        createAndLogError(self.class, [NSString stringWithFormat:@"Negative -n arg %@, ignore", nextChunk], NULL);
+                    }
+                } else {//如果不是合法的整数，报错，并且忽略
+                    createAndLogError(self.class, [NSString stringWithFormat:@"Irregular -n arg %@, ignore", nextChunk], NULL);
+                }
+            } else {
+                //如果-n是最后一个参数，报错，并且忽略
+                createAndLogError(self.class, @"-n is last, ignore", NULL);
+            }
+            index += 2;//读取下一个指示符
+        } else if ([chunk isEqualToString:@"-all"]) {//-all指示符，所有参数都在同一行中
+            dataConfig.elementsPerRow = -1;
+            index++;//读取下一个指示符
+        } else {//如果不属于以上任何一种情况，则直接读取下一个
+            createAndLogError(self.class, [NSString stringWithFormat:@"Unrecognized prefix %@", chunk], NULL);
+            index++;
+        }
+    }
+    return dataConfig;
+}
+
+@end
 
 
 #pragma mark -
