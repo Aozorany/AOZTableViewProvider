@@ -14,7 +14,7 @@
 #pragma mark -
 @implementation AOZTableViewDefaultConfigFileParser {
     NSString *_filePath;
-    AOZTableViewDefaultModeParser *_modeParser;
+//    AOZTableViewDefaultModeParser *_modeParser;
 }
 
 #pragma mark lifeCircle
@@ -22,7 +22,7 @@
     self = [super init];
     if (self) {
         _filePath = [filePath copy];
-        _modeParser = [[AOZTableViewDefaultModeParser alloc] init];
+//        _modeParser = [[AOZTableViewDefaultModeParser alloc] init];
     }
     return self;
 }
@@ -43,21 +43,22 @@
         }
         
         //对每一行进行分析，并存放结果
-        NSMutableArray<AOZTVPMode *> *modesArray = [[NSMutableArray alloc] init];
-        for (NSString *lineStr in linesArray) {
-            NSArray *chunksArray = [lineStr componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-            
-            NSString *configType = chunksArray[0];
-            if ([configType isEqualToString:@"mode"]) {
-                AOZTVPMode *mode = [_modeParser flushAndParse];
-                if (mode) {
-                    [modesArray addObject:mode];
-                }
-            } else {
-                [_modeParser addNewConfig:lineStr];
-            }
-        }
-        return [NSArray arrayWithArray:modesArray];
+//        NSMutableArray<AOZTVPMode *> *modesArray = [[NSMutableArray alloc] init];
+//        for (NSString *lineStr in linesArray) {
+//            NSArray *chunksArray = [lineStr componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+//            
+//            NSString *configType = chunksArray[0];
+//            if ([configType isEqualToString:@"mode"]) {
+//                AOZTVPMode *mode = [_modeParser flushAndParse];
+//                if (mode) {
+//                    [modesArray addObject:mode];
+//                }
+//            } else {
+//                [_modeParser addNewConfig:lineStr];
+//            }
+//        }
+//        return [NSArray arrayWithArray:modesArray];
+        return nil;
     }
 }
 

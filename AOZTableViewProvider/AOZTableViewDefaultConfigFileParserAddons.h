@@ -27,19 +27,19 @@ extern NSString * const AOZTableViewDefaultDataConfigParserDomain;
 #pragma mark -
 @interface AOZTableViewDefaultRowParser : NSObject
 @property (nonatomic, assign) id dataProvider;
-- (AOZTVPRowCollection *)parseNewConfig:(NSString *)lineStr;
+- (AOZTVPRowCollection *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError;
 @end
 
 
-#pragma mark -
-@interface AOZTableViewDefaultSectionParser : NSObject
-@property (nonatomic, assign) id dataProvider;
-- (AOZTVPSectionCollection *)parseNewConfigs:(NSArray<NSString *> *)linesArray;
-@end
-
-
-#pragma mark -
-@interface AOZTableViewDefaultModeParser : NSObject
-- (void)addNewConfig:(NSString *)lineStr;
-- (AOZTVPMode *)flushAndParse;
-@end
+//#pragma mark -
+//@interface AOZTableViewDefaultSectionParser : NSObject
+//@property (nonatomic, assign) id dataProvider;
+//- (AOZTVPSectionCollection *)parseNewConfigs:(NSArray<NSString *> *)linesArray;
+//@end
+//
+//
+//#pragma mark -
+//@interface AOZTableViewDefaultModeParser : NSObject
+//- (void)addNewConfig:(NSString *)lineStr;
+//- (AOZTVPMode *)flushAndParse;
+//@end

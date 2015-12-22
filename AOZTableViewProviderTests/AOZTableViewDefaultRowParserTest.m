@@ -58,106 +58,125 @@
 
 /** 测试非法输入情形 */
 - (void)testIrregularLines {
-    AOZTVPRowCollection *rowCollection = [_rowParser parseNewConfig:@""];
-    NSAssert(rowCollection == nil, @"输入参数为空行的时候结果不为空");
+    NSString *lineStr = @"";
+    NSArray<NSString *> *chunksArray = getChunksArray(lineStr);
+    AOZTVPRowCollection *rowCollection = [_rowParser parseNewConfig:chunksArray error:nil];
+    NSAssert(rowCollection == nil, lineStr);
     
-    rowCollection = [_rowParser parseNewConfig:@"mode 0"];
-    NSAssert(rowCollection == nil, @"输入参数为mode 0的时候结果不为空");
+    lineStr = @"mode 0";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert(rowCollection == nil, lineStr);
     
-    rowCollection = [_rowParser parseNewConfig:@"section"];
-    NSAssert(rowCollection == nil, @"输入参数为section的时候结果不为空");
+    lineStr = @"section";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert(rowCollection == nil, lineStr);
     
-    rowCollection = [_rowParser parseNewConfig:@"row -s fakeSource"];
-    NSAssert(rowCollection == nil, @"输入参数为row -s fakeSource的时候结果不为空");
+    AOZTVPRowCollection *rowCollectionResult = [[AOZTVPRowCollection alloc] init];
+    lineStr = @"row -s fakeSource";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
-    rowCollection = [_rowParser parseNewConfig:@"row -s"];
-    NSAssert(rowCollection == nil, @"输入参数为row -s的时候结果不为空");
+    lineStr = @"row -s";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
-    rowCollection = [_rowParser parseNewConfig:@"row -c"];
-    NSAssert(rowCollection == nil, @"输入参数为row -c的时候结果不为空");
+    lineStr = @"row -c";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
-    rowCollection = [_rowParser parseNewConfig:@"row -c FakeClass"];
-    NSAssert(rowCollection == nil, @"输入参数为row -c FakeClass的时候结果不为空");
+    lineStr = @"row -c FakeClass";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
-    rowCollection = [_rowParser parseNewConfig:@"row -c NSDictionary"];
-    NSAssert(rowCollection == nil, @"输入参数为row -c NSDictionary的时候结果不为空");
+    lineStr = @"row -c NSDictionary";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
-    rowCollection = [_rowParser parseNewConfig:@"row -s -c"];
-    NSAssert(rowCollection == nil, @"输入参数为row -s -c的时候结果不为空");
+    lineStr = @"row -s -c";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
+
+    lineStr = @"row -c -s";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
+
+    lineStr = @"row -s -all";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
-    rowCollection = [_rowParser parseNewConfig:@"row -c -s"];
-    NSAssert(rowCollection == nil, @"输入参数为row -c -s的时候结果不为空");
-    
-    rowCollection = [_rowParser parseNewConfig:@"row -s -all"];
-    NSAssert(rowCollection == nil, @"输入参数为row -s -all的时候结果不为空");
-    
-    rowCollection = [_rowParser parseNewConfig:@"row -s -all -c"];
-    NSAssert(rowCollection == nil, @"输入参数为row -s -all -c的时候结果不为空");
+    lineStr = @"row -s -all -c";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
 }
 
 /** 测试合法输入情形 */
 - (void)testRegularLines {
     AOZTVPRowCollection *rowCollectionResult = [[AOZTVPRowCollection alloc] init];
-    rowCollectionResult.rowRange = NSMakeRange(0, 1);
     rowCollectionResult.dataConfig.cellClass = [AOZTableViewCell class];
     rowCollectionResult.dataConfig.elementsPerRow = 1;
-    AOZTVPRowCollection *rowCollection = [_rowParser parseNewConfig:@"row"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row与预期结果不相等");
+    NSString *lineStr = @"row";
+    AOZTVPRowCollection *rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
-    rowCollection = [_rowParser parseNewConfig:@"row 1 2 3 4 5"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row 1 2 3 4 5与预期结果不相等");
+    lineStr = @"row 1 2 3 4 5";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
-    rowCollectionResult.rowRange = NSMakeRange(0, 0);
     rowCollectionResult.dataConfig.source = _nilArray;
-    rowCollection = [_rowParser parseNewConfig:@"row -s _nilArray"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _nilArray与预期结果不相等");
+    lineStr = @"row -s _nilArray";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
     rowCollectionResult.dataConfig.source = _emptyArray;
-    rowCollection = [_rowParser parseNewConfig:@"row -s _emptyArray"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _emptyArray与预期结果不相等");
+    lineStr = @"row -s _emptyArray";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
-    rowCollectionResult.rowRange = NSMakeRange(0, _array.count);
     rowCollectionResult.dataConfig.source = _array;
-    rowCollection = [_rowParser parseNewConfig:@"row -s _array"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _array与预期结果不相等");
+    lineStr = @"row -s _array";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
-    rowCollection = [_rowParser parseNewConfig:@"row -s _array -n -1"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _array -n -1与预期结果不相等");
+    lineStr = @"row -s _array -n -1";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
-    rowCollectionResult.rowRange = NSMakeRange(0, 1);
     rowCollectionResult.dataConfig.source = _emptyDictionary;
-    rowCollection = [_rowParser parseNewConfig:@"row -s _emptyDictionary"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _emptyDictionary与预期结果不相等");
+    lineStr = @"row -s _emptyDictionary";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
     rowCollectionResult.dataConfig.source = _dictionary;
-    rowCollection = [_rowParser parseNewConfig:@"row -s _dictionary"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _dictionary与预期结果不相等");
+    lineStr = @"row -s _dictionary";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
     rowCollectionResult.dataConfig.cellClass = [DerivedAOZTableViewCell class];
     rowCollectionResult.dataConfig.source = [NSNull null];
-    rowCollection = [_rowParser parseNewConfig:@"row -c DerivedAOZTableViewCell"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -c DerivedAOZTableViewCell与预期结果不相等");
+    lineStr = @"row -c DerivedAOZTableViewCell";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
-    rowCollectionResult.rowRange = NSMakeRange(0, _array.count);
     rowCollectionResult.dataConfig.source = _array;
-    rowCollection = [_rowParser parseNewConfig:@"row -c DerivedAOZTableViewCell -s _array"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -c DerivedAOZTableViewCell -s _array与预期结果不相等");
+    lineStr = @"row -c DerivedAOZTableViewCell -s _array";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
-    rowCollectionResult.rowRange = NSMakeRange(0, ceilf(_array.count / 2.0f));
     rowCollectionResult.dataConfig.elementsPerRow = 2;
     rowCollectionResult.dataConfig.cellClass = [AOZTableViewCell class];
-    rowCollection = [_rowParser parseNewConfig:@"row -s _array -n 2"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _array -n 2与预期结果不相等");
+    lineStr = @"row -s _array -n 2";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
-    rowCollectionResult.rowRange = NSMakeRange(0, 1);
     rowCollectionResult.dataConfig.elementsPerRow = -1;
-    rowCollection = [_rowParser parseNewConfig:@"row -s _array -all"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _array -all与预期结果不相等");
+    lineStr = @"row -s _array -all";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
     rowCollectionResult.dataConfig.source = _nilArray;
-    rowCollectionResult.rowRange = NSMakeRange(0, 0);
-    rowCollection = [_rowParser parseNewConfig:@"row -s _nilArray -all"];
-    NSAssert([rowCollection isEqual:rowCollectionResult], @"row -s _nilArray -all与预期结果不相等");
+    lineStr = @"row -s _nilArray -all";
+    rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
+    NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
 }
 
 @end

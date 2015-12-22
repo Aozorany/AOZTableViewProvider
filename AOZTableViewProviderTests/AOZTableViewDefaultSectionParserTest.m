@@ -18,7 +18,7 @@
 
 #pragma mark -
 @implementation AOZTableViewDefaultSectionParserTest {
-    AOZTableViewDefaultSectionParser *_sectionParser;
+//    AOZTableViewDefaultSectionParser *_sectionParser;
     NSArray *_array;
     NSArray *_emptyArray;
     NSArray *_nilArray;
@@ -29,8 +29,8 @@
 - (void)setUp {
     [super setUp];
     
-    _sectionParser = [[AOZTableViewDefaultSectionParser alloc] init];
-    _sectionParser.dataProvider = self;
+//    _sectionParser = [[AOZTableViewDefaultSectionParser alloc] init];
+//    _sectionParser.dataProvider = self;
     
     _array = @[@"1", @"2", @"3"];
     _emptyArray = @[];
@@ -45,7 +45,7 @@
 
 /** 测试存在性 */
 - (void)testExistance {
-    NSAssert(_sectionParser != nil, @"_sectionParser初始化后为空");
+//    NSAssert(_sectionParser != nil, @"_sectionParser初始化后为空");
 }
 
 /** 测试非法输入情形 */
