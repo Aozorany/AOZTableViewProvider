@@ -102,6 +102,16 @@
     }
     return self;
 }
+
+- (BOOL)isEqual:(id)object {
+    if (![object isKindOfClass:[AOZTVPSectionCollection class]]) {
+        return NO;
+    }
+    AOZTVPSectionCollection *anotherSectionCollection = (AOZTVPSectionCollection *) object;
+    return NSEqualRanges(_sectionRange, anotherSectionCollection.sectionRange)
+           && [_dataConfig isEqual:anotherSectionCollection.dataConfig]
+           && [_rowCollectionsArray isEqualToArray:anotherSectionCollection.rowCollectionsArray];
+}
 @end
 
 

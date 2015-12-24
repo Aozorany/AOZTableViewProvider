@@ -14,6 +14,8 @@
 #pragma mark -
 /** 把一行字符串按空格分开 */
 NSArray<NSString *> *getChunksArray(NSString *lineStr);
+/** 把一个带有换行的字符串先按换行符，再按空格分开 */
+NSArray<NSArray<NSString *> *> *getLinesAndChunksArray(NSString *linesStr);
 
 
 #pragma mark -
@@ -31,13 +33,13 @@ extern NSString * const AOZTableViewDefaultDataConfigParserDomain;
 @end
 
 
-//#pragma mark -
-//@interface AOZTableViewDefaultSectionParser : NSObject
-//@property (nonatomic, assign) id dataProvider;
-//- (AOZTVPSectionCollection *)parseNewConfigs:(NSArray<NSString *> *)linesArray;
-//@end
-//
-//
+#pragma mark -
+@interface AOZTableViewDefaultSectionParser : NSObject
+@property (nonatomic, assign) id dataProvider;
+- (AOZTVPSectionCollection *)parseNewConfigs:(NSArray<NSArray<NSString *> *> *)linesArray error:(NSError **)pError;
+@end
+
+
 //#pragma mark -
 //@interface AOZTableViewDefaultModeParser : NSObject
 //- (void)addNewConfig:(NSString *)lineStr;

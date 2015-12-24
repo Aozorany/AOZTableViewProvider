@@ -38,14 +38,32 @@ NSArray<NSString *> *getChunksArray(NSString *lineStr) {
     }
     NSRegularExpression *regEx = [NSRegularExpression regularExpressionWithPattern:@"-{0,1}\\w+" options:NSRegularExpressionCaseInsensitive error:nil];
     NSArray<NSTextCheckingResult *> *matchesArray = [regEx matchesInString:lineStr options:0 range:NSMakeRange(0, lineStr.length)];
-    NSMutableArray<NSString *> *chunksArray = [NSMutableArray array];
+    NSMutableArray<NSString *> *chunksArray = [[NSMutableArray alloc] init];
     for (int index = 0; index < matchesArray.count; index++) {
         NSString *chunkStr = getChunkFromMatchesArray(lineStr, matchesArray, index);
         if (chunkStr) {
             [chunksArray addObject:chunkStr];
         }
     }
-    return chunksArray;
+    return [NSArray arrayWithArray:chunksArray];
+}
+
+NSArray<NSArray<NSString *> *> *getLinesAndChunksArray(NSString *linesStr) {
+    //特殊情况处理
+    if (linesStr.length == 0) {
+        return nil;
+    }
+    //分成多行，结果为linesArray
+    NSArray<NSString *> *linesArray = [linesStr componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+    //对linesArray的每一个元素singleLineStr，按空格分开
+    NSMutableArray<NSArray<NSString *> *> *linesAndChunksArray = [[NSMutableArray alloc] init];/**< 结果集 */
+    for (NSString *singleLineStr in linesArray) {
+        NSArray<NSString *> *chunksArray = getChunksArray(singleLineStr);
+        if (chunksArray.count > 0) {
+            [linesAndChunksArray addObject:chunksArray];
+        }
+    }
+    return [NSArray arrayWithArray:linesAndChunksArray];
 }
 
 /** 检查str是否是int */
@@ -222,56 +240,74 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
 @end
 
 
-//#pragma mark -
-//@implementation AOZTableViewDefaultSectionParser {
-//    AOZTVPSectionCollection *_sectionCollection;
-//}
-//
-//- (AOZTVPSectionCollection *)parseNewConfigs:(NSArray<NSString *> *)linesArray {
-//    if (linesArray.count == 0) {
-//        return nil;
-//    }
-//    
-//    AOZTVPSectionCollection *sectionCollection = nil;
-//    for (NSString *lineStr in linesArray) {
-//        //对每一行，把表达式分开
-//        NSRegularExpression *regEx = [NSRegularExpression regularExpressionWithPattern:@"-{0,1}\\w+" options:NSRegularExpressionCaseInsensitive error:nil];
-//        NSArray<NSTextCheckingResult *> *matchesArray = [regEx matchesInString:lineStr options:0 range:NSMakeRange(0, lineStr.length)];
-//        
-//        //如果一行里面没有内容，则继续下一行
-//        if (matchesArray.count < 1) {
-//            continue;
-//        }
-//        
-//        //如果第一个部分不是row，则返回
-//        NSString *prefix = getChunkFromMatchesArray(lineStr, matchesArray, 0);
-//        if ([prefix isEqualToString:@"section"]) {
-//            //如果是以section开头
-//            if (sectionCollection == nil) {
-//                sectionCollection = [[AOZTVPSectionCollection alloc] init];
-//            }
-//            //*********
-//            
-//        } else if ([prefix isEqualToString:@"row"]) {
-//            //如果是以row开头，则交给row解析器
-//            if (sectionCollection == nil) {
-//                sectionCollection = [[AOZTVPSectionCollection alloc] init];
-//            }
-//            AOZTableViewDefaultRowParser *rowParser = [[AOZTableViewDefaultRowParser alloc] init];
-//            AOZTVPRowCollection *rowCollection = [rowParser parseNewConfig:lineStr];
-//            if (rowCollection) {
-//                [sectionCollection.rowCollectionsArray addObject:rowCollection];
-//            }
-//        } else {
-//            //其他情况，继续下一行
-//            continue;
-//        }
-//    }
-//    return sectionCollection;
-//}
-//@end
-//
-//
+#pragma mark -
+@implementation AOZTableViewDefaultSectionParser {
+    AOZTVPSectionCollection *_sectionCollection;
+}
+
+#pragma mark public: general
+- (AOZTVPSectionCollection *)parseNewConfigs:(NSArray<NSArray<NSString *> *> *)linesArray error:(NSError **)pError {
+    //清除上次解析的结果
+    _sectionCollection = nil;
+    
+    //处理特殊情况
+    if (linesArray.count == 0) {
+        createAndLogError(self.class, @"linesArray is empty", pError);
+        return nil;
+    }
+    
+    //根据第一个有效行创建_sectionCollection
+    for (int index = 0; index < linesArray.count; index++) {
+        NSArray<NSString *> *chunksArray = linesArray[index];/**< 单独的一行 */
+
+        if (chunksArray.count == 0) {//如果空行，则忽略
+            continue;
+        }
+        NSString *prefix = chunksArray[0];
+        if ([prefix isEqualToString:@"section"]) {//本行是一个关于section的设置
+            if (_sectionCollection == nil) {//如果_sectionCollection没初始化，则初始化
+                [self createSectionCollectionWithConfig:chunksArray];
+            } else {//如果在_sectionCollection被初始化好的情况下再出现一个section，则被判断为违规
+                createAndLogError(self.class, @"Multiple section prefix in linesArray", pError);
+                return nil;
+            }
+        } else if ([prefix isEqualToString:@"row"]) {//本行是一个关于row的设置
+            if (_sectionCollection == nil) {//如果_sectionCollection没初始化，则初始化
+                [self createSectionCollectionWithConfig:nil];
+            }
+            //解析出rowCollection实例
+            NSError *rowParserError = nil;
+            AOZTableViewDefaultRowParser *rowParser = [[AOZTableViewDefaultRowParser alloc] init];
+            rowParser.dataProvider = _sectionCollection.dataConfig.source != nil? _sectionCollection.dataConfig.source: self;
+            AOZTVPRowCollection *rowCollection = [rowParser parseNewConfig:chunksArray error:&rowParserError];
+            if (rowCollection) {
+                [_sectionCollection.rowCollectionsArray addObject:rowCollection];
+            }//如果rowCollection解析不成功，则忽略
+        }//如果是其他prefix，则忽略
+    }
+    
+    return _sectionCollection;
+}
+
+#pragma mark private: general
+- (void)createSectionCollectionWithConfig:(NSArray<NSString *> *)chunksArray {
+    //传入空串或只传入section，结果都是默认
+    _sectionCollection = [[AOZTVPSectionCollection alloc] init];
+    //如果传入了更多的值，则交给AOZTableViewDefaultDataConfigParser来解析
+    if (chunksArray.count > 1) {
+        NSError *sectionDataParserError = nil;
+        AOZTableViewDefaultDataConfigParser *dataConfigParser = [[AOZTableViewDefaultDataConfigParser alloc] init];
+        dataConfigParser.dataProvider = _dataProvider;
+        AOZTVPDataConfig *dataConfig = [dataConfigParser parseNewConfig:chunksArray error:&sectionDataParserError];
+        if (sectionDataParserError == nil) {
+            _sectionCollection.dataConfig = dataConfig;
+        }
+    }
+}
+
+@end
+
+
 //#pragma mark -
 //@implementation AOZTableViewDefaultModeParser
 //- (void)addNewConfig:(NSString *)lineStr {

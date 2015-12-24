@@ -18,7 +18,7 @@
 
 #pragma mark -
 @implementation AOZTableViewDefaultSectionParserTest {
-//    AOZTableViewDefaultSectionParser *_sectionParser;
+    AOZTableViewDefaultSectionParser *_sectionParser;
     NSArray *_array;
     NSArray *_emptyArray;
     NSArray *_nilArray;
@@ -29,8 +29,8 @@
 - (void)setUp {
     [super setUp];
     
-//    _sectionParser = [[AOZTableViewDefaultSectionParser alloc] init];
-//    _sectionParser.dataProvider = self;
+    _sectionParser = [[AOZTableViewDefaultSectionParser alloc] init];
+    _sectionParser.dataProvider = self;
     
     _array = @[@"1", @"2", @"3"];
     _emptyArray = @[];
@@ -43,17 +43,38 @@
     [super tearDown];
 }
 
-/** 测试存在性 */
-- (void)testExistance {
-//    NSAssert(_sectionParser != nil, @"_sectionParser初始化后为空");
+- (void)testSingleIrregularLines {
+    NSString *linesStr = @"mode 0";
+    AOZTVPSectionCollection *sectionCollection = [_sectionParser parseNewConfigs:getLinesAndChunksArray(linesStr) error:nil];
+    NSAssert(sectionCollection == nil, linesStr);
+    
+    linesStr = @"section";
+    AOZTVPSectionCollection *sectionCollectionResult = [[AOZTVPSectionCollection alloc] init];
+    sectionCollection = [_sectionParser parseNewConfigs:getLinesAndChunksArray(linesStr) error:nil];
+    NSAssert([sectionCollection isEqual:sectionCollectionResult], linesStr);
+    
+    linesStr = @"section -s fakeSource";
+    sectionCollection = [_sectionParser parseNewConfigs:getLinesAndChunksArray(linesStr) error:nil];
+    NSAssert([sectionCollection isEqual:sectionCollectionResult], linesStr);
+    
+    linesStr = @"section -s";
+    sectionCollection = [_sectionParser parseNewConfigs:getLinesAndChunksArray(linesStr) error:nil];
+    NSAssert([sectionCollection isEqual:sectionCollectionResult], linesStr);
+    
+    linesStr = @"section -c";
+    sectionCollection = [_sectionParser parseNewConfigs:getLinesAndChunksArray(linesStr) error:nil];
+    NSAssert([sectionCollection isEqual:sectionCollectionResult], linesStr);
+    
+    linesStr = @"section -c FakeClass";
+    sectionCollection = [_sectionParser parseNewConfigs:getLinesAndChunksArray(linesStr) error:nil];
+    NSAssert([sectionCollection isEqual:sectionCollectionResult], linesStr);
+
+    linesStr = @"row -c NSDictionary";
+    sectionCollection = [_sectionParser parseNewConfigs:getLinesAndChunksArray(linesStr) error:nil];
+    NSAssert([sectionCollection isEqual:sectionCollectionResult], linesStr);
 }
 
-/** 测试非法输入情形 */
-- (void)testIrregularLines {
-}
-
-/** 测试合法输入情形 */
-- (void)testRegularLines {
+- (void)testSingleRegularLines {
     
 }
 
