@@ -278,7 +278,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
             //解析出rowCollection实例
             NSError *rowParserError = nil;
             AOZTableViewDefaultRowParser *rowParser = [[AOZTableViewDefaultRowParser alloc] init];
-            rowParser.dataProvider = _sectionCollection.dataConfig.source != nil? _sectionCollection.dataConfig.source: self;
+            rowParser.dataProvider = ![_sectionCollection.dataConfig.source isEqual:[NSNull null]]? _sectionCollection.dataConfig.source: _dataProvider;
             AOZTVPRowCollection *rowCollection = [rowParser parseNewConfig:chunksArray error:&rowParserError];
             if (rowCollection) {
                 [_sectionCollection.rowCollectionsArray addObject:rowCollection];
