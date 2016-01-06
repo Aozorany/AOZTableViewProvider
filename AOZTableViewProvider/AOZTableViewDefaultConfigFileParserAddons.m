@@ -256,7 +256,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
         return nil;
     }
     
-    //根据第一个有效行创建_sectionCollection
+    //遍历每一行
     for (int index = 0; index < linesArray.count; index++) {
         NSArray<NSString *> *chunksArray = linesArray[index];/**< 单独的一行 */
 
@@ -308,13 +308,66 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
 @end
 
 
-//#pragma mark -
-//@implementation AOZTableViewDefaultModeParser
-//- (void)addNewConfig:(NSString *)lineStr {
-//    
-//}
-//
-//- (AOZTVPMode *)flushAndParse {
-//    return nil;
-//}
-//@end
+#pragma mark -
+@implementation AOZTableViewDefaultModeParser {
+    AOZTVPMode *_mode;
+}
+
+- (AOZTVPMode *)parseNewConfigs:(NSArray<NSArray<NSString *> *> *)linesArray error:(NSError **)pError {
+    //清除上次的结果
+    _mode = nil;
+    
+    //处理特殊情况
+    if (linesArray.count == 0) {
+        createAndLogError(self.class, @"linesArray is empty", pError);
+        return nil;
+    }
+    
+    //遍历每一行
+    NSMutableArray<NSArray<NSString *> *> *singleSectionLinesArray = nil;/**< 以section和若干row所组成的配置组 */
+    for (int index = 0; index < linesArray.count; index++) {
+        NSArray<NSString *> *chunksArray = linesArray[index];/**< 单独的一行 */
+        
+        if (chunksArray.count == 0) {//如果空行，则忽略
+            continue;
+        }
+        NSString *prefix = chunksArray[0];
+        
+        if ([prefix isEqualToString:@"mode"]) {//如果是mode节点
+            if (_mode == nil) {//如果_mode没有被创建，则创建
+                _mode = [[AOZTVPMode alloc] init];
+            } else {//如果已经被创建了，则认为这些lines非法
+                createAndLogError(self.class, @"Multiple mode prefix in linesArray", pError);
+                return nil;
+            }
+        } else if ([prefix isEqualToString:@"section"] || [prefix isEqualToString:@"row"]) {
+            if (_mode == nil) {//如果_mode没有被创建，则创建
+                _mode = [[AOZTVPMode alloc] init];
+            }
+            if ([prefix isEqualToString:@"section"]) {
+                if (singleSectionLinesArray == nil) {//如果singleSectionLinesArray没被创建，则创建
+                    singleSectionLinesArray = [[NSMutableArray alloc] init];
+                    [singleSectionLinesArray addObject:chunksArray];
+                } else {//如果已经被创建了，又来了一个section打头的，则解析singleSectionLinesArray里面已经有的内容（不包括这一行）
+                    AOZTableViewDefaultSectionParser *sectionParser = [[AOZTableViewDefaultSectionParser alloc] init];
+                    sectionParser.dataProvider = _dataProvider;
+                    AOZTVPSectionCollection *sectionCollection = [sectionParser parseNewConfigs:singleSectionLinesArray error:nil];
+                    if (sectionCollection) {
+                        [_mode.sectionCollectionsArray addObject:sectionCollection];
+                    }
+                    //解析完成以后，重新把这一行压入一个新的singleSectionLinesArray
+                    singleSectionLinesArray = [[NSMutableArray alloc] init];
+                    [singleSectionLinesArray addObject:chunksArray];
+                }
+            } else if ([prefix isEqualToString:@"row"]) {
+                if (singleSectionLinesArray == nil) {
+                    singleSectionLinesArray = [[NSMutableArray alloc] init];
+                }
+                [singleSectionLinesArray addObject:chunksArray];
+            }
+        }
+    }
+    
+    return _mode;
+}
+@end

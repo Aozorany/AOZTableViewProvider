@@ -40,8 +40,8 @@ extern NSString * const AOZTableViewDefaultDataConfigParserDomain;
 @end
 
 
-//#pragma mark -
-//@interface AOZTableViewDefaultModeParser : NSObject
-//- (void)addNewConfig:(NSString *)lineStr;
-//- (AOZTVPMode *)flushAndParse;
-//@end
+#pragma mark -
+@interface AOZTableViewDefaultModeParser : NSObject
+@property (nonatomic, assign) id dataProvider;
+- (AOZTVPMode *)parseNewConfigs:(NSArray<NSArray<NSString *> *> *)linesArray error:(NSError **)pError;
+@end
