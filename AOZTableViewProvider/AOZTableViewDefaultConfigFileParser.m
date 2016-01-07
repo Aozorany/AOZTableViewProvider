@@ -14,7 +14,7 @@
 #pragma mark -
 @implementation AOZTableViewDefaultConfigFileParser {
     NSString *_filePath;
-//    AOZTableViewDefaultModeParser *_modeParser;
+    AOZTableViewDefaultModeParser *_modeParser;
 }
 
 #pragma mark lifeCircle
@@ -22,9 +22,14 @@
     self = [super init];
     if (self) {
         _filePath = [filePath copy];
-//        _modeParser = [[AOZTableViewDefaultModeParser alloc] init];
+        _modeParser = [[AOZTableViewDefaultModeParser alloc] init];
     }
     return self;
+}
+
+#pragma mark public: setters
+- (void)setDataProvider:(id)dataProvider {
+    _modeParser.dataProvider = dataProvider;
 }
 
 #pragma mark public: general
@@ -32,7 +37,7 @@
     @autoreleasepool {
         //读取，并分行
         NSString *fileContentStr = [NSString stringWithContentsOfFile:_filePath encoding:NSUTF8StringEncoding error:pError];
-        NSArray *linesArray = [fileContentStr componentsSeparatedByString:@"\n"];
+        NSArray<NSArray<NSString *> *> *linesArray = getLinesAndChunksArray(fileContentStr);
         
         //如果没有任何内容，则发起异常
         if (linesArray.count == 0) {
@@ -42,23 +47,44 @@
             return nil;
         }
         
-        //对每一行进行分析，并存放结果
-//        NSMutableArray<AOZTVPMode *> *modesArray = [[NSMutableArray alloc] init];
-//        for (NSString *lineStr in linesArray) {
-//            NSArray *chunksArray = [lineStr componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-//            
-//            NSString *configType = chunksArray[0];
-//            if ([configType isEqualToString:@"mode"]) {
-//                AOZTVPMode *mode = [_modeParser flushAndParse];
-//                if (mode) {
-//                    [modesArray addObject:mode];
-//                }
-//            } else {
-//                [_modeParser addNewConfig:lineStr];
-//            }
-//        }
-//        return [NSArray arrayWithArray:modesArray];
-        return nil;
+        //遍历每一行
+        NSMutableArray<AOZTVPMode *> *modesArray = [[NSMutableArray alloc] init];
+        NSMutableArray<NSArray<NSString *> *> *singleModeArray = nil;
+        for (int index = 0; index < linesArray.count; index++) {
+            NSArray<NSString *> *chunksArray = linesArray[index];
+            
+            if (chunksArray.count == 0) {
+                continue;
+            }
+            
+            NSString *prefix = chunksArray[0];
+            if ([prefix isEqualToString:@"mode"]) {
+                if (singleModeArray == nil) {
+                    singleModeArray = [[NSMutableArray alloc] init];
+                    [singleModeArray addObject:chunksArray];
+                } else {
+                    AOZTVPMode *mode = [_modeParser parseNewConfigs:singleModeArray error:pError];
+                    if (mode) {
+                        [modesArray addObject:mode];
+                    }
+                    singleModeArray = [[NSMutableArray alloc] init];
+                    [singleModeArray addObject:chunksArray];
+                }
+            } else if ([prefix isEqualToString:@"section"] || [prefix isEqualToString:@"row"]) {
+                if (singleModeArray == nil) {
+                    singleModeArray = [[NSMutableArray alloc] init];
+                }
+                [singleModeArray addObject:chunksArray];
+            }
+        }
+        
+        //解析余项
+        AOZTVPMode *mode = [_modeParser parseNewConfigs:singleModeArray error:pError];
+        if (mode) {
+            [modesArray addObject:mode];
+        }
+
+        return modesArray;
     }
 }
 

@@ -20,7 +20,7 @@
 @interface AOZTVPRowCollection : NSObject
 @property (nonatomic, retain) AOZTVPDataConfig *dataConfig;
 @property (nonatomic, assign) NSRange rowRange;
-- (BOOL)rearrangeAndCheckAvaliable;
+- (instancetype)initWithDataConfig:(AOZTVPDataConfig *)dataConfig;
 @end
 
 

@@ -23,6 +23,7 @@ extern NSString * const AOZTableViewDefaultDataConfigParserDomain;
 @interface AOZTableViewDefaultDataConfigParser : NSObject
 @property (nonatomic, assign) id dataProvider;
 - (AOZTVPDataConfig *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError;
+- (AOZTVPDataConfig *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError dataConfig:(AOZTVPDataConfig *)presetDataConfig;
 @end
 
 
@@ -30,6 +31,7 @@ extern NSString * const AOZTableViewDefaultDataConfigParserDomain;
 @interface AOZTableViewDefaultRowParser : NSObject
 @property (nonatomic, assign) id dataProvider;
 - (AOZTVPRowCollection *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError;
+- (AOZTVPRowCollection *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError dataConfig:(AOZTVPDataConfig *)dataConfig;
 @end
 
 

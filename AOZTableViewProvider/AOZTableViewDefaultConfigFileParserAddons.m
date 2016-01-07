@@ -127,12 +127,22 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
 
 #pragma mark public: general
 - (AOZTVPDataConfig *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError {
+    return [self parseNewConfig:chunksArray error:pError dataConfig:nil];
+}
+
+- (AOZTVPDataConfig *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError dataConfig:(AOZTVPDataConfig *)presetDataConfig {
     if (chunksArray.count == 0) {
         createAndLogError(self.class, @"chunksArray has nothing, return nil", pError);
         return nil;
     }
     
     AOZTVPDataConfig *dataConfig = [[AOZTVPDataConfig alloc] init];
+    if (presetDataConfig) {
+        dataConfig.cellClass = presetDataConfig.cellClass;
+        dataConfig.source = presetDataConfig.source;
+        dataConfig.elementsPerRow = presetDataConfig.elementsPerRow;
+    }
+    
     if (chunksArray.count == 1) {
         return dataConfig;
     }
@@ -211,6 +221,10 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
 #pragma mark -
 @implementation AOZTableViewDefaultRowParser
 - (AOZTVPRowCollection *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError {
+    return [self parseNewConfig:chunksArray error:pError dataConfig:nil];
+}
+
+- (AOZTVPRowCollection *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError dataConfig:(AOZTVPDataConfig *)presetDataConfig {
     if (chunksArray.count == 0) {
         createAndLogError(self.class, @"chunksArray has nothing, return nil", pError);
         return nil;
@@ -226,7 +240,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
     AOZTableViewDefaultDataConfigParser *dataConfigParser = [[AOZTableViewDefaultDataConfigParser alloc] init];
     NSError *dataConfigParserError = nil;
     dataConfigParser.dataProvider = _dataProvider;
-    AOZTVPDataConfig *dataConfig = [dataConfigParser parseNewConfig:chunksArray error:&dataConfigParserError];
+    AOZTVPDataConfig *dataConfig = [dataConfigParser parseNewConfig:chunksArray error:&dataConfigParserError dataConfig:presetDataConfig];
     if (dataConfig == nil) {
         *pError = dataConfigParserError;
         return nil;
@@ -279,7 +293,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
             NSError *rowParserError = nil;
             AOZTableViewDefaultRowParser *rowParser = [[AOZTableViewDefaultRowParser alloc] init];
             rowParser.dataProvider = ![_sectionCollection.dataConfig.source isEqual:[NSNull null]]? _sectionCollection.dataConfig.source: _dataProvider;
-            AOZTVPRowCollection *rowCollection = [rowParser parseNewConfig:chunksArray error:&rowParserError];
+            AOZTVPRowCollection *rowCollection = [rowParser parseNewConfig:chunksArray error:&rowParserError dataConfig:_sectionCollection.dataConfig];
             if (rowCollection) {
                 [_sectionCollection.rowCollectionsArray addObject:rowCollection];
             }//如果rowCollection解析不成功，则忽略
@@ -366,6 +380,14 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
                 [singleSectionLinesArray addObject:chunksArray];
             }
         }
+    }
+    
+    //解析尾端数据
+    AOZTableViewDefaultSectionParser *sectionParser = [[AOZTableViewDefaultSectionParser alloc] init];
+    sectionParser.dataProvider = _dataProvider;
+    AOZTVPSectionCollection *sectionCollection = [sectionParser parseNewConfigs:singleSectionLinesArray error:nil];
+    if (sectionCollection) {
+        [_mode.sectionCollectionsArray addObject:sectionCollection];
     }
     
     return _mode;

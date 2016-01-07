@@ -18,6 +18,7 @@
 
 /** 配置文件解析器 */
 @interface AOZTableViewConfigFileParser : NSObject
+@property (nonatomic, assign) id dataProvider;
 - (instancetype)initWithFilePath:(NSString *)filePath;
 - (NSArray<AOZTVPMode *> *)parseFile:(NSError **)pError;
 @end

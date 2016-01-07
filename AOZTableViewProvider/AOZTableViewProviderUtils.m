@@ -32,6 +32,11 @@
         && [NSStringFromClass(_cellClass) isEqualToString:NSStringFromClass(anotherDataConfig.cellClass)]
         && ((_source == nil && anotherDataConfig.source == nil) || [_source isEqual:anotherDataConfig.source]);
 }
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<AOZTVPDataConfig: _elementsPerRow: %d, _cellClass: %@, _source: %@>",
+            _elementsPerRow, NSStringFromClass(_cellClass), _source];
+}
 @end
 
 
@@ -40,6 +45,20 @@
     self = [super init];
     if (self) {
         _dataConfig = [[AOZTVPDataConfig alloc] init];
+        _rowRange = NSMakeRange(0, 0);
+    }
+    return self;
+}
+
+- (instancetype)initWithDataConfig:(AOZTVPDataConfig *)dataConfig {
+    self = [super init];
+    if (self) {
+        _dataConfig = [[AOZTVPDataConfig alloc] init];
+        if (dataConfig) {
+            _dataConfig.cellClass = dataConfig.cellClass;
+            _dataConfig.elementsPerRow = dataConfig.elementsPerRow;
+            _dataConfig.source = dataConfig.source;
+        }
         _rowRange = NSMakeRange(0, 0);
     }
     return self;
@@ -54,39 +73,9 @@
         && [_dataConfig isEqual:anotherRowCollection.dataConfig];
 }
 
-- (BOOL)rearrangeAndCheckAvaliable {
-    if (_dataConfig == nil || _dataConfig.elementsPerRow == 0) {
-        return NO;
-    }
-    //指定rowRange中的length
-    id source = _dataConfig.source;/**< 数据源 */
-    if ([source isKindOfClass:[NSArray class]]) {
-        if ([source count] == 0) {
-            //数组里面没有元素
-            _rowRange.length = 0;
-        } else if (_dataConfig.elementsPerRow < 0) {
-            //数组里面有元素，而且设定所有元素都在同一行
-            _rowRange.length = 1;
-        } else if (_dataConfig.elementsPerRow == 1) {
-            //数组里面有元素，而且每行只有一个元素
-            _rowRange.length = [source count];
-        } else if (_dataConfig.elementsPerRow > 1) {
-            //数组里面有元素，而且每行有多个元素
-            _rowRange.length = ceilf(((float) [source count]) / _dataConfig.elementsPerRow);
-        }
-    } else if ([source isKindOfClass:[NSNull class]]) {
-        //source值从来没有被设定过
-        _rowRange.length = 1;
-        _dataConfig.elementsPerRow = 1;
-    } else if (source != nil) {
-        //如果是其他情况，例如字典、其他类等
-        _rowRange.length = 1;
-        _dataConfig.elementsPerRow = 1;
-    } else {
-        //如果是nil
-        _rowRange.length = 0;
-    }
-    return YES;
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<AOZTVPRowCollection: _rowRange: %d - %d, _dataConfig: %@>",
+            _rowRange.location, _rowRange.length, _dataConfig];
 }
 @end
 
@@ -112,6 +101,11 @@
            && [_dataConfig isEqual:anotherSectionCollection.dataConfig]
            && [_rowCollectionsArray isEqualToArray:anotherSectionCollection.rowCollectionsArray];
 }
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<AOZTVPSectionCollection: _sectionRange: %d - %d, _dataConfig: %@, _rowCollectionsArray: %@>",
+            _sectionRange.location, _sectionRange.length, _dataConfig, (_rowCollectionsArray.count > 0? _rowCollectionsArray: @"")];
+}
 @end
 
 
@@ -123,5 +117,17 @@
         _numberOfSections = 0;
     }
     return self;
+}
+
+- (BOOL)isEqual:(id)object {
+    if (![object isKindOfClass:[AOZTVPMode class]]) {
+        return NO;
+    }
+    AOZTVPMode *anotherMode = (AOZTVPMode *)object;
+    return [_sectionCollectionsArray isEqualToArray:anotherMode.sectionCollectionsArray];
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<AOZTVPMode: _sectionCollectionsArray: %@>", (_sectionCollectionsArray.count > 0? _sectionCollectionsArray: @"")];
 }
 @end

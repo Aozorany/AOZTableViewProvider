@@ -23,6 +23,7 @@
     
     _tableViewProvider = [[AOZTableViewProvider alloc] init];
     _tableViewProvider.configBundleFileName = @"ViewController.tableViewConfig";
+    _tableViewProvider.dataProvider = self;
     [_tableViewProvider connectToTableView:nil];
     
     NSError *error = nil;

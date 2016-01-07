@@ -19,6 +19,8 @@
 @interface AOZTableViewProvider : NSObject <UITableViewDataSource, UITableViewDelegate>
 @property (nonatomic, copy) NSString *configBundleFileName;
 @property (nonatomic, readonly) UITableView *tableView;
+@property (nonatomic, assign) id dataProvider;
+@property (nonatomic, assign) NSInteger mode;
 - (BOOL)parseConfigFile:(NSError **)pError;
 - (void)connectToTableView:(UITableView *)tableView;
 - (void)reloadTableView;

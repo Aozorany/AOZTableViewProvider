@@ -301,6 +301,10 @@
     rowCollectionResult2.dataConfig.cellClass = [DerivedAOZTableViewCell4 class];
     AOZTVPSectionCollection *sectionCollection = [_sectionParser parseNewConfigs:getLinesAndChunksArray(linesStr) error:nil];
     NSAssert([sectionCollection isEqual:sectionCollectionResult], linesStr);
+    
+//    linesStr = @"section -s _array \n row -c DerivedAOZTableViewCell3 \n row -c DerivedAOZTableViewCell4";
+//    sectionCollection = [_sectionParser parseNewConfigs:getLinesAndChunksArray(linesStr) error:nil];
+//    NSLog(@"%@", sectionCollection);
 }
 
 @end
