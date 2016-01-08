@@ -10,15 +10,45 @@
 #import "AOZTableViewProvider.h"
 #import "AOZTableViewProviderUtils.h"
 #import "AOZTableViewConfigFileParser.h"
+#import "AOZTableViewCell.h"
 
 
 #pragma mark -
-id collectionForIndex(NSArray *collectionsArray, NSInteger index);
-id collectionForIndex(NSArray *collectionsArray, NSInteger index) {
-    if (collectionsArray.count == 0 || index < 0) {
+id collectionForIndex(id parentCollection, NSInteger index);
+id collectionForIndex(id parentCollection, NSInteger index) {
+    if ((![parentCollection isKindOfClass:[AOZTVPSectionCollection class]] && ![parentCollection isKindOfClass:[AOZTVPMode class]])
+        || index < 0) {//如果parentCollection不是sectionCollection，也不是mode，而且index不合法，则返回空
         return nil;
     }
     
+    if ([parentCollection isKindOfClass:[AOZTVPSectionCollection class]]) {
+        AOZTVPSectionCollection *sectionCollection = (AOZTVPSectionCollection *) parentCollection;
+        if (sectionCollection.rowCollectionsArray.count == 0) {
+            if (index == 0) {//如果sectionCollection下面没有放与row有关的任何信息，则表示它下面有一个默认的row，如果index正好指向这个默认row，则返回之
+                AOZTVPRowCollection *defaultRowCollection = [[AOZTVPRowCollection alloc] initWithDataConfig:sectionCollection.dataConfig];
+                [sectionCollection.rowCollectionsArray addObject:defaultRowCollection];
+                return defaultRowCollection;
+            }
+            return nil;
+        }
+        for (AOZTVPRowCollection *rowCollection in sectionCollection.rowCollectionsArray) {
+            if (NSLocationInRange(index, rowCollection.rowRange)) {
+                return rowCollection;
+            }
+        }
+    } else if ([parentCollection isKindOfClass:[AOZTVPMode class]]) {
+        AOZTVPMode *mode = (AOZTVPMode *) parentCollection;
+        if (mode.sectionCollectionsArray.count == 0) {
+            return nil;
+        }
+        for (AOZTVPSectionCollection *sectionCollection in mode.sectionCollectionsArray) {
+            if (NSLocationInRange(index, sectionCollection.sectionRange)) {
+                return sectionCollection;
+            }//end for index in range check
+        }//end for
+    }//end for mode and section
+    
+    //其他情况：找不到，或者又不是mode也不是section，则直接返回空
     return nil;
 }
 
@@ -49,12 +79,128 @@ id collectionForIndex(NSArray *collectionsArray, NSInteger index) {
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    
-    return 0;
+    AOZTVPMode *currentMode = [self currentMode];
+    AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, section);
+    if (sectionCollection.rowCollectionsArray.count == 0) {
+        return 1;
+    }
+    AOZTVPRowCollection *lastRowCollection = sectionCollection.rowCollectionsArray.lastObject;
+    return lastRowCollection.rowRange.location + lastRowCollection.rowRange.length;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return nil;
+    AOZTVPMode *currentMode = [self currentMode];
+    AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, indexPath.section);
+    AOZTVPRowCollection *rowCollection = collectionForIndex(sectionCollection, indexPath.row);
+    
+    id contents = nil;
+    if (![rowCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在row里面设置了数据源，则使用row的设置
+        if ([rowCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+            if (rowCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                contents = rowCollection.dataConfig.source;
+            } else if (rowCollection.dataConfig.elementsPerRow == 0 || rowCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                contents = ((NSArray *) rowCollection.dataConfig.source)[indexPath.row - rowCollection.rowRange.location];
+            } else {//每个单元格有多个元素的情况
+                NSRange subRange = NSMakeRange(indexPath.row * rowCollection.dataConfig.elementsPerRow, rowCollection.dataConfig.elementsPerRow);
+                if (subRange.location + subRange.length >= ((NSArray *) rowCollection.dataConfig.source).count) {
+                    subRange.length = ((NSArray *) rowCollection.dataConfig.source).count - subRange.location;
+                }
+                contents = [((NSArray *) rowCollection.dataConfig.source) subarrayWithRange:subRange];
+            }
+        } else {
+            contents = rowCollection.dataConfig.source;
+        }
+    } else if (![sectionCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在section里面设置了数据源，则使用section的设置
+        if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+            if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                contents = sectionCollection.dataConfig.source;
+            } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                contents = ((NSArray *) sectionCollection.dataConfig.source)[indexPath.section - sectionCollection.sectionRange.location];
+            } else {//每个单元格有多个元素的情况
+                NSRange subRange = NSMakeRange(indexPath.section * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
+                if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
+                    subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
+                }
+                contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
+            }
+        } else {
+            contents = sectionCollection.dataConfig.source;
+        }
+    }
+    
+    AOZTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass(rowCollection.dataConfig.cellClass)];
+    [cell setContents:contents];
+    
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:cellForRowAtIndexPath:contents:cell:)]) {
+        [_delegate tableViewProvider:self cellForRowAtIndexPath:indexPath contents:contents cell:cell];
+    }
+    
+    return cell;
+}
+
+#pragma mark delegate: UITableViewDelegate
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    AOZTVPMode *currentMode = [self currentMode];
+    AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, indexPath.section);
+    AOZTVPRowCollection *rowCollection = collectionForIndex(sectionCollection, indexPath.row);
+    
+    id contents = nil;
+    if (![rowCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在row里面设置了数据源，则使用row的设置
+        if ([rowCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+            if (rowCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                contents = rowCollection.dataConfig.source;
+            } else if (rowCollection.dataConfig.elementsPerRow == 0 || rowCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                contents = ((NSArray *) rowCollection.dataConfig.source)[indexPath.row - rowCollection.rowRange.location];
+            } else {//每个单元格有多个元素的情况
+                NSRange subRange = NSMakeRange(indexPath.row * rowCollection.dataConfig.elementsPerRow, rowCollection.dataConfig.elementsPerRow);
+                if (subRange.location + subRange.length >= ((NSArray *) rowCollection.dataConfig.source).count) {
+                    subRange.length = ((NSArray *) rowCollection.dataConfig.source).count - subRange.location;
+                }
+                contents = [((NSArray *) rowCollection.dataConfig.source) subarrayWithRange:subRange];
+            }
+        } else {
+            contents = rowCollection.dataConfig.source;
+        }
+    } else if (![sectionCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在section里面设置了数据源，则使用section的设置
+        if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+            if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                contents = sectionCollection.dataConfig.source;
+            } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                contents = ((NSArray *) sectionCollection.dataConfig.source)[indexPath.section - sectionCollection.sectionRange.location];
+            } else {//每个单元格有多个元素的情况
+                NSRange subRange = NSMakeRange(indexPath.section * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
+                if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
+                    subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
+                }
+                contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
+            }
+        } else {
+            contents = sectionCollection.dataConfig.source;
+        }
+    }
+    
+    return [AOZTableViewCell heightForCell:contents];
+}
+
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if ([cell isKindOfClass:[AOZTableViewCell class]]) {
+        [((AOZTableViewCell *) cell) willDisplayCell];
+    }
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:willDisplayCell:forRowAtIndexPath:)]) {
+        [_delegate tableViewProvider:self willDisplayCell:cell forRowAtIndexPath:indexPath];
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:didEndDisplayingCell:forRowAtIndexPath:)]) {
+        [_delegate tableViewProvider:self didEndDisplayingCell:cell forRowAtIndexPath:indexPath];
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:didSelectRowAtIndexPath:)]) {
+        [_delegate tableViewProvider:self didSelectRowAtIndexPath:indexPath];
+    }
 }
 
 #pragma mark private: general
@@ -107,6 +253,10 @@ id collectionForIndex(NSArray *collectionsArray, NSInteger index) {
 }
 
 - (void)reloadTableView {
+    [_tableView reloadData];
+}
+
+- (void)reloadData {
     
 }
 

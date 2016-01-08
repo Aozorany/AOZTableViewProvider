@@ -21,10 +21,17 @@
     
     self.view.backgroundColor = [UIColor whiteColor];
     
+    //mainTableView
+    CGRect screenBounds = [UIScreen mainScreen].bounds;
+    CGRect mainTableViewRect = CGRectMake(0, 0, CGRectGetWidth(screenBounds), CGRectGetHeight(screenBounds));
+    UITableView *mainTableView = [[UITableView alloc] initWithFrame:mainTableViewRect style:UITableViewStyleGrouped];
+    [self.view addSubview:mainTableView];
+    
+    //_tableViewProvider
     _tableViewProvider = [[AOZTableViewProvider alloc] init];
     _tableViewProvider.configBundleFileName = @"ViewController.tableViewConfig";
     _tableViewProvider.dataProvider = self;
-    [_tableViewProvider connectToTableView:nil];
+    [_tableViewProvider connectToTableView:mainTableView];
     
     NSError *error = nil;
     [_tableViewProvider parseConfigFile:&error];
