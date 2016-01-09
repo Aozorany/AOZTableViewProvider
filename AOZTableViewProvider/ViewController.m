@@ -13,11 +13,14 @@
 
 @implementation ViewController {
     AOZTableViewProvider *_tableViewProvider;
+    NSArray *_array;
 }
 
 #pragma mark lifeCircle
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    _array = @[@"1", @"2", @"3", @"4", @"5"];
     
     self.view.backgroundColor = [UIColor whiteColor];
     
@@ -38,7 +41,7 @@
     if (error) {
         NSLog(@"%@", error);
     } else {
-        [_tableViewProvider reloadTableView];
+        [_tableViewProvider reloadDataAndTableView];
     }
 }
 

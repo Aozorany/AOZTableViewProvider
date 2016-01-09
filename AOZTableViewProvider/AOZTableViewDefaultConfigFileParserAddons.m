@@ -174,6 +174,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
                 if (cellClass) {
                     if (checkClassRelation(cellClass, [AOZTableViewCell class])) {//如果cellClass符合条件
                         dataConfig.cellClass = cellClass;
+                        [_tableView registerClass:cellClass forCellReuseIdentifier:NSStringFromClass(cellClass)];
                     } else {//如果cellClass不符合条件，则报错并忽略
                         createAndLogError(self.class, [NSString stringWithFormat:@"Irregular class for -c arg %@", nextChunk], NULL);
                     }
@@ -240,6 +241,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
     AOZTableViewDefaultDataConfigParser *dataConfigParser = [[AOZTableViewDefaultDataConfigParser alloc] init];
     NSError *dataConfigParserError = nil;
     dataConfigParser.dataProvider = _dataProvider;
+    dataConfigParser.tableView = _tableView;
     AOZTVPDataConfig *dataConfig = [dataConfigParser parseNewConfig:chunksArray error:&dataConfigParserError dataConfig:presetDataConfig];
     if (dataConfig == nil) {
         *pError = dataConfigParserError;
@@ -293,6 +295,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
             NSError *rowParserError = nil;
             AOZTableViewDefaultRowParser *rowParser = [[AOZTableViewDefaultRowParser alloc] init];
             rowParser.dataProvider = ![_sectionCollection.dataConfig.source isEqual:[NSNull null]]? _sectionCollection.dataConfig.source: _dataProvider;
+            rowParser.tableView = _tableView;
             AOZTVPRowCollection *rowCollection = [rowParser parseNewConfig:chunksArray error:&rowParserError dataConfig:_sectionCollection.dataConfig];
             if (rowCollection) {
                 [_sectionCollection.rowCollectionsArray addObject:rowCollection];
@@ -312,6 +315,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
         NSError *sectionDataParserError = nil;
         AOZTableViewDefaultDataConfigParser *dataConfigParser = [[AOZTableViewDefaultDataConfigParser alloc] init];
         dataConfigParser.dataProvider = _dataProvider;
+        dataConfigParser.tableView = _tableView;
         AOZTVPDataConfig *dataConfig = [dataConfigParser parseNewConfig:chunksArray error:&sectionDataParserError];
         if (sectionDataParserError == nil) {
             _sectionCollection.dataConfig = dataConfig;
@@ -365,6 +369,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
                 } else {//如果已经被创建了，又来了一个section打头的，则解析singleSectionLinesArray里面已经有的内容（不包括这一行）
                     AOZTableViewDefaultSectionParser *sectionParser = [[AOZTableViewDefaultSectionParser alloc] init];
                     sectionParser.dataProvider = _dataProvider;
+                    sectionParser.tableView = _tableView;
                     AOZTVPSectionCollection *sectionCollection = [sectionParser parseNewConfigs:singleSectionLinesArray error:nil];
                     if (sectionCollection) {
                         [_mode.sectionCollectionsArray addObject:sectionCollection];
@@ -385,6 +390,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
     //解析尾端数据
     AOZTableViewDefaultSectionParser *sectionParser = [[AOZTableViewDefaultSectionParser alloc] init];
     sectionParser.dataProvider = _dataProvider;
+    sectionParser.tableView = _tableView;
     AOZTVPSectionCollection *sectionCollection = [sectionParser parseNewConfigs:singleSectionLinesArray error:nil];
     if (sectionCollection) {
         [_mode.sectionCollectionsArray addObject:sectionCollection];

@@ -24,11 +24,6 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     if ([parentCollection isKindOfClass:[AOZTVPSectionCollection class]]) {
         AOZTVPSectionCollection *sectionCollection = (AOZTVPSectionCollection *) parentCollection;
         if (sectionCollection.rowCollectionsArray.count == 0) {
-            if (index == 0) {//如果sectionCollection下面没有放与row有关的任何信息，则表示它下面有一个默认的row，如果index正好指向这个默认row，则返回之
-                AOZTVPRowCollection *defaultRowCollection = [[AOZTVPRowCollection alloc] initWithDataConfig:sectionCollection.dataConfig];
-                [sectionCollection.rowCollectionsArray addObject:defaultRowCollection];
-                return defaultRowCollection;
-            }
             return nil;
         }
         for (AOZTVPRowCollection *rowCollection in sectionCollection.rowCollectionsArray) {
@@ -70,22 +65,26 @@ id collectionForIndex(id parentCollection, NSInteger index) {
 
 #pragma mark delegate: UITableViewDataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    NSInteger sectionCount = 0;
     AOZTVPMode *currentMode = [self currentMode];
-    if (currentMode == nil || currentMode.sectionCollectionsArray.count == 0) {
-        return 0;
-    }
     AOZTVPSectionCollection *lastSectionCollection = currentMode.sectionCollectionsArray.lastObject;
-    return lastSectionCollection.sectionRange.location + lastSectionCollection.sectionRange.length;
+    sectionCount = lastSectionCollection.sectionRange.location + lastSectionCollection.sectionRange.length;
+    NSLog(@"sectionCount: %zd", sectionCount);
+    return sectionCount;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    NSInteger rowCount = 0;
     AOZTVPMode *currentMode = [self currentMode];
     AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, section);
     if (sectionCollection.rowCollectionsArray.count == 0) {
-        return 1;
+        rowCount = 1;
+    } else {
+        AOZTVPRowCollection *lastRowCollection = sectionCollection.rowCollectionsArray.lastObject;
+        rowCount = lastRowCollection.rowRange.location + lastRowCollection.rowRange.length;
     }
-    AOZTVPRowCollection *lastRowCollection = sectionCollection.rowCollectionsArray.lastObject;
-    return lastRowCollection.rowRange.location + lastRowCollection.rowRange.length;
+    NSLog(@"section: %zd, rowCount: %zd", section, rowCount);
+    return rowCount;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -234,6 +233,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     //解析配置文件
     AOZTableViewConfigFileParser *parser = [[AOZTableViewConfigFileParser alloc] initWithFilePath:configFilePath];
     parser.dataProvider = _dataProvider;
+    parser.tableView = _tableView;
     NSArray *newModesArray = [parser parseFile:pError];
     
     if (*pError) {
@@ -242,6 +242,8 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     
     [_modesArray removeAllObjects];
     [_modesArray addObjectsFromArray:newModesArray];
+    
+    [_tableView registerClass:[AOZTableViewCell class] forCellReuseIdentifier:NSStringFromClass([AOZTableViewCell class])];
     
     return YES;
 }
@@ -257,7 +259,13 @@ id collectionForIndex(id parentCollection, NSInteger index) {
 }
 
 - (void)reloadData {
-    
+    AOZTVPMode *currentMode = [self currentMode];
+    [currentMode reloadSections];
+}
+
+- (void)reloadDataAndTableView {
+    [self reloadData];
+    [self reloadTableView];
 }
 
 @end

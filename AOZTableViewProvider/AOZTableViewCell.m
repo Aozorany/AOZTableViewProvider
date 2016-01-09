@@ -17,6 +17,10 @@
     
 }
 
+- (void)willDisplayCell {
+    
+}
+
 + (CGFloat)heightForCell:(id)contents {
     return 44;
 }

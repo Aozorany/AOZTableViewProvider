@@ -92,6 +92,27 @@
     return self;
 }
 
+- (void)reloadRows {
+    NSInteger currentLocation = 0;
+    if (_rowCollectionsArray.count == 0) {
+        AOZTVPRowCollection *defaultRowCollection = [[AOZTVPRowCollection alloc] initWithDataConfig:_dataConfig];
+        [_rowCollectionsArray addObject:defaultRowCollection];
+    }
+    for (AOZTVPRowCollection *rowCollection in _rowCollectionsArray) {
+        AOZTVPDataConfig *dataConfig = rowCollection.dataConfig;
+        if ([dataConfig.source isKindOfClass:[NSArray class]]) {
+            if (dataConfig.elementsPerRow <= 0) {
+                rowCollection.rowRange = NSMakeRange(currentLocation, 1);
+            } else {
+                rowCollection.rowRange = NSMakeRange(currentLocation, ceil((CGFloat) ((NSArray *) dataConfig.source).count / dataConfig.elementsPerRow));
+            }
+        } else {
+            rowCollection.rowRange = NSMakeRange(currentLocation, 1);
+        }
+        currentLocation = rowCollection.rowRange.location + rowCollection.rowRange.length;
+    }
+}
+
 - (BOOL)isEqual:(id)object {
     if (![object isKindOfClass:[AOZTVPSectionCollection class]]) {
         return NO;
@@ -117,6 +138,25 @@
         _numberOfSections = 0;
     }
     return self;
+}
+
+- (void)reloadSections {
+    NSInteger currentLocation = 0;
+    for (AOZTVPSectionCollection *sectionCollection in _sectionCollectionsArray) {
+        AOZTVPDataConfig *dataConfig = sectionCollection.dataConfig;
+        if ([dataConfig.source isKindOfClass:[NSArray class]]) {
+            if (dataConfig.elementsPerRow <= 0) {
+                sectionCollection.sectionRange = NSMakeRange(currentLocation, 1);
+            } else {
+                sectionCollection.sectionRange = NSMakeRange(currentLocation, ceil((CGFloat) ((NSArray *) dataConfig.source).count / dataConfig.elementsPerRow));
+            }
+        } else {
+            sectionCollection.sectionRange = NSMakeRange(currentLocation, 1);
+        }
+        currentLocation = sectionCollection.sectionRange.location + sectionCollection.sectionRange.length;
+        
+        [sectionCollection reloadRows];
+    }
 }
 
 - (BOOL)isEqual:(id)object {

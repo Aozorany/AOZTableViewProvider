@@ -32,6 +32,10 @@
     _modeParser.dataProvider = dataProvider;
 }
 
+- (void)setTableView:(UITableView *)tableView {
+    _modeParser.tableView = tableView;
+}
+
 #pragma mark public: general
 - (NSArray *)parseFile:(NSError **)pError {
     @autoreleasepool {

@@ -29,10 +29,12 @@
 @property (nonatomic, assign) NSInteger numberOfRows;
 @property (nonatomic, retain) AOZTVPDataConfig *dataConfig;
 @property (nonatomic, assign) NSRange sectionRange;
+- (void)reloadRows;
 @end
 
 
 @interface AOZTVPMode : NSObject
 @property (nonatomic, retain) NSMutableArray <AOZTVPSectionCollection *> *sectionCollectionsArray;
 @property (nonatomic, assign) NSInteger numberOfSections;
+- (void)reloadSections;
 @end

@@ -26,6 +26,8 @@
 		30AC0F5E1C0ACC2100B2685B /* AOZTableViewDefaultConfigFileParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AC0F531C0A021E00B2685B /* AOZTableViewDefaultConfigFileParser.m */; };
 		30AC0F601C0ACC6300B2685B /* AOZTableViewDefaultRowParserTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AC0F5F1C0ACC6300B2685B /* AOZTableViewDefaultRowParserTest.m */; };
 		30AC0F611C0B348D00B2685B /* AOZTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AC0F501C09FBAA00B2685B /* AOZTableViewCell.m */; };
+		4A1999821C41089E00264F82 /* TableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A1999811C41089E00264F82 /* TableViewCell.m */; };
+		4A1999851C410A3400264F82 /* TableViewCell2.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A1999841C410A3400264F82 /* TableViewCell2.m */; };
 		4A94AE771C3DFC8D00BC5E3C /* AOZTableViewDefaultModeParserTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94AE761C3DFC8D00BC5E3C /* AOZTableViewDefaultModeParserTest.m */; };
 		4ACC11AF1C072CCE00DBAA05 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACC11AE1C072CCE00DBAA05 /* main.m */; };
 		4ACC11B21C072CCE00DBAA05 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACC11B11C072CCE00DBAA05 /* AppDelegate.m */; };
@@ -68,6 +70,10 @@
 		30AC0F581C0ACB2A00B2685B /* AOZTableViewDefaultConfigFileParserAddons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AOZTableViewDefaultConfigFileParserAddons.h; sourceTree = "<group>"; };
 		30AC0F591C0ACB2A00B2685B /* AOZTableViewDefaultConfigFileParserAddons.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AOZTableViewDefaultConfigFileParserAddons.m; sourceTree = "<group>"; };
 		30AC0F5F1C0ACC6300B2685B /* AOZTableViewDefaultRowParserTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AOZTableViewDefaultRowParserTest.m; sourceTree = "<group>"; };
+		4A1999801C41089E00264F82 /* TableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableViewCell.h; sourceTree = "<group>"; };
+		4A1999811C41089E00264F82 /* TableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableViewCell.m; sourceTree = "<group>"; };
+		4A1999831C410A3400264F82 /* TableViewCell2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableViewCell2.h; sourceTree = "<group>"; };
+		4A1999841C410A3400264F82 /* TableViewCell2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableViewCell2.m; sourceTree = "<group>"; };
 		4A94AE761C3DFC8D00BC5E3C /* AOZTableViewDefaultModeParserTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AOZTableViewDefaultModeParserTest.m; sourceTree = "<group>"; };
 		4ACC11AA1C072CCE00DBAA05 /* AOZTableViewProvider.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AOZTableViewProvider.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4ACC11AE1C072CCE00DBAA05 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -139,6 +145,10 @@
 				4ACC11B11C072CCE00DBAA05 /* AppDelegate.m */,
 				4ACC11DA1C072E0400DBAA05 /* ViewController.h */,
 				4ACC11DB1C072E0400DBAA05 /* ViewController.m */,
+				4A1999801C41089E00264F82 /* TableViewCell.h */,
+				4A1999811C41089E00264F82 /* TableViewCell.m */,
+				4A1999831C410A3400264F82 /* TableViewCell2.h */,
+				4A1999841C410A3400264F82 /* TableViewCell2.m */,
 				4ACC11DD1C072E3900DBAA05 /* AOZTableViewProvider.h */,
 				4ACC11DE1C072E3900DBAA05 /* AOZTableViewProvider.m */,
 				30AC0F4C1C09F93A00B2685B /* AOZTableViewProviderUtils.h */,
@@ -322,8 +332,10 @@
 				30AC0F511C09FBAA00B2685B /* AOZTableViewCell.m in Sources */,
 				4ACC11DC1C072E0400DBAA05 /* ViewController.m in Sources */,
 				30AC0F4E1C09F93A00B2685B /* AOZTableViewProviderUtils.m in Sources */,
+				4A1999821C41089E00264F82 /* TableViewCell.m in Sources */,
 				4ACC11DF1C072E3900DBAA05 /* AOZTableViewProvider.m in Sources */,
 				4ACC11B21C072CCE00DBAA05 /* AppDelegate.m in Sources */,
+				4A1999851C410A3400264F82 /* TableViewCell2.m in Sources */,
 				30AC0F5A1C0ACB2A00B2685B /* AOZTableViewDefaultConfigFileParserAddons.m in Sources */,
 				30AC0F541C0A021E00B2685B /* AOZTableViewDefaultConfigFileParser.m in Sources */,
 				3015D5E61C07472600E071E7 /* AOZTableViewConfigFileParser.m in Sources */,

@@ -7,7 +7,7 @@
 //
 
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "AOZTableViewProviderUtils.h"
 
 
@@ -22,6 +22,7 @@ NSArray<NSArray<NSString *> *> *getLinesAndChunksArray(NSString *linesStr);
 extern NSString * const AOZTableViewDefaultDataConfigParserDomain;
 @interface AOZTableViewDefaultDataConfigParser : NSObject
 @property (nonatomic, assign) id dataProvider;
+@property (nonatomic, assign) UITableView *tableView;
 - (AOZTVPDataConfig *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError;
 - (AOZTVPDataConfig *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError dataConfig:(AOZTVPDataConfig *)presetDataConfig;
 @end
@@ -30,6 +31,7 @@ extern NSString * const AOZTableViewDefaultDataConfigParserDomain;
 #pragma mark -
 @interface AOZTableViewDefaultRowParser : NSObject
 @property (nonatomic, assign) id dataProvider;
+@property (nonatomic, assign) UITableView *tableView;
 - (AOZTVPRowCollection *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError;
 - (AOZTVPRowCollection *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError dataConfig:(AOZTVPDataConfig *)dataConfig;
 @end
@@ -38,6 +40,7 @@ extern NSString * const AOZTableViewDefaultDataConfigParserDomain;
 #pragma mark -
 @interface AOZTableViewDefaultSectionParser : NSObject
 @property (nonatomic, assign) id dataProvider;
+@property (nonatomic, assign) UITableView *tableView;
 - (AOZTVPSectionCollection *)parseNewConfigs:(NSArray<NSArray<NSString *> *> *)linesArray error:(NSError **)pError;
 @end
 
@@ -45,5 +48,6 @@ extern NSString * const AOZTableViewDefaultDataConfigParserDomain;
 #pragma mark -
 @interface AOZTableViewDefaultModeParser : NSObject
 @property (nonatomic, assign) id dataProvider;
+@property (nonatomic, assign) UITableView *tableView;
 - (AOZTVPMode *)parseNewConfigs:(NSArray<NSArray<NSString *> *> *)linesArray error:(NSError **)pError;
 @end
