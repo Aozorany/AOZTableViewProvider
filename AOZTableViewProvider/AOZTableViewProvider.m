@@ -69,7 +69,6 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     AOZTVPMode *currentMode = [self currentMode];
     AOZTVPSectionCollection *lastSectionCollection = currentMode.sectionCollectionsArray.lastObject;
     sectionCount = lastSectionCollection.sectionRange.location + lastSectionCollection.sectionRange.length;
-    NSLog(@"sectionCount: %zd", sectionCount);
     return sectionCount;
 }
 
@@ -83,7 +82,6 @@ id collectionForIndex(id parentCollection, NSInteger index) {
         AOZTVPRowCollection *lastRowCollection = sectionCollection.rowCollectionsArray.lastObject;
         rowCount = lastRowCollection.rowRange.location + lastRowCollection.rowRange.length;
     }
-    NSLog(@"section: %zd, rowCount: %zd", section, rowCount);
     return rowCount;
 }
 
@@ -100,7 +98,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
             } else if (rowCollection.dataConfig.elementsPerRow == 0 || rowCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
                 contents = ((NSArray *) rowCollection.dataConfig.source)[indexPath.row - rowCollection.rowRange.location];
             } else {//每个单元格有多个元素的情况
-                NSRange subRange = NSMakeRange(indexPath.row * rowCollection.dataConfig.elementsPerRow, rowCollection.dataConfig.elementsPerRow);
+                NSRange subRange = NSMakeRange((indexPath.row - rowCollection.rowRange.location) * rowCollection.dataConfig.elementsPerRow, rowCollection.dataConfig.elementsPerRow);
                 if (subRange.location + subRange.length >= ((NSArray *) rowCollection.dataConfig.source).count) {
                     subRange.length = ((NSArray *) rowCollection.dataConfig.source).count - subRange.location;
                 }
@@ -116,7 +114,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
             } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
                 contents = ((NSArray *) sectionCollection.dataConfig.source)[indexPath.section - sectionCollection.sectionRange.location];
             } else {//每个单元格有多个元素的情况
-                NSRange subRange = NSMakeRange(indexPath.section * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
+                NSRange subRange = NSMakeRange((indexPath.section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
                 if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
                     subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
                 }
@@ -151,7 +149,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
             } else if (rowCollection.dataConfig.elementsPerRow == 0 || rowCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
                 contents = ((NSArray *) rowCollection.dataConfig.source)[indexPath.row - rowCollection.rowRange.location];
             } else {//每个单元格有多个元素的情况
-                NSRange subRange = NSMakeRange(indexPath.row * rowCollection.dataConfig.elementsPerRow, rowCollection.dataConfig.elementsPerRow);
+                NSRange subRange = NSMakeRange((indexPath.row - rowCollection.rowRange.location) * rowCollection.dataConfig.elementsPerRow, rowCollection.dataConfig.elementsPerRow);
                 if (subRange.location + subRange.length >= ((NSArray *) rowCollection.dataConfig.source).count) {
                     subRange.length = ((NSArray *) rowCollection.dataConfig.source).count - subRange.location;
                 }
@@ -167,7 +165,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
             } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
                 contents = ((NSArray *) sectionCollection.dataConfig.source)[indexPath.section - sectionCollection.sectionRange.location];
             } else {//每个单元格有多个元素的情况
-                NSRange subRange = NSMakeRange(indexPath.section * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
+                NSRange subRange = NSMakeRange((indexPath.section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
                 if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
                     subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
                 }

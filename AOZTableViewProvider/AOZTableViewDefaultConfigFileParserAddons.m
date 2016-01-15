@@ -139,7 +139,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
     AOZTVPDataConfig *dataConfig = [[AOZTVPDataConfig alloc] init];
     if (presetDataConfig) {
         dataConfig.cellClass = presetDataConfig.cellClass;
-        dataConfig.source = presetDataConfig.source;
+        dataConfig.source = [presetDataConfig.source isKindOfClass:[NSArray class]]? [NSNull null]: presetDataConfig.source;
         dataConfig.elementsPerRow = presetDataConfig.elementsPerRow;
     }
     

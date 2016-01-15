@@ -13,6 +13,12 @@
 - (void)setContents:(id)contents {
     if ([contents isKindOfClass:[NSString class]]) {
         self.textLabel.text = [NSString stringWithFormat:@"Second row %@", contents];
+    } else if ([contents isKindOfClass:[NSArray class]]) {
+        NSMutableString *str = [NSMutableString stringWithString:@"Second row "];
+        for (NSString *subStr in ((NSArray *) contents)) {
+            [str appendFormat:@"%@ ", subStr];
+        }
+        self.textLabel.text = str;
     }
 }
 

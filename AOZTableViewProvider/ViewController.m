@@ -14,6 +14,8 @@
 @implementation ViewController {
     AOZTableViewProvider *_tableViewProvider;
     NSArray *_array;
+    NSArray *_array2;
+    NSDictionary *_dictionary;
 }
 
 #pragma mark lifeCircle
@@ -21,6 +23,8 @@
     [super viewDidLoad];
     
     _array = @[@"1", @"2", @"3", @"4", @"5"];
+    _array2 = @[@"1", @"2", @"3", @"4", @"5"];
+    _dictionary = @{@"first": @"first dictionary value", @"second": @"second dictionary value"};
     
     self.view.backgroundColor = [UIColor whiteColor];
     

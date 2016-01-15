@@ -57,7 +57,7 @@
         if (dataConfig) {
             _dataConfig.cellClass = dataConfig.cellClass;
             _dataConfig.elementsPerRow = dataConfig.elementsPerRow;
-            _dataConfig.source = [dataConfig.source isKindOfClass:[NSArray class]]? nil: dataConfig.source;
+            _dataConfig.source = [dataConfig.source isKindOfClass:[NSArray class]]? [NSNull null]: dataConfig.source;
         }
         _rowRange = NSMakeRange(0, 0);
     }
