@@ -36,7 +36,7 @@ NSArray<NSString *> *getChunksArray(NSString *lineStr) {
     if (lineStr.length == 0) {
         return nil;
     }
-    NSRegularExpression *regEx = [NSRegularExpression regularExpressionWithPattern:@"-{0,1}\\w+" options:NSRegularExpressionCaseInsensitive error:nil];
+    NSRegularExpression *regEx = [NSRegularExpression regularExpressionWithPattern:@"-{0,1}\\S+" options:NSRegularExpressionCaseInsensitive error:nil];
     NSArray<NSTextCheckingResult *> *matchesArray = [regEx matchesInString:lineStr options:0 range:NSMakeRange(0, lineStr.length)];
     NSMutableArray<NSString *> *chunksArray = [[NSMutableArray alloc] init];
     for (int index = 0; index < matchesArray.count; index++) {

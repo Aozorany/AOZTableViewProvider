@@ -1,2 +1,2 @@
-section -s _array
-row -c TableViewCell
+
+row -s _array -c TableViewCell -n 2
