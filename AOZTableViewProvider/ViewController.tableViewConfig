@@ -1,4 +1,5 @@
 mode
+section -c TableViewCell
 section -s _array -c TableViewCell
 
 mode

@@ -208,7 +208,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if ([cell isKindOfClass:[AOZTableViewCell class]]) {
+    if ([cell respondsToSelector:@selector(willDisplayCell)]) {
         [((AOZTableViewCell *) cell) willDisplayCell];
     }
     if ([_delegate respondsToSelector:@selector(tableViewProvider:willDisplayCell:forRowAtIndexPath:)]) {
