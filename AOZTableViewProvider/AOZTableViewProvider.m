@@ -241,6 +241,49 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     }
 }
 
+#pragma mark delegate: UITableViewDelegate section headers and footers
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:viewForHeaderInSection:)]) {
+        return [_delegate tableViewProvider:self viewForHeaderInSection:section];
+    }
+    return nil;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:viewForFooterInSection:)]) {
+        return [_delegate tableViewProvider:self viewForFooterInSection:section];
+    }
+    return nil;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:heightForHeaderInSection:)]) {
+        return [_delegate tableViewProvider:self heightForHeaderInSection:section];
+    }
+    return 0;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForHeaderInSection:(NSInteger)section {
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:estimatedHeightForHeaderInSection:)]) {
+        return [_delegate tableViewProvider:self estimatedHeightForHeaderInSection:section];
+    }
+    return 0;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:heightForFooterInSection:)]) {
+        return [_delegate tableViewProvider:self heightForFooterInSection:section];
+    }
+    return 0;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForFooterInSection:(NSInteger)section {
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:estimatedHeightForFooterInSection:)]) {
+        return [_delegate tableViewProvider:self estimatedHeightForFooterInSection:section];
+    }
+    return 0;
+}
+
 #pragma mark private: general
 - (AOZTVPMode *)currentMode {
     if (_mode < 0 || _mode >= _modesArray.count) {
