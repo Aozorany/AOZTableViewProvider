@@ -1,5 +1,5 @@
 mode
-section -s _multipleArray -c TableViewCell
+section -s _array -c TableViewCell
 
 mode
 section -s _dictionary -c TableViewCell

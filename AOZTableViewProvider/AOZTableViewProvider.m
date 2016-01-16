@@ -63,6 +63,17 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     return self;
 }
 
+- (instancetype)initWithFileName:(NSString *)fileName dataProvider:(id)dataProvider tableView:(UITableView *)tableView {
+    self = [super init];
+    if (self) {
+        _modesArray = [[NSMutableArray alloc] init];
+        self.dataProvider = dataProvider;
+        self.configBundleFileName = fileName;
+        [self connectToTableView:tableView];
+    }
+    return self;
+}
+
 #pragma mark delegate: UITableViewDataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     NSInteger sectionCount = 0;
@@ -246,12 +257,16 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     }
     
     //解析配置文件
+    NSError *configParserError = nil;
     AOZTableViewConfigFileParser *parser = [[AOZTableViewConfigFileParser alloc] initWithFilePath:configFilePath];
     parser.dataProvider = _dataProvider;
     parser.tableView = _tableView;
-    NSArray *newModesArray = [parser parseFile:pError];
+    NSArray *newModesArray = [parser parseFile:&configParserError];
     
-    if (*pError) {
+    if (configParserError) {
+        if (pError) {
+            *pError = configParserError;
+        }
         return NO;
     }
     

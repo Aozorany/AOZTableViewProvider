@@ -24,6 +24,7 @@
 @property (nonatomic, assign) id dataProvider;
 @property (nonatomic, assign) NSInteger mode;
 @property (nonatomic, assign) id<AOZTableViewProviderDelegate> delegate;
+- (instancetype)initWithFileName:(NSString *)fileName dataProvider:(id)dataProvider tableView:(UITableView *)tableView;
 - (BOOL)parseConfigFile:(NSError **)pError;
 - (void)connectToTableView:(UITableView *)tableView;
 - (void)reloadTableView;

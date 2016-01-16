@@ -41,14 +41,8 @@
     _tableViewProvider.configBundleFileName = @"ViewController.tableViewConfig";
     _tableViewProvider.dataProvider = self;
     [_tableViewProvider connectToTableView:mainTableView];
-    
-    NSError *error = nil;
-    [_tableViewProvider parseConfigFile:&error];
-    if (error) {
-        NSLog(@"%@", error);
-    } else {
-        [_tableViewProvider reloadDataAndTableView];
-    }
+    [_tableViewProvider parseConfigFile:NULL];
+    [_tableViewProvider reloadData];
 }
 
 @end

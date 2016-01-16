@@ -10,8 +10,12 @@
 #import <UIKit/UIKit.h>
 
 
-@interface AOZTableViewCell : UITableViewCell
+@protocol AOZTableViewCell <NSObject>
 - (void)setContents:(id)contents;
 - (void)willDisplayCell;
 + (CGFloat)heightForCell:(id)contents;
+@end
+
+
+@interface AOZTableViewCell : UITableViewCell <AOZTableViewCell>
 @end

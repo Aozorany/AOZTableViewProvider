@@ -172,7 +172,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
                 NSString *nextChunk = chunksArray[index + 1];
                 Class cellClass = objc_getClass([nextChunk UTF8String]);
                 if (cellClass) {
-                    if (checkClassRelation(cellClass, [AOZTableViewCell class])) {//如果cellClass符合条件
+                    if ([cellClass conformsToProtocol:@protocol(AOZTableViewCell)] && checkClassRelation(cellClass, [UITableViewCell class])) {//如果cellClass符合条件
                         dataConfig.cellClass = cellClass;
                         [_tableView registerClass:cellClass forCellReuseIdentifier:NSStringFromClass(cellClass)];
                     } else {//如果cellClass不符合条件，则报错并忽略
