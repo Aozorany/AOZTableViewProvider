@@ -13,17 +13,19 @@
 
 @implementation ViewController {
     AOZTableViewProvider *_tableViewProvider;
+    NSArray *_multipleArray;
     NSArray *_array;
-    NSArray *_array2;
     NSDictionary *_dictionary;
+    NSString *_placeHolder;
 }
 
 #pragma mark lifeCircle
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    _placeHolder = @"";
     _array = @[@"1", @"2", @"3", @"4", @"5"];
-    _array2 = @[@"1", @"2", @"3", @"4", @"5"];
+    _multipleArray = @[@[@"1", @"2"], @[@"3", @"4", @"5"]];
     _dictionary = @{@"first": @"first dictionary value", @"second": @"second dictionary value"};
     
     self.view.backgroundColor = [UIColor whiteColor];

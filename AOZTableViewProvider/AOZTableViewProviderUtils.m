@@ -74,7 +74,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"<AOZTVPRowCollection: _rowRange: %d - %d, _dataConfig: %@>",
+    return [NSString stringWithFormat:@"<AOZTVPRowCollection: _rowRange: %zd - %zd, _dataConfig: %@>",
             _rowRange.location, _rowRange.length, _dataConfig];
 }
 @end
@@ -86,13 +86,35 @@
     if (self) {
         _rowCollectionsArray = [[NSMutableArray alloc] init];
         _dataConfig = [[AOZTVPDataConfig alloc] init];
-        _numberOfRows = 1;
         _sectionRange = NSMakeRange(0, 0);
     }
     return self;
 }
 
+- (instancetype)copyWithZone:(NSZone *)zone {
+    AOZTVPSectionCollection *newSectionCollection = [[[self class] allocWithZone:zone] init];
+    if (newSectionCollection) {
+        newSectionCollection.dataConfig.elementsPerRow = _dataConfig.elementsPerRow;
+        newSectionCollection.dataConfig.source = _dataConfig.source;
+        newSectionCollection.dataConfig.cellClass = _dataConfig.cellClass;
+        newSectionCollection.sectionRange = _sectionRange;
+        for (AOZTVPRowCollection *rowCollection in _rowCollectionsArray) {
+            AOZTVPRowCollection *newRowCollection = [[AOZTVPRowCollection alloc] init];
+            newRowCollection.dataConfig.elementsPerRow = rowCollection.dataConfig.elementsPerRow;
+            newRowCollection.dataConfig.source = rowCollection.dataConfig.source;
+            newRowCollection.dataConfig.cellClass = rowCollection.dataConfig.cellClass;
+            newRowCollection.rowRange = rowCollection.rowRange;
+            [newSectionCollection.rowCollectionsArray addObject:newRowCollection];
+        }
+    }
+    return newSectionCollection;
+}
+
 - (void)reloadRows {
+    [self reloadRowsWithSectionElement:nil];
+}
+
+- (void)reloadRowsWithSectionElement:(id)sectionElement {
     NSInteger currentLocation = 0;
     if (_rowCollectionsArray.count == 0) {
         AOZTVPRowCollection *defaultRowCollection = [[AOZTVPRowCollection alloc] initWithDataConfig:_dataConfig];
@@ -105,6 +127,17 @@
                 rowCollection.rowRange = NSMakeRange(currentLocation, 1);
             } else {
                 rowCollection.rowRange = NSMakeRange(currentLocation, ceil((CGFloat) ((NSArray *) dataConfig.source).count / dataConfig.elementsPerRow));
+            }
+        } else if ([dataConfig.source isEqual:[NSNull null]] && sectionElement) {
+            if ([sectionElement isKindOfClass:[NSArray class]]) {
+                if (dataConfig.elementsPerRow <= 0) {
+                    rowCollection.rowRange = NSMakeRange(currentLocation, 1);
+                } else {
+                    rowCollection.dataConfig.source = sectionElement;
+                    rowCollection.rowRange = NSMakeRange(currentLocation, ceil((CGFloat) ((NSArray *) sectionElement).count / dataConfig.elementsPerRow));
+                }
+            } else {
+                rowCollection.rowRange = NSMakeRange(currentLocation, 1);
             }
         } else {
             rowCollection.rowRange = NSMakeRange(currentLocation, 1);
@@ -124,7 +157,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"<AOZTVPSectionCollection: _sectionRange: %d - %d, _dataConfig: %@, _rowCollectionsArray: %@>",
+    return [NSString stringWithFormat:@"<AOZTVPSectionCollection: _sectionRange: %zd - %zd, _dataConfig: %@, _rowCollectionsArray: %@>",
             _sectionRange.location, _sectionRange.length, _dataConfig, (_rowCollectionsArray.count > 0? _rowCollectionsArray: @"")];
 }
 @end
@@ -135,7 +168,6 @@
     self = [super init];
     if (self) {
         _sectionCollectionsArray = [[NSMutableArray alloc] init];
-        _numberOfSections = 0;
     }
     return self;
 }

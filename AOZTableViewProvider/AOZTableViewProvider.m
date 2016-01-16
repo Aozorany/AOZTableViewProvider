@@ -76,19 +76,29 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     NSInteger rowCount = 0;
     AOZTVPMode *currentMode = [self currentMode];
     AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, section);
-    if (sectionCollection.rowCollectionsArray.count == 0) {
-        rowCount = 1;
+    AOZTVPSectionCollection *newSectionCollection = nil;
+    if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]] && sectionCollection.dataConfig.elementsPerRow == 1) {
+        newSectionCollection = [sectionCollection copy];
+        [newSectionCollection reloadRowsWithSectionElement:((NSArray *) newSectionCollection.dataConfig.source)[section - newSectionCollection.sectionRange.location]];
     } else {
-        AOZTVPRowCollection *lastRowCollection = sectionCollection.rowCollectionsArray.lastObject;
-        rowCount = lastRowCollection.rowRange.location + lastRowCollection.rowRange.length;
+        newSectionCollection = sectionCollection;
     }
+    AOZTVPRowCollection *lastRowCollection = newSectionCollection.rowCollectionsArray.lastObject;
+    rowCount = lastRowCollection.rowRange.location + lastRowCollection.rowRange.length;
     return rowCount;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     AOZTVPMode *currentMode = [self currentMode];
     AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, indexPath.section);
-    AOZTVPRowCollection *rowCollection = collectionForIndex(sectionCollection, indexPath.row);
+    AOZTVPSectionCollection *newSectionCollection = nil;
+    if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]] && sectionCollection.dataConfig.elementsPerRow == 1) {
+        newSectionCollection = [sectionCollection copy];
+        [newSectionCollection reloadRowsWithSectionElement:((NSArray *) newSectionCollection.dataConfig.source)[indexPath.section - newSectionCollection.sectionRange.location]];
+    } else {
+        newSectionCollection = sectionCollection;
+    }
+    AOZTVPRowCollection *rowCollection = collectionForIndex(newSectionCollection, indexPath.row);
     
     id contents = nil;
     if (![rowCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在row里面设置了数据源，则使用row的设置
@@ -139,7 +149,14 @@ id collectionForIndex(id parentCollection, NSInteger index) {
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     AOZTVPMode *currentMode = [self currentMode];
     AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, indexPath.section);
-    AOZTVPRowCollection *rowCollection = collectionForIndex(sectionCollection, indexPath.row);
+    AOZTVPSectionCollection *newSectionCollection = nil;
+    if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]] && sectionCollection.dataConfig.elementsPerRow == 1) {
+        newSectionCollection = [sectionCollection copy];
+        [newSectionCollection reloadRowsWithSectionElement:((NSArray *) newSectionCollection.dataConfig.source)[indexPath.section - newSectionCollection.sectionRange.location]];
+    } else {
+        newSectionCollection = sectionCollection;
+    }
+    AOZTVPRowCollection *rowCollection = collectionForIndex(newSectionCollection, indexPath.row);
     
     id contents = nil;
     if (![rowCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在row里面设置了数据源，则使用row的设置
