@@ -7,6 +7,7 @@
 //
 
 
+#import <objc/runtime.h>
 #import "AOZTableViewProvider.h"
 #import "AOZTableViewProviderUtils.h"
 #import "AOZTableViewConfigFileParser.h"
@@ -203,8 +204,20 @@ id collectionForIndex(id parentCollection, NSInteger index) {
             contents = sectionCollection.dataConfig.source;
         }
     }
-    
-    return [AOZTableViewCell heightForCell:contents];
+
+    NSMethodSignature *signiture = [rowCollection.dataConfig.cellClass methodSignatureForSelector:@selector(heightForCell:)];
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signiture];
+    [invocation setTarget:rowCollection.dataConfig.cellClass];
+    [invocation setSelector:@selector(heightForCell:)];
+    if (rowCollection.dataConfig.source) {
+        [invocation setArgument:(__bridge void * _Nonnull)(rowCollection.dataConfig.source) atIndex:2];
+    }
+    CGFloat height = 0;
+    [invocation retainArguments];
+    [invocation invoke];
+    [invocation getReturnValue:&height];
+
+    return height;
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
