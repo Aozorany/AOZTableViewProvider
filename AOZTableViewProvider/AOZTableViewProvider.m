@@ -263,23 +263,9 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     return 0;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForHeaderInSection:(NSInteger)section {
-    if ([_delegate respondsToSelector:@selector(tableViewProvider:estimatedHeightForHeaderInSection:)]) {
-        return [_delegate tableViewProvider:self estimatedHeightForHeaderInSection:section];
-    }
-    return 0;
-}
-
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
     if ([_delegate respondsToSelector:@selector(tableViewProvider:heightForFooterInSection:)]) {
         return [_delegate tableViewProvider:self heightForFooterInSection:section];
-    }
-    return 0;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForFooterInSection:(NSInteger)section {
-    if ([_delegate respondsToSelector:@selector(tableViewProvider:estimatedHeightForFooterInSection:)]) {
-        return [_delegate tableViewProvider:self estimatedHeightForFooterInSection:section];
     }
     return 0;
 }

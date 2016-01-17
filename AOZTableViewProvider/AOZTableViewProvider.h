@@ -43,7 +43,5 @@
 - (UIView *)tableViewProvider:(AOZTableViewProvider *)provider viewForHeaderInSection:(NSInteger)section;
 - (UIView *)tableViewProvider:(AOZTableViewProvider *)provider viewForFooterInSection:(NSInteger)section;
 - (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForHeaderInSection:(NSInteger)section;
-- (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider estimatedHeightForHeaderInSection:(NSInteger)section;
 - (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForFooterInSection:(NSInteger)section;
-- (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider estimatedHeightForFooterInSection:(NSInteger)section;
 @end
