@@ -25,6 +25,7 @@ extern NSString * const AOZTableViewDefaultDataConfigParserDomain;
 @property (nonatomic, assign) UITableView *tableView;
 - (AOZTVPDataConfig *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError;
 - (AOZTVPDataConfig *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError dataConfig:(AOZTVPDataConfig *)presetDataConfig;
+- (AOZTVPDataConfig *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError dataConfig:(AOZTVPDataConfig *)presetDataConfig rowCollection:(AOZTVPRowCollection *)rowCollection;
 @end
 
 

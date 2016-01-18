@@ -104,6 +104,7 @@
             newRowCollection.dataConfig.source = rowCollection.dataConfig.source;
             newRowCollection.dataConfig.cellClass = rowCollection.dataConfig.cellClass;
             newRowCollection.rowRange = rowCollection.rowRange;
+            newRowCollection.elementSource = rowCollection.elementSource;
             [newSectionCollection.rowCollectionsArray addObject:newRowCollection];
         }
     }
@@ -114,6 +115,7 @@
     [self reloadRowsWithSectionElement:nil];
 }
 
+/** 根据sectionElement重新确认row的range，sectionElement为分配给每个section的数据源元素，一般sectionCollection的source是array的时候才会用到这个方法 */
 - (void)reloadRowsWithSectionElement:(id)sectionElement {
     NSInteger currentLocation = 0;
     if (_rowCollectionsArray.count == 0) {
@@ -122,24 +124,41 @@
     }
     for (AOZTVPRowCollection *rowCollection in _rowCollectionsArray) {
         AOZTVPDataConfig *dataConfig = rowCollection.dataConfig;
-        if ([dataConfig.source isKindOfClass:[NSArray class]]) {
+        if ([dataConfig.source isKindOfClass:[NSArray class]]) {//如果row自身的source就是array
             if (dataConfig.elementsPerRow <= 0) {
                 rowCollection.rowRange = NSMakeRange(currentLocation, 1);
             } else {
                 rowCollection.rowRange = NSMakeRange(currentLocation, ceil((CGFloat) ((NSArray *) dataConfig.source).count / dataConfig.elementsPerRow));
             }
-        } else if ([dataConfig.source isEqual:[NSNull null]] && sectionElement) {
-            if ([sectionElement isKindOfClass:[NSArray class]]) {
+        } else if ([dataConfig.source isEqual:[NSNull null]] && sectionElement) {//如果row自身的source没有被指定，但是指定了sectionElement
+            if ([sectionElement isKindOfClass:[NSArray class]]) {//如果sectionElement本身就是一个array
                 if (dataConfig.elementsPerRow <= 0) {
                     rowCollection.rowRange = NSMakeRange(currentLocation, 1);
                 } else {
                     rowCollection.dataConfig.source = sectionElement;
                     rowCollection.rowRange = NSMakeRange(currentLocation, ceil((CGFloat) ((NSArray *) sectionElement).count / dataConfig.elementsPerRow));
                 }
-            } else {
+            } else if (rowCollection.elementSource.length > 0) {//如果指定了row的elementSource
+                @try {
+                    id elementSourceObj = [sectionElement valueForKey:rowCollection.elementSource];
+                    if ([elementSourceObj isKindOfClass:[NSArray class]]) {
+                        if (dataConfig.elementsPerRow <= 0) {
+                            rowCollection.rowRange = NSMakeRange(currentLocation, 1);
+                        } else {
+                            rowCollection.dataConfig.source = elementSourceObj;
+                            rowCollection.rowRange = NSMakeRange(currentLocation, ceil((CGFloat) ((NSArray *) elementSourceObj).count / dataConfig.elementsPerRow));
+                        }
+                    } else {
+                        rowCollection.rowRange = NSMakeRange(currentLocation, 1);
+                    }
+                }
+                @catch (NSException *exception) {
+                    rowCollection.rowRange = NSMakeRange(currentLocation, 1);
+                }
+            } else {//如果sectionElement本身属于其他样式
                 rowCollection.rowRange = NSMakeRange(currentLocation, 1);
             }
-        } else {
+        } else {//如果row自身的source没有被指定，也没有指定sectionElement
             rowCollection.rowRange = NSMakeRange(currentLocation, 1);
         }
         currentLocation = rowCollection.rowRange.location + rowCollection.rowRange.length;

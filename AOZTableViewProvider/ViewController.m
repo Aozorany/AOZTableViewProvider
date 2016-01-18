@@ -25,7 +25,7 @@
     
     _placeHolder = @"";
     _array = @[@"1", @"2", @"3", @"4", @"5"];
-    _multipleArray = @[@[@"1", @"2"], @[@"3", @"4", @"5"]];
+    _multipleArray = @[@{@"subArray": @[@"1", @"2"]}, @{@"subArray": @[@"3", @"4", @"5"]}];
     _dictionary = @{@"first": @"first dictionary value", @"second": @"second dictionary value"};
     
     self.view.backgroundColor = [UIColor whiteColor];
