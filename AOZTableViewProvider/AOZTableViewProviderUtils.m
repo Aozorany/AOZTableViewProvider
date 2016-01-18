@@ -98,6 +98,7 @@
         newSectionCollection.dataConfig.source = _dataConfig.source;
         newSectionCollection.dataConfig.cellClass = _dataConfig.cellClass;
         newSectionCollection.sectionRange = _sectionRange;
+        newSectionCollection.headerClass = _headerClass;
         for (AOZTVPRowCollection *rowCollection in _rowCollectionsArray) {
             AOZTVPRowCollection *newRowCollection = [[AOZTVPRowCollection alloc] init];
             newRowCollection.dataConfig.elementsPerRow = rowCollection.dataConfig.elementsPerRow;

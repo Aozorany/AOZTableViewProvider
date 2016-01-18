@@ -243,7 +243,12 @@ id collectionForIndex(id parentCollection, NSInteger index) {
 
 #pragma mark delegate: UITableViewDelegate section headers and footers
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    if ([_delegate respondsToSelector:@selector(tableViewProvider:viewForHeaderInSection:)]) {
+    AOZTVPMode *currentMode = [self currentMode];
+    AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, section);
+    if (sectionCollection.headerClass) {
+        AOZTableViewHeaderFooterView *headerView = [_tableView dequeueReusableHeaderFooterViewWithIdentifier:NSStringFromClass(sectionCollection.headerClass)];
+        [headerView setContents:nil];//TODO
+    } else if ([_delegate respondsToSelector:@selector(tableViewProvider:viewForHeaderInSection:)]) {
         return [_delegate tableViewProvider:self viewForHeaderInSection:section];
     }
     return nil;
@@ -257,7 +262,24 @@ id collectionForIndex(id parentCollection, NSInteger index) {
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    if ([_delegate respondsToSelector:@selector(tableViewProvider:heightForHeaderInSection:)]) {
+    AOZTVPMode *currentMode = [self currentMode];
+    AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, section);
+    if (sectionCollection.headerClass) {
+        NSMethodSignature *signiture = [sectionCollection.headerClass methodSignatureForSelector:@selector(heightForView:)];
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signiture];
+        [invocation setTarget:sectionCollection.headerClass];
+        [invocation setSelector:@selector(heightForView:)];
+        //TODO
+//        if (rowCollection.dataConfig.source) {
+//            [invocation setArgument:(__bridge void * _Nonnull)(rowCollection.dataConfig.source) atIndex:2];
+//        }
+        CGFloat height = 0;
+        [invocation retainArguments];
+        [invocation invoke];
+        [invocation getReturnValue:&height];
+        
+        return height;
+    } else if ([_delegate respondsToSelector:@selector(tableViewProvider:heightForHeaderInSection:)]) {
         return [_delegate tableViewProvider:self heightForHeaderInSection:section];
     }
     return 0;

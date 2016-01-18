@@ -29,6 +29,7 @@
 		4A1999821C41089E00264F82 /* TableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A1999811C41089E00264F82 /* TableViewCell.m */; };
 		4A1999851C410A3400264F82 /* TableViewCell2.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A1999841C410A3400264F82 /* TableViewCell2.m */; };
 		4A94AE771C3DFC8D00BC5E3C /* AOZTableViewDefaultModeParserTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94AE761C3DFC8D00BC5E3C /* AOZTableViewDefaultModeParserTest.m */; };
+		4AA943501C4D100D001F8686 /* TableViewHeaderFooterView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA9434F1C4D100D001F8686 /* TableViewHeaderFooterView.m */; };
 		4ACC11AF1C072CCE00DBAA05 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACC11AE1C072CCE00DBAA05 /* main.m */; };
 		4ACC11B21C072CCE00DBAA05 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACC11B11C072CCE00DBAA05 /* AppDelegate.m */; };
 		4ACC11B41C072CCE00DBAA05 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4ACC11B31C072CCE00DBAA05 /* Assets.xcassets */; };
@@ -75,6 +76,8 @@
 		4A1999831C410A3400264F82 /* TableViewCell2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableViewCell2.h; sourceTree = "<group>"; };
 		4A1999841C410A3400264F82 /* TableViewCell2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableViewCell2.m; sourceTree = "<group>"; };
 		4A94AE761C3DFC8D00BC5E3C /* AOZTableViewDefaultModeParserTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AOZTableViewDefaultModeParserTest.m; sourceTree = "<group>"; };
+		4AA9434E1C4D100D001F8686 /* TableViewHeaderFooterView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableViewHeaderFooterView.h; sourceTree = "<group>"; };
+		4AA9434F1C4D100D001F8686 /* TableViewHeaderFooterView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableViewHeaderFooterView.m; sourceTree = "<group>"; };
 		4ACC11AA1C072CCE00DBAA05 /* AOZTableViewProvider.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AOZTableViewProvider.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4ACC11AE1C072CCE00DBAA05 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4ACC11B01C072CCE00DBAA05 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -149,6 +152,8 @@
 				4A1999811C41089E00264F82 /* TableViewCell.m */,
 				4A1999831C410A3400264F82 /* TableViewCell2.h */,
 				4A1999841C410A3400264F82 /* TableViewCell2.m */,
+				4AA9434E1C4D100D001F8686 /* TableViewHeaderFooterView.h */,
+				4AA9434F1C4D100D001F8686 /* TableViewHeaderFooterView.m */,
 				4ACC11DD1C072E3900DBAA05 /* AOZTableViewProvider.h */,
 				4ACC11DE1C072E3900DBAA05 /* AOZTableViewProvider.m */,
 				30AC0F4C1C09F93A00B2685B /* AOZTableViewProviderUtils.h */,
@@ -329,6 +334,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4AA943501C4D100D001F8686 /* TableViewHeaderFooterView.m in Sources */,
 				30AC0F511C09FBAA00B2685B /* AOZTableViewCell.m in Sources */,
 				4ACC11DC1C072E0400DBAA05 /* ViewController.m in Sources */,
 				30AC0F4E1C09F93A00B2685B /* AOZTableViewProviderUtils.m in Sources */,
