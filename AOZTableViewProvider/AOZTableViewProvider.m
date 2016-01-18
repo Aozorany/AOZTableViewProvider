@@ -246,8 +246,24 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     AOZTVPMode *currentMode = [self currentMode];
     AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, section);
     if (sectionCollection.headerClass) {
+        id contents = nil;
+        if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+            if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                contents = sectionCollection.dataConfig.source;
+            } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                contents = ((NSArray *) sectionCollection.dataConfig.source)[section - sectionCollection.sectionRange.location];
+            } else {//每个单元格有多个元素的情况
+                NSRange subRange = NSMakeRange((section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
+                if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
+                    subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
+                }
+                contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
+            }
+        } else {
+            contents = sectionCollection.dataConfig.source;
+        }
         AOZTableViewHeaderFooterView *headerView = [_tableView dequeueReusableHeaderFooterViewWithIdentifier:NSStringFromClass(sectionCollection.headerClass)];
-        [headerView setContents:nil];//TODO
+        [headerView setContents:contents];
     } else if ([_delegate respondsToSelector:@selector(tableViewProvider:viewForHeaderInSection:)]) {
         return [_delegate tableViewProvider:self viewForHeaderInSection:section];
     }
@@ -265,14 +281,30 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     AOZTVPMode *currentMode = [self currentMode];
     AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, section);
     if (sectionCollection.headerClass) {
+        id contents = nil;
+        if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+            if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                contents = sectionCollection.dataConfig.source;
+            } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                contents = ((NSArray *) sectionCollection.dataConfig.source)[section - sectionCollection.sectionRange.location];
+            } else {//每个单元格有多个元素的情况
+                NSRange subRange = NSMakeRange((section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
+                if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
+                    subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
+                }
+                contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
+            }
+        } else {
+            contents = sectionCollection.dataConfig.source;
+        }
+        
         NSMethodSignature *signiture = [sectionCollection.headerClass methodSignatureForSelector:@selector(heightForView:)];
         NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signiture];
         [invocation setTarget:sectionCollection.headerClass];
         [invocation setSelector:@selector(heightForView:)];
-        //TODO
-//        if (rowCollection.dataConfig.source) {
-//            [invocation setArgument:(__bridge void * _Nonnull)(rowCollection.dataConfig.source) atIndex:2];
-//        }
+        if (contents) {
+            [invocation setArgument:(__bridge void * _Nonnull)(contents) atIndex:2];
+        }
         CGFloat height = 0;
         [invocation retainArguments];
         [invocation invoke];

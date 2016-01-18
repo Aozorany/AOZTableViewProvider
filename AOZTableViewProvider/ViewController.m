@@ -33,7 +33,7 @@
     //mainTableView
     CGRect screenBounds = [UIScreen mainScreen].bounds;
     CGRect mainTableViewRect = CGRectMake(0, 0, CGRectGetWidth(screenBounds), CGRectGetHeight(screenBounds));
-    UITableView *mainTableView = [[UITableView alloc] initWithFrame:mainTableViewRect style:UITableViewStyleGrouped];
+    UITableView *mainTableView = [[UITableView alloc] initWithFrame:mainTableViewRect style:UITableViewStylePlain];
     [self.view addSubview:mainTableView];
     
     //_tableViewProvider
