@@ -15,9 +15,11 @@
 - (instancetype)initWithReuseIdentifier:(NSString *)reuseIdentifier {
     self = [super initWithReuseIdentifier:reuseIdentifier];
     if (self) {
-        CGRect rect = CGRectMake(0, 0, 100, 20);
+        self.contentView.frame = CGRectMake(0, 0, 150, 100);
+        
+        CGRect rect = CGRectMake(10, 0, 320, 50);
         _label = [[UILabel alloc] initWithFrame:rect];
-        [self addSubview:_label];
+        [self.contentView addSubview:_label];
     }
     return self;
 }
@@ -31,11 +33,13 @@
             [str appendFormat:@"%@ ", subStr];
         }
         _label.text = str;
+    } else if ([contents isKindOfClass:[NSDictionary class]]) {
+        _label.text = ((NSDictionary *) contents)[@"name"];
     }
 }
 
 + (CGFloat)heightForView:(id)contents {
-    return 100;
+    return 50;
 }
 
 @end

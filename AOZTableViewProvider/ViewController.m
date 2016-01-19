@@ -25,7 +25,7 @@
     
     _placeHolder = @"";
     _array = @[@"1", @"2", @"3", @"4", @"5"];
-    _multipleArray = @[@{@"subArray": @[@"1", @"2"]}, @{@"subArray": @[@"3", @"4", @"5"]}];
+    _multipleArray = @[@{@"subArray": @[@"1", @"2"], @"name": @"section name 1"}, @{@"subArray": @[@"3", @"4", @"5"], @"name": @"section name 2"}];
     _dictionary = @{@"first": @"first dictionary value", @"second": @"second dictionary value"};
     
     self.view.backgroundColor = [UIColor whiteColor];
@@ -33,7 +33,7 @@
     //mainTableView
     CGRect screenBounds = [UIScreen mainScreen].bounds;
     CGRect mainTableViewRect = CGRectMake(0, 0, CGRectGetWidth(screenBounds), CGRectGetHeight(screenBounds));
-    UITableView *mainTableView = [[UITableView alloc] initWithFrame:mainTableViewRect style:UITableViewStylePlain];
+    UITableView *mainTableView = [[UITableView alloc] initWithFrame:mainTableViewRect style:UITableViewStyleGrouped];
     [self.view addSubview:mainTableView];
     
     //_tableViewProvider

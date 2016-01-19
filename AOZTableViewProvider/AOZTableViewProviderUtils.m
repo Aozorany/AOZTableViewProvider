@@ -142,11 +142,11 @@
             } else if (rowCollection.elementSource.length > 0) {//如果指定了row的elementSource
                 @try {
                     id elementSourceObj = [sectionElement valueForKey:rowCollection.elementSource];
+                    rowCollection.dataConfig.source = elementSourceObj;
                     if ([elementSourceObj isKindOfClass:[NSArray class]]) {
                         if (dataConfig.elementsPerRow <= 0) {
                             rowCollection.rowRange = NSMakeRange(currentLocation, 1);
                         } else {
-                            rowCollection.dataConfig.source = elementSourceObj;
                             rowCollection.rowRange = NSMakeRange(currentLocation, ceil((CGFloat) ((NSArray *) elementSourceObj).count / dataConfig.elementsPerRow));
                         }
                     } else {

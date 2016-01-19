@@ -29,6 +29,7 @@
 
 #pragma mark -
 @implementation AOZTableViewHeaderFooterView
+
 #pragma mark public: general
 - (void)setContents:(id)contents {
 }

@@ -264,6 +264,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
         }
         AOZTableViewHeaderFooterView *headerView = [_tableView dequeueReusableHeaderFooterViewWithIdentifier:NSStringFromClass(sectionCollection.headerClass)];
         [headerView setContents:contents];
+        return headerView;
     } else if ([_delegate respondsToSelector:@selector(tableViewProvider:viewForHeaderInSection:)]) {
         return [_delegate tableViewProvider:self viewForHeaderInSection:section];
     }

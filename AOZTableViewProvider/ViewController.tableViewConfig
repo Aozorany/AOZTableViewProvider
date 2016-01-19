@@ -1,2 +1,6 @@
 
-section -s _array -c TableViewCell -h TableViewHeaderFooterView
+section -s _dictionary -c TableViewCell
+row -s first
+row -s second
+section -c TableViewCell
+row -s _array -n 2
