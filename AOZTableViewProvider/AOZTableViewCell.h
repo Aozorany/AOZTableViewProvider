@@ -19,3 +19,13 @@
 
 @interface AOZTableViewCell : UITableViewCell <AOZTableViewCell>
 @end
+
+
+@protocol AOZTableViewHeaderFooterView <NSObject>
+- (void)setContents:(id)contents;
++ (CGFloat)heightForView:(id)contents;
+@end
+
+
+@interface AOZTableViewHeaderFooterView : UITableViewHeaderFooterView <AOZTableViewHeaderFooterView>
+@end

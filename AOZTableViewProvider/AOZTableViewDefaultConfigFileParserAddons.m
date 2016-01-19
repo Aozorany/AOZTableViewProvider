@@ -127,10 +127,18 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
 
 #pragma mark public: general
 - (AOZTVPDataConfig *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError {
-    return [self parseNewConfig:chunksArray error:pError dataConfig:nil];
+    return [self parseNewConfig:chunksArray error:pError dataConfig:nil rowCollection:nil sectionCollection:nil];
 }
 
 - (AOZTVPDataConfig *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError dataConfig:(AOZTVPDataConfig *)presetDataConfig {
+    return [self parseNewConfig:chunksArray error:pError dataConfig:presetDataConfig rowCollection:nil sectionCollection:nil];
+}
+
+- (AOZTVPDataConfig *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError dataConfig:(AOZTVPDataConfig *)presetDataConfig rowCollection:(AOZTVPRowCollection *)rowCollection {
+    return [self parseNewConfig:chunksArray error:pError dataConfig:presetDataConfig rowCollection:rowCollection sectionCollection:nil];
+}
+
+- (AOZTVPDataConfig *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError dataConfig:(AOZTVPDataConfig *)presetDataConfig rowCollection:(AOZTVPRowCollection *)rowCollection sectionCollection:(AOZTVPSectionCollection *)sectionCollection {
     if (chunksArray.count == 0) {
         createAndLogError(self.class, @"chunksArray has nothing, return nil", pError);
         return nil;
@@ -155,6 +163,9 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
                     NSString *nextChunk = chunksArray[index + 1];
                     @try {
                         dataConfig.source = [_dataProvider valueForKey:nextChunk];
+                        if (rowCollection) {
+                            rowCollection.elementSource = nil;
+                        }
                     }
                     @catch (NSException *exception) {
                         //如果根据参数找到数据源，则返回空
@@ -185,6 +196,24 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
                 createAndLogError(self.class, @"-c is last, ignore", NULL);
             }
             index += 2;
+        } else if ([chunk isEqualToString:@"-h"]) {//-c指示符，下一个参数是section header类型
+            if (index < chunksArray.count - 1) {//如果-c不是最后一个参数
+                NSString *nextChunk = chunksArray[index + 1];
+                Class headerClass = objc_getClass([nextChunk UTF8String]);
+                if (headerClass) {
+                    if ([headerClass conformsToProtocol:@protocol(AOZTableViewHeaderFooterView)] && checkClassRelation(headerClass, [UITableViewHeaderFooterView class]) && sectionCollection) {//如果cellClass符合条件
+                        sectionCollection.headerClass = headerClass;
+                        [_tableView registerClass:headerClass forHeaderFooterViewReuseIdentifier:NSStringFromClass(headerClass)];
+                    } else {//如果cellClass不符合条件，则报错并忽略
+                        createAndLogError(self.class, [NSString stringWithFormat:@"Irregular class for -h arg %@", nextChunk], NULL);
+                    }
+                } else {//如果没查找到对应的类，则报错并忽略
+                    createAndLogError(self.class, [NSString stringWithFormat:@"No class for -h arg %@", nextChunk], NULL);
+                }
+            } else {//如果是最后一个参数，报错并忽略
+                createAndLogError(self.class, @"-c is last, ignore", NULL);
+            }
+            index += 2;
         } else if ([chunk isEqualToString:@"-n"]) {
             //-n指示符，下一参数是每一行元素个数
             if (index < chunksArray.count - 1) {
@@ -208,6 +237,18 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
         } else if ([chunk isEqualToString:@"-all"]) {//-all指示符，所有参数都在同一行中
             dataConfig.elementsPerRow = -1;
             index++;//读取下一个指示符
+        } else if ([chunk isEqualToString:@"-es"]) {//-es指示符，元素参数名称
+            if (index < chunksArray.count - 1) {
+                NSString *nextChunk = chunksArray[index + 1];
+                if (rowCollection && nextChunk.length > 0) {
+                    rowCollection.elementSource = nextChunk;
+                    dataConfig.source = [NSNull null];
+                }
+            } else {
+                //如果-n是最后一个参数，报错，并且忽略
+                createAndLogError(self.class, @"-n is last, ignore", NULL);
+            }
+            index += 2;//读取下一个指示符
         } else {//如果不属于以上任何一种情况，则直接读取下一个
             createAndLogError(self.class, [NSString stringWithFormat:@"Unrecognized prefix %@", chunk], NULL);
             index++;
@@ -238,17 +279,17 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
     }
     
     //解析dataConfig部分
+    AOZTVPRowCollection *rowCollection = [[AOZTVPRowCollection alloc] init];
     AOZTableViewDefaultDataConfigParser *dataConfigParser = [[AOZTableViewDefaultDataConfigParser alloc] init];
     NSError *dataConfigParserError = nil;
     dataConfigParser.dataProvider = _dataProvider;
     dataConfigParser.tableView = _tableView;
-    AOZTVPDataConfig *dataConfig = [dataConfigParser parseNewConfig:chunksArray error:&dataConfigParserError dataConfig:presetDataConfig];
+    AOZTVPDataConfig *dataConfig = [dataConfigParser parseNewConfig:chunksArray error:&dataConfigParserError dataConfig:presetDataConfig rowCollection:rowCollection];
     if (dataConfig == nil) {
         *pError = dataConfigParserError;
         return nil;
     }
     
-    AOZTVPRowCollection *rowCollection = [[AOZTVPRowCollection alloc] init];
     rowCollection.dataConfig = dataConfig;
     
     return rowCollection;
@@ -316,7 +357,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
         AOZTableViewDefaultDataConfigParser *dataConfigParser = [[AOZTableViewDefaultDataConfigParser alloc] init];
         dataConfigParser.dataProvider = _dataProvider;
         dataConfigParser.tableView = _tableView;
-        AOZTVPDataConfig *dataConfig = [dataConfigParser parseNewConfig:chunksArray error:&sectionDataParserError];
+        AOZTVPDataConfig *dataConfig = [dataConfigParser parseNewConfig:chunksArray error:&sectionDataParserError dataConfig:nil rowCollection:nil sectionCollection:_sectionCollection];
         if (sectionDataParserError == nil) {
             _sectionCollection.dataConfig = dataConfig;
         }

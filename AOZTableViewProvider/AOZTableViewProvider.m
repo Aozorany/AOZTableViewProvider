@@ -243,7 +243,29 @@ id collectionForIndex(id parentCollection, NSInteger index) {
 
 #pragma mark delegate: UITableViewDelegate section headers and footers
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    if ([_delegate respondsToSelector:@selector(tableViewProvider:viewForHeaderInSection:)]) {
+    AOZTVPMode *currentMode = [self currentMode];
+    AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, section);
+    if (sectionCollection.headerClass) {
+        id contents = nil;
+        if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+            if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                contents = sectionCollection.dataConfig.source;
+            } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                contents = ((NSArray *) sectionCollection.dataConfig.source)[section - sectionCollection.sectionRange.location];
+            } else {//每个单元格有多个元素的情况
+                NSRange subRange = NSMakeRange((section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
+                if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
+                    subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
+                }
+                contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
+            }
+        } else {
+            contents = sectionCollection.dataConfig.source;
+        }
+        AOZTableViewHeaderFooterView *headerView = [_tableView dequeueReusableHeaderFooterViewWithIdentifier:NSStringFromClass(sectionCollection.headerClass)];
+        [headerView setContents:contents];
+        return headerView;
+    } else if ([_delegate respondsToSelector:@selector(tableViewProvider:viewForHeaderInSection:)]) {
         return [_delegate tableViewProvider:self viewForHeaderInSection:section];
     }
     return nil;
@@ -257,7 +279,40 @@ id collectionForIndex(id parentCollection, NSInteger index) {
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    if ([_delegate respondsToSelector:@selector(tableViewProvider:heightForHeaderInSection:)]) {
+    AOZTVPMode *currentMode = [self currentMode];
+    AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, section);
+    if (sectionCollection.headerClass) {
+        id contents = nil;
+        if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+            if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                contents = sectionCollection.dataConfig.source;
+            } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                contents = ((NSArray *) sectionCollection.dataConfig.source)[section - sectionCollection.sectionRange.location];
+            } else {//每个单元格有多个元素的情况
+                NSRange subRange = NSMakeRange((section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
+                if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
+                    subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
+                }
+                contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
+            }
+        } else {
+            contents = sectionCollection.dataConfig.source;
+        }
+        
+        NSMethodSignature *signiture = [sectionCollection.headerClass methodSignatureForSelector:@selector(heightForView:)];
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signiture];
+        [invocation setTarget:sectionCollection.headerClass];
+        [invocation setSelector:@selector(heightForView:)];
+        if (contents) {
+            [invocation setArgument:(__bridge void * _Nonnull)(contents) atIndex:2];
+        }
+        CGFloat height = 0;
+        [invocation retainArguments];
+        [invocation invoke];
+        [invocation getReturnValue:&height];
+        
+        return height;
+    } else if ([_delegate respondsToSelector:@selector(tableViewProvider:heightForHeaderInSection:)]) {
         return [_delegate tableViewProvider:self heightForHeaderInSection:section];
     }
     return 0;

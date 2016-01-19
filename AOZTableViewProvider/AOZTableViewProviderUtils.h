@@ -20,6 +20,7 @@
 @interface AOZTVPRowCollection : NSObject
 @property (nonatomic, retain) AOZTVPDataConfig *dataConfig;
 @property (nonatomic, assign) NSRange rowRange;
+@property (nonatomic, copy) NSString *elementSource;
 - (instancetype)initWithDataConfig:(AOZTVPDataConfig *)dataConfig;
 @end
 
@@ -27,6 +28,7 @@
 @interface AOZTVPSectionCollection : NSObject <NSCopying>
 @property (nonatomic, retain) NSMutableArray <AOZTVPRowCollection *> *rowCollectionsArray;
 @property (nonatomic, retain) AOZTVPDataConfig *dataConfig;
+@property (nonatomic, assign) Class headerClass;
 @property (nonatomic, assign) NSRange sectionRange;
 - (void)reloadRows;
 - (void)reloadRowsWithSectionElement:(id)sectionElement;
