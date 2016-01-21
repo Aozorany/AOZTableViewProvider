@@ -2,6 +2,14 @@
 
 AOZTableViewProvider的主要目的是把UITableView的所有信息集成到一个配置文件中，从而省掉写dataSource和delegate的麻烦
 
+英文文档请参考README.md
+
+## 要求
+
+* Xcode 7.0以上
+* iOS 5.0以上
+* ARC，如果你的项目使用MRC，请为相关文件加上`-fobjc-arc`标签
+
 ## 安装
 
 * 下载本项目

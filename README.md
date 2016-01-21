@@ -4,6 +4,12 @@ AOZTableViewProvider allows you build UITableView from your own config files, wi
 
 Chinese document please visit README_CN.md.
 
+## Requirements
+
+* Xcode 7.0 or later
+* iOS 5.0 or later
+* ARC, if your project use MRC, please add `-fobjc-arc` target
+
 ## Install
 
 * Download this project
