@@ -2,6 +2,8 @@
 
 AOZTableViewProvider allows you build UITableView from your own config files, without writing any dataSource and delegate.
 
+Chinese document please visit README_CN.md.
+
 ## Install
 
 * Download this project
