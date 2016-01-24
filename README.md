@@ -41,7 +41,8 @@ That finishes the installation.
   _tableViewProvider.dataProvider = self;
   [_tableViewProvider connectToTableView:mainTableView];
   [_tableViewProvider parseConfigFile:NULL];
-  [_tableViewProvider reloadData];
+  //[_tableViewProvider setNeedsReloadForMode:0];//called when data source for mode 0 is updated.
+  [_tableViewProvider reloadTableView];
   ```
 
 
