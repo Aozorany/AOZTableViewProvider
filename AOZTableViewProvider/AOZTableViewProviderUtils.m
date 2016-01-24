@@ -188,6 +188,7 @@
     self = [super init];
     if (self) {
         _sectionCollectionsArray = [[NSMutableArray alloc] init];
+        _needsReload = YES;
     }
     return self;
 }

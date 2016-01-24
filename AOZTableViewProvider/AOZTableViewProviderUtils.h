@@ -37,5 +37,6 @@
 
 @interface AOZTVPMode : NSObject
 @property (nonatomic, retain) NSMutableArray <AOZTVPSectionCollection *> *sectionCollectionsArray;
+@property (nonatomic, assign) BOOL needsReload;
 - (void)reloadSections;
 @end

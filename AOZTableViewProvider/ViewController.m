@@ -42,7 +42,7 @@
     _tableViewProvider.dataProvider = self;
     [_tableViewProvider connectToTableView:mainTableView];
     [_tableViewProvider parseConfigFile:NULL];
-    [_tableViewProvider reloadData];
+    [_tableViewProvider reloadTableView];
 }
 
 @end

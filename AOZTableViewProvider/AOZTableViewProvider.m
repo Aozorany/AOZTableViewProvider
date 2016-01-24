@@ -112,7 +112,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     }
     AOZTVPRowCollection *rowCollection = collectionForIndex(newSectionCollection, indexPath.row);
     
-    id contents = nil;
+    id contents = nil;/**< row对应的内容 */
     if (![rowCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在row里面设置了数据源，则使用row的设置
         if ([rowCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
             if (rowCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
@@ -382,17 +382,20 @@ id collectionForIndex(id parentCollection, NSInteger index) {
 }
 
 - (void)reloadTableView {
+    AOZTVPMode *currentMode = [self currentMode];
+    if (currentMode.needsReload) {
+        [currentMode reloadSections];
+        currentMode.needsReload = NO;
+    }
     [_tableView reloadData];
 }
 
-- (void)reloadData {
-    AOZTVPMode *currentMode = [self currentMode];
-    [currentMode reloadSections];
-}
-
-- (void)reloadDataAndTableView {
-    [self reloadData];
-    [self reloadTableView];
+- (void)setNeedsReloadForMode:(int)mode {
+    if (mode < 0 || mode >= _modesArray.count) {
+        return;
+    }
+    AOZTVPMode *theMode = _modesArray[mode];
+    theMode.needsReload = YES;
 }
 
 @end
