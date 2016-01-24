@@ -22,4 +22,8 @@
     }
 }
 
++ (CGFloat)heightForCell:(id)contents {
+    return 40;
+}
+
 @end

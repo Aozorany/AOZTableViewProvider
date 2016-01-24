@@ -209,8 +209,8 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signiture];
     [invocation setTarget:rowCollection.dataConfig.cellClass];
     [invocation setSelector:@selector(heightForCell:)];
-    if (rowCollection.dataConfig.source) {
-        [invocation setArgument:(__bridge void * _Nonnull)(rowCollection.dataConfig.source) atIndex:2];
+    if (contents) {
+        [invocation setArgument:&contents atIndex:2];
     }
     CGFloat height = 0;
     [invocation retainArguments];
@@ -304,7 +304,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
         [invocation setTarget:sectionCollection.headerClass];
         [invocation setSelector:@selector(heightForView:)];
         if (contents) {
-            [invocation setArgument:(__bridge void * _Nonnull)(contents) atIndex:2];
+            [invocation setArgument:&contents atIndex:2];
         }
         CGFloat height = 0;
         [invocation retainArguments];
