@@ -15,6 +15,15 @@
 
 
 #pragma mark -
+static int _CACHE_TYPE_ROW_CONTENTS = 0;/**< 缓存类型：row里面的内容 */
+static int _CACHE_TYPE_SECTION_CONTENTS = 1;/**< 缓存类型：section里面的内容 */
+
+
+#pragma mark -
+/** 根据parentCollection和index取得对应位置的下属collection<br>
+ 具体来说，如果parentCollection是mode，则返回sectionCollection<br>
+ 如果parentCollection是section，则返回rowCollection<br>
+ 其他情况都返回空 */
 id collectionForIndex(id parentCollection, NSInteger index);
 id collectionForIndex(id parentCollection, NSInteger index) {
     if ((![parentCollection isKindOfClass:[AOZTVPSectionCollection class]] && ![parentCollection isKindOfClass:[AOZTVPMode class]])
@@ -40,8 +49,8 @@ id collectionForIndex(id parentCollection, NSInteger index) {
         for (AOZTVPSectionCollection *sectionCollection in mode.sectionCollectionsArray) {
             if (NSLocationInRange(index, sectionCollection.sectionRange)) {
                 return sectionCollection;
-            }//end for index in range check
-        }//end for
+            }
+        }
     }//end for mode and section
     
     //其他情况：找不到，或者又不是mode也不是section，则直接返回空
@@ -52,7 +61,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
 #pragma mark -
 @implementation AOZTableViewProvider {
     NSMutableArray<AOZTVPMode *> *_modesArray;
-    NSMutableDictionary *_currentConfigDictionary;
+    NSMutableDictionary *_cacheDictionary;/**< 缓存字典，key是NSIndexPath with row: mode index, section: 0, value是NSMutableDictionary */
 }
 
 #pragma mark lifeCircle
@@ -60,6 +69,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     self = [super init];
     if (self) {
         _modesArray = [[NSMutableArray alloc] init];
+        _cacheDictionary = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -68,6 +78,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     self = [super init];
     if (self) {
         _modesArray = [[NSMutableArray alloc] init];
+        _cacheDictionary = [[NSMutableDictionary alloc] init];
         self.dataProvider = dataProvider;
         self.configBundleFileName = fileName;
         [self connectToTableView:tableView];
@@ -89,12 +100,13 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     AOZTVPMode *currentMode = [self currentMode];
     AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, section);
     AOZTVPSectionCollection *newSectionCollection = nil;
-    if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]] && sectionCollection.dataConfig.elementsPerRow == 1) {
+    if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]] && sectionCollection.dataConfig.elementsPerRow == 1) {//如果section的source是array，极有可能出现其下属的某一个row的行数不等的情况，所以需要根据当前的section对应的那个元素重新计算row的布局
         newSectionCollection = [sectionCollection copy];
         [newSectionCollection reloadRowsWithSectionElement:((NSArray *) newSectionCollection.dataConfig.source)[section - newSectionCollection.sectionRange.location]];
     } else {
         newSectionCollection = sectionCollection;
     }
+    //取出newSectionCollection最后一个row，并计算其尾标，这就是这个section对应的row的数量
     AOZTVPRowCollection *lastRowCollection = newSectionCollection.rowCollectionsArray.lastObject;
     rowCount = lastRowCollection.rowRange.location + lastRowCollection.rowRange.length;
     return rowCount;
@@ -112,39 +124,43 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     }
     AOZTVPRowCollection *rowCollection = collectionForIndex(newSectionCollection, indexPath.row);
     
-    id contents = nil;/**< row对应的内容 */
-    if (![rowCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在row里面设置了数据源，则使用row的设置
-        if ([rowCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
-            if (rowCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+    id contents = [self contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
+    if (contents == nil) {//如果从缓存里面读不到结果，则重新生成
+        if (![rowCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在row里面设置了数据源，则使用row的设置
+            if ([rowCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+                if (rowCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                    contents = rowCollection.dataConfig.source;
+                } else if (rowCollection.dataConfig.elementsPerRow == 0 || rowCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                    contents = ((NSArray *) rowCollection.dataConfig.source)[indexPath.row - rowCollection.rowRange.location];
+                } else {//每个单元格有多个元素的情况
+                    NSRange subRange = NSMakeRange((indexPath.row - rowCollection.rowRange.location) * rowCollection.dataConfig.elementsPerRow, rowCollection.dataConfig.elementsPerRow);
+                    if (subRange.location + subRange.length >= ((NSArray *) rowCollection.dataConfig.source).count) {
+                        subRange.length = ((NSArray *) rowCollection.dataConfig.source).count - subRange.location;
+                    }
+                    contents = [((NSArray *) rowCollection.dataConfig.source) subarrayWithRange:subRange];
+                }
+            } else {
                 contents = rowCollection.dataConfig.source;
-            } else if (rowCollection.dataConfig.elementsPerRow == 0 || rowCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
-                contents = ((NSArray *) rowCollection.dataConfig.source)[indexPath.row - rowCollection.rowRange.location];
-            } else {//每个单元格有多个元素的情况
-                NSRange subRange = NSMakeRange((indexPath.row - rowCollection.rowRange.location) * rowCollection.dataConfig.elementsPerRow, rowCollection.dataConfig.elementsPerRow);
-                if (subRange.location + subRange.length >= ((NSArray *) rowCollection.dataConfig.source).count) {
-                    subRange.length = ((NSArray *) rowCollection.dataConfig.source).count - subRange.location;
-                }
-                contents = [((NSArray *) rowCollection.dataConfig.source) subarrayWithRange:subRange];
             }
-        } else {
-            contents = rowCollection.dataConfig.source;
-        }
-    } else if (![sectionCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在section里面设置了数据源，则使用section的设置
-        if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
-            if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+        } else if (![sectionCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在section里面设置了数据源，则使用section的设置
+            if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+                if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                    contents = sectionCollection.dataConfig.source;
+                } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                    contents = ((NSArray *) sectionCollection.dataConfig.source)[indexPath.section - sectionCollection.sectionRange.location];
+                } else {//每个单元格有多个元素的情况
+                    NSRange subRange = NSMakeRange((indexPath.section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
+                    if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
+                        subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
+                    }
+                    contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
+                }
+            } else {
                 contents = sectionCollection.dataConfig.source;
-            } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
-                contents = ((NSArray *) sectionCollection.dataConfig.source)[indexPath.section - sectionCollection.sectionRange.location];
-            } else {//每个单元格有多个元素的情况
-                NSRange subRange = NSMakeRange((indexPath.section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
-                if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
-                    subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
-                }
-                contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
             }
-        } else {
-            contents = sectionCollection.dataConfig.source;
         }
+        //将取到的结果放入缓存
+        [self setContent:contents indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
     }
     
     AOZTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass(rowCollection.dataConfig.cellClass)];
@@ -170,39 +186,42 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     }
     AOZTVPRowCollection *rowCollection = collectionForIndex(newSectionCollection, indexPath.row);
     
-    id contents = nil;
-    if (![rowCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在row里面设置了数据源，则使用row的设置
-        if ([rowCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
-            if (rowCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+    id contents = [self contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
+    if (contents == nil) {
+        if (![rowCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在row里面设置了数据源，则使用row的设置
+            if ([rowCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+                if (rowCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                    contents = rowCollection.dataConfig.source;
+                } else if (rowCollection.dataConfig.elementsPerRow == 0 || rowCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                    contents = ((NSArray *) rowCollection.dataConfig.source)[indexPath.row - rowCollection.rowRange.location];
+                } else {//每个单元格有多个元素的情况
+                    NSRange subRange = NSMakeRange((indexPath.row - rowCollection.rowRange.location) * rowCollection.dataConfig.elementsPerRow, rowCollection.dataConfig.elementsPerRow);
+                    if (subRange.location + subRange.length >= ((NSArray *) rowCollection.dataConfig.source).count) {
+                        subRange.length = ((NSArray *) rowCollection.dataConfig.source).count - subRange.location;
+                    }
+                    contents = [((NSArray *) rowCollection.dataConfig.source) subarrayWithRange:subRange];
+                }
+            } else {
                 contents = rowCollection.dataConfig.source;
-            } else if (rowCollection.dataConfig.elementsPerRow == 0 || rowCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
-                contents = ((NSArray *) rowCollection.dataConfig.source)[indexPath.row - rowCollection.rowRange.location];
-            } else {//每个单元格有多个元素的情况
-                NSRange subRange = NSMakeRange((indexPath.row - rowCollection.rowRange.location) * rowCollection.dataConfig.elementsPerRow, rowCollection.dataConfig.elementsPerRow);
-                if (subRange.location + subRange.length >= ((NSArray *) rowCollection.dataConfig.source).count) {
-                    subRange.length = ((NSArray *) rowCollection.dataConfig.source).count - subRange.location;
-                }
-                contents = [((NSArray *) rowCollection.dataConfig.source) subarrayWithRange:subRange];
             }
-        } else {
-            contents = rowCollection.dataConfig.source;
-        }
-    } else if (![sectionCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在section里面设置了数据源，则使用section的设置
-        if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
-            if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+        } else if (![sectionCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在section里面设置了数据源，则使用section的设置
+            if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+                if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                    contents = sectionCollection.dataConfig.source;
+                } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                    contents = ((NSArray *) sectionCollection.dataConfig.source)[indexPath.section - sectionCollection.sectionRange.location];
+                } else {//每个单元格有多个元素的情况
+                    NSRange subRange = NSMakeRange((indexPath.section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
+                    if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
+                        subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
+                    }
+                    contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
+                }
+            } else {
                 contents = sectionCollection.dataConfig.source;
-            } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
-                contents = ((NSArray *) sectionCollection.dataConfig.source)[indexPath.section - sectionCollection.sectionRange.location];
-            } else {//每个单元格有多个元素的情况
-                NSRange subRange = NSMakeRange((indexPath.section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
-                if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
-                    subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
-                }
-                contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
             }
-        } else {
-            contents = sectionCollection.dataConfig.source;
         }
+        [self setContent:contents indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
     }
 
     NSMethodSignature *signiture = [rowCollection.dataConfig.cellClass methodSignatureForSelector:@selector(heightForCell:)];
@@ -246,22 +265,26 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     AOZTVPMode *currentMode = [self currentMode];
     AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, section);
     if (sectionCollection.headerClass) {
-        id contents = nil;
-        if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
-            if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
-                contents = sectionCollection.dataConfig.source;
-            } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
-                contents = ((NSArray *) sectionCollection.dataConfig.source)[section - sectionCollection.sectionRange.location];
-            } else {//每个单元格有多个元素的情况
-                NSRange subRange = NSMakeRange((section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
-                if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
-                    subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
+        id contents = [self contentAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:section] type:_CACHE_TYPE_SECTION_CONTENTS];
+        if (contents == nil) {
+            if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+                if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                    contents = sectionCollection.dataConfig.source;
+                } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                    contents = ((NSArray *) sectionCollection.dataConfig.source)[section - sectionCollection.sectionRange.location];
+                } else {//每个单元格有多个元素的情况
+                    NSRange subRange = NSMakeRange((section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
+                    if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
+                        subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
+                    }
+                    contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
                 }
-                contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
+            } else {
+                contents = sectionCollection.dataConfig.source;
             }
-        } else {
-            contents = sectionCollection.dataConfig.source;
+            [self setContent:contents indexPath:[NSIndexPath indexPathForRow:0 inSection:section] type:_CACHE_TYPE_SECTION_CONTENTS];
         }
+        
         AOZTableViewHeaderFooterView *headerView = [_tableView dequeueReusableHeaderFooterViewWithIdentifier:NSStringFromClass(sectionCollection.headerClass)];
         [headerView setContents:contents];
         return headerView;
@@ -282,21 +305,24 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     AOZTVPMode *currentMode = [self currentMode];
     AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, section);
     if (sectionCollection.headerClass) {
-        id contents = nil;
-        if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
-            if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
-                contents = sectionCollection.dataConfig.source;
-            } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
-                contents = ((NSArray *) sectionCollection.dataConfig.source)[section - sectionCollection.sectionRange.location];
-            } else {//每个单元格有多个元素的情况
-                NSRange subRange = NSMakeRange((section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
-                if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
-                    subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
+        id contents = [self contentAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:section] type:_CACHE_TYPE_SECTION_CONTENTS];
+        if (contents == nil) {
+            if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+                if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                    contents = sectionCollection.dataConfig.source;
+                } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                    contents = ((NSArray *) sectionCollection.dataConfig.source)[section - sectionCollection.sectionRange.location];
+                } else {//每个单元格有多个元素的情况
+                    NSRange subRange = NSMakeRange((section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
+                    if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
+                        subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
+                    }
+                    contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
                 }
-                contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
+            } else {
+                contents = sectionCollection.dataConfig.source;
             }
-        } else {
-            contents = sectionCollection.dataConfig.source;
+            [self setContent:contents indexPath:[NSIndexPath indexPathForRow:0 inSection:section] type:_CACHE_TYPE_SECTION_CONTENTS];
         }
         
         NSMethodSignature *signiture = [sectionCollection.headerClass methodSignatureForSelector:@selector(heightForView:)];
@@ -331,6 +357,32 @@ id collectionForIndex(id parentCollection, NSInteger index) {
         return nil;
     }
     return _modesArray[_mode];
+}
+
+#pragma mark private: cache
+/** 取出当前mode下，某个indexPath对应的内容 */
+- (id)contentAtIndexPath:(NSIndexPath *)indexPath type:(int)cacheType {
+    if (indexPath == nil) { return nil; }
+    NSMutableDictionary *detailsDictionary = _cacheDictionary[[NSIndexPath indexPathForRow:_mode inSection:cacheType]];
+    return detailsDictionary[indexPath];
+}
+
+/** 在当前mode下，将某个indexPath对应的内容存入缓存 */
+- (void)setContent:(id<NSCopying>)content indexPath:(NSIndexPath *)indexPath type:(int)cacheType {
+    if (content == nil || indexPath == nil) { return; }
+    NSIndexPath *cacheKey = [NSIndexPath indexPathForRow:_mode inSection:cacheType];
+    NSMutableDictionary *detailsDictionary = _cacheDictionary[cacheKey];
+    if (detailsDictionary == nil) {
+        detailsDictionary = [[NSMutableDictionary alloc] init];
+        _cacheDictionary[cacheKey] = detailsDictionary;
+    }
+    detailsDictionary[indexPath] = content;
+}
+
+/** 为某个mode移除全部缓存 */
+- (void)removeAllCachesForMode:(NSInteger)mode {
+    [_cacheDictionary removeObjectForKey:[NSIndexPath indexPathForRow:mode inSection:_CACHE_TYPE_ROW_CONTENTS]];
+    [_cacheDictionary removeObjectForKey:[NSIndexPath indexPathForRow:mode inSection:_CACHE_TYPE_SECTION_CONTENTS]];
 }
 
 #pragma mark public: general
@@ -394,6 +446,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     if (mode < 0 || mode >= _modesArray.count) {
         return;
     }
+    [self removeAllCachesForMode:mode];
     AOZTVPMode *theMode = _modesArray[mode];
     theMode.needsReload = YES;
 }

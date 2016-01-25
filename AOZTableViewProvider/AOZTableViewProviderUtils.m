@@ -124,30 +124,30 @@
         [_rowCollectionsArray addObject:defaultRowCollection];
     }
     for (AOZTVPRowCollection *rowCollection in _rowCollectionsArray) {
-        AOZTVPDataConfig *dataConfig = rowCollection.dataConfig;
-        if ([dataConfig.source isKindOfClass:[NSArray class]]) {//如果row自身的source就是array
-            if (dataConfig.elementsPerRow <= 0) {
+        AOZTVPDataConfig *rowDataConfig = rowCollection.dataConfig;
+        if ([rowDataConfig.source isKindOfClass:[NSArray class]]) {//如果row自身的source就是array
+            if (rowDataConfig.elementsPerRow <= 0) {
                 rowCollection.rowRange = NSMakeRange(currentLocation, 1);
             } else {
-                rowCollection.rowRange = NSMakeRange(currentLocation, ceil((CGFloat) ((NSArray *) dataConfig.source).count / dataConfig.elementsPerRow));
+                rowCollection.rowRange = NSMakeRange(currentLocation, ceil((CGFloat) ((NSArray *) rowDataConfig.source).count / rowDataConfig.elementsPerRow));
             }
-        } else if ([dataConfig.source isEqual:[NSNull null]] && sectionElement) {//如果row自身的source没有被指定，但是指定了sectionElement
+        } else if ([rowDataConfig.source isEqual:[NSNull null]] && sectionElement) {//如果row自身的source没有被指定，但是指定了sectionElement，那么row的数据源直接来自于sectionElement
             if ([sectionElement isKindOfClass:[NSArray class]]) {//如果sectionElement本身就是一个array
-                if (dataConfig.elementsPerRow <= 0) {
+                if (rowDataConfig.elementsPerRow <= 0) {//如果所有的数据全在同一行
                     rowCollection.rowRange = NSMakeRange(currentLocation, 1);
-                } else {
+                } else {//如果需要分行
                     rowCollection.dataConfig.source = sectionElement;
-                    rowCollection.rowRange = NSMakeRange(currentLocation, ceil((CGFloat) ((NSArray *) sectionElement).count / dataConfig.elementsPerRow));
+                    rowCollection.rowRange = NSMakeRange(currentLocation, ceil((CGFloat) ((NSArray *) sectionElement).count / rowDataConfig.elementsPerRow));
                 }
-            } else if (rowCollection.elementSource.length > 0) {//如果指定了row的elementSource
+            } else if (rowCollection.elementSource.length > 0) {//如果指定了row的elementSource，则尝试从sectionElement里面读取之
                 @try {
                     id elementSourceObj = [sectionElement valueForKey:rowCollection.elementSource];
                     rowCollection.dataConfig.source = elementSourceObj;
                     if ([elementSourceObj isKindOfClass:[NSArray class]]) {
-                        if (dataConfig.elementsPerRow <= 0) {
+                        if (rowDataConfig.elementsPerRow <= 0) {
                             rowCollection.rowRange = NSMakeRange(currentLocation, 1);
                         } else {
-                            rowCollection.rowRange = NSMakeRange(currentLocation, ceil((CGFloat) ((NSArray *) elementSourceObj).count / dataConfig.elementsPerRow));
+                            rowCollection.rowRange = NSMakeRange(currentLocation, ceil((CGFloat) ((NSArray *) elementSourceObj).count / rowDataConfig.elementsPerRow));
                         }
                     } else {
                         rowCollection.rowRange = NSMakeRange(currentLocation, 1);
