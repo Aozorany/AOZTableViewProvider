@@ -1,5 +1,5 @@
 
-section -s _dictionary -c TableViewCell
+section -s _dictionary -c TableViewCell -h TableViewHeaderFooterView
 row -s first
 row -s second
 section -c TableViewCell

@@ -436,6 +436,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
 - (void)reloadTableView {
     AOZTVPMode *currentMode = [self currentMode];
     if (currentMode.needsReload) {
+        [self removeAllCachesForMode:_mode];
         [currentMode reloadSections];
         currentMode.needsReload = NO;
     }
@@ -446,7 +447,6 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     if (mode < 0 || mode >= _modesArray.count) {
         return;
     }
-    [self removeAllCachesForMode:mode];
     AOZTVPMode *theMode = _modesArray[mode];
     theMode.needsReload = YES;
 }
