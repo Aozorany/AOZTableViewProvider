@@ -17,6 +17,7 @@
 #pragma mark -
 static int _CACHE_TYPE_ROW_CONTENTS = 0;/**< 缓存类型：row里面的内容 */
 static int _CACHE_TYPE_SECTION_CONTENTS = 1;/**< 缓存类型：section里面的内容 */
+static int _CACHE_TYPE_CELL_CLASS = 2;/**< 缓存类型：row cell，它的值是class对应的string */
 
 
 #pragma mark -
@@ -113,19 +114,22 @@ id collectionForIndex(id parentCollection, NSInteger index) {
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    AOZTVPMode *currentMode = [self currentMode];
-    AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, indexPath.section);
-    AOZTVPSectionCollection *newSectionCollection = nil;
-    if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]] && sectionCollection.dataConfig.elementsPerRow == 1) {
-        newSectionCollection = [sectionCollection copy];
-        [newSectionCollection reloadRowsWithSectionElement:((NSArray *) newSectionCollection.dataConfig.source)[indexPath.section - newSectionCollection.sectionRange.location]];
-    } else {
-        newSectionCollection = sectionCollection;
-    }
-    AOZTVPRowCollection *rowCollection = collectionForIndex(newSectionCollection, indexPath.row);
-    
+    NSString *cellClassStr = [self contentAtIndexPath:indexPath type:_CACHE_TYPE_CELL_CLASS];
+    Class cellClass = (cellClassStr.length > 0? NSClassFromString(cellClassStr): NULL);
     id contents = [self contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
-    if (contents == nil) {//如果从缓存里面读不到结果，则重新生成
+    
+    if (contents == nil || cellClass == NULL) {//如果从缓存里面读不到结果，则重新生成
+        AOZTVPMode *currentMode = [self currentMode];
+        AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, indexPath.section);
+        AOZTVPSectionCollection *newSectionCollection = nil;
+        if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]] && sectionCollection.dataConfig.elementsPerRow == 1) {
+            newSectionCollection = [sectionCollection copy];
+            [newSectionCollection reloadRowsWithSectionElement:((NSArray *) newSectionCollection.dataConfig.source)[indexPath.section - newSectionCollection.sectionRange.location]];
+        } else {
+            newSectionCollection = sectionCollection;
+        }
+        AOZTVPRowCollection *rowCollection = collectionForIndex(newSectionCollection, indexPath.row);
+        
         if (![rowCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在row里面设置了数据源，则使用row的设置
             if ([rowCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
                 if (rowCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
@@ -159,11 +163,14 @@ id collectionForIndex(id parentCollection, NSInteger index) {
                 contents = sectionCollection.dataConfig.source;
             }
         }
-        //将取到的结果放入缓存
+        //将取到的结果放入缓存，并记录cellClass和cellClassStr
         [self setContent:contents indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
+        [self setContent:NSStringFromClass(rowCollection.dataConfig.cellClass) indexPath:indexPath type:_CACHE_TYPE_CELL_CLASS];
+        cellClass = rowCollection.dataConfig.cellClass;
+        cellClassStr = NSStringFromClass(cellClass);
     }
     
-    AOZTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass(rowCollection.dataConfig.cellClass)];
+    AOZTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellClassStr];
     [cell setContents:contents];
     
     if ([_delegate respondsToSelector:@selector(tableViewProvider:cellForRowAtIndexPath:contents:cell:)]) {
@@ -175,19 +182,22 @@ id collectionForIndex(id parentCollection, NSInteger index) {
 
 #pragma mark delegate: UITableViewDelegate
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    AOZTVPMode *currentMode = [self currentMode];
-    AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, indexPath.section);
-    AOZTVPSectionCollection *newSectionCollection = nil;
-    if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]] && sectionCollection.dataConfig.elementsPerRow == 1) {
-        newSectionCollection = [sectionCollection copy];
-        [newSectionCollection reloadRowsWithSectionElement:((NSArray *) newSectionCollection.dataConfig.source)[indexPath.section - newSectionCollection.sectionRange.location]];
-    } else {
-        newSectionCollection = sectionCollection;
-    }
-    AOZTVPRowCollection *rowCollection = collectionForIndex(newSectionCollection, indexPath.row);
-    
+    NSString *cellClassStr = [self contentAtIndexPath:indexPath type:_CACHE_TYPE_CELL_CLASS];
+    Class cellClass = (cellClassStr.length > 0? NSClassFromString(cellClassStr): NULL);
     id contents = [self contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
-    if (contents == nil) {
+    
+    if (contents == nil || cellClass == NULL) {
+        AOZTVPMode *currentMode = [self currentMode];
+        AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, indexPath.section);
+        AOZTVPSectionCollection *newSectionCollection = nil;
+        if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]] && sectionCollection.dataConfig.elementsPerRow == 1) {
+            newSectionCollection = [sectionCollection copy];
+            [newSectionCollection reloadRowsWithSectionElement:((NSArray *) newSectionCollection.dataConfig.source)[indexPath.section - newSectionCollection.sectionRange.location]];
+        } else {
+            newSectionCollection = sectionCollection;
+        }
+        AOZTVPRowCollection *rowCollection = collectionForIndex(newSectionCollection, indexPath.row);
+        
         if (![rowCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在row里面设置了数据源，则使用row的设置
             if ([rowCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
                 if (rowCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
@@ -221,12 +231,16 @@ id collectionForIndex(id parentCollection, NSInteger index) {
                 contents = sectionCollection.dataConfig.source;
             }
         }
+        //将取到的结果放入缓存，并记录cellClass和cellClassStr
         [self setContent:contents indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
+        [self setContent:NSStringFromClass(rowCollection.dataConfig.cellClass) indexPath:indexPath type:_CACHE_TYPE_CELL_CLASS];
+        cellClass = rowCollection.dataConfig.cellClass;
+        cellClassStr = NSStringFromClass(cellClass);
     }
 
-    NSMethodSignature *signiture = [rowCollection.dataConfig.cellClass methodSignatureForSelector:@selector(heightForCell:)];
+    NSMethodSignature *signiture = [cellClass methodSignatureForSelector:@selector(heightForCell:)];
     NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signiture];
-    [invocation setTarget:rowCollection.dataConfig.cellClass];
+    [invocation setTarget:cellClass];
     [invocation setSelector:@selector(heightForCell:)];
     if (contents) {
         [invocation setArgument:&contents atIndex:2];
@@ -243,20 +257,20 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     if ([cell respondsToSelector:@selector(willDisplayCell)]) {
         [((AOZTableViewCell *) cell) willDisplayCell];
     }
-    if ([_delegate respondsToSelector:@selector(tableViewProvider:willDisplayCell:forRowAtIndexPath:)]) {
-        [_delegate tableViewProvider:self willDisplayCell:cell forRowAtIndexPath:indexPath];
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:willDisplayCell:forRowAtIndexPath:contents:)]) {
+        [_delegate tableViewProvider:self willDisplayCell:cell forRowAtIndexPath:indexPath contents:[self contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS]];
     }
 }
 
 - (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if ([_delegate respondsToSelector:@selector(tableViewProvider:didEndDisplayingCell:forRowAtIndexPath:)]) {
-        [_delegate tableViewProvider:self didEndDisplayingCell:cell forRowAtIndexPath:indexPath];
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:didEndDisplayingCell:forRowAtIndexPath:contents:)]) {
+        [_delegate tableViewProvider:self didEndDisplayingCell:cell forRowAtIndexPath:indexPath contents:[self contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS]];
     }
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if ([_delegate respondsToSelector:@selector(tableViewProvider:didSelectRowAtIndexPath:)]) {
-        [_delegate tableViewProvider:self didSelectRowAtIndexPath:indexPath];
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:didSelectRowAtIndexPath:contents:)]) {
+        [_delegate tableViewProvider:self didSelectRowAtIndexPath:indexPath contents:[self contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS]];
     }
 }
 
@@ -383,6 +397,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
 - (void)removeAllCachesForMode:(NSInteger)mode {
     [_cacheDictionary removeObjectForKey:[NSIndexPath indexPathForRow:mode inSection:_CACHE_TYPE_ROW_CONTENTS]];
     [_cacheDictionary removeObjectForKey:[NSIndexPath indexPathForRow:mode inSection:_CACHE_TYPE_SECTION_CONTENTS]];
+    [_cacheDictionary removeObjectForKey:[NSIndexPath indexPathForRow:mode inSection:_CACHE_TYPE_CELL_CLASS]];
 }
 
 #pragma mark public: general
@@ -449,6 +464,14 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     }
     AOZTVPMode *theMode = _modesArray[mode];
     theMode.needsReload = YES;
+}
+
+- (id)rowContentsAtIndexPath:(NSIndexPath *)indexPath {
+    return [self contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
+}
+
+- (id)sectionContentsAtSection:(NSInteger)section {
+    return [self contentAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:section] type:_CACHE_TYPE_SECTION_CONTENTS];
 }
 
 @end

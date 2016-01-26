@@ -29,6 +29,8 @@
 - (void)connectToTableView:(UITableView *)tableView;
 - (void)reloadTableView;
 - (void)setNeedsReloadForMode:(int)mode;
+- (id)rowContentsAtIndexPath:(NSIndexPath *)indexPath;
+- (id)sectionContentsAtSection:(NSInteger)section;
 @end
 
 
@@ -36,9 +38,9 @@
 @protocol AOZTableViewProviderDelegate <NSObject>
 @optional
 - (void)tableViewProvider:(AOZTableViewProvider *)provider cellForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cell:(UITableViewCell *)cell;
-- (void)tableViewProvider:(AOZTableViewProvider *)provider willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath;
-- (void)tableViewProvider:(AOZTableViewProvider *)provider didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath;
-- (void)tableViewProvider:(AOZTableViewProvider *)provider didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
+- (void)tableViewProvider:(AOZTableViewProvider *)provider willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;
+- (void)tableViewProvider:(AOZTableViewProvider *)provider didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;
+- (void)tableViewProvider:(AOZTableViewProvider *)provider didSelectRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;
 - (UIView *)tableViewProvider:(AOZTableViewProvider *)provider viewForHeaderInSection:(NSInteger)section;
 - (UIView *)tableViewProvider:(AOZTableViewProvider *)provider viewForFooterInSection:(NSInteger)section;
 - (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForHeaderInSection:(NSInteger)section;

@@ -11,6 +11,12 @@
 #import "AOZTableViewProvider.h"
 
 
+#pragma mark -
+@interface ViewController () <AOZTableViewProviderDelegate>
+@end
+
+
+#pragma mark -
 @implementation ViewController {
     AOZTableViewProvider *_tableViewProvider;
     NSArray *_multipleArray;
@@ -40,9 +46,16 @@
     _tableViewProvider = [[AOZTableViewProvider alloc] init];
     _tableViewProvider.configBundleFileName = @"ViewController.tableViewConfig";
     _tableViewProvider.dataProvider = self;
+    _tableViewProvider.delegate = self;
     [_tableViewProvider connectToTableView:mainTableView];
     [_tableViewProvider parseConfigFile:NULL];
     [_tableViewProvider reloadTableView];
+}
+
+#pragma mark delegate: AOZTableViewProviderDelegate
+- (void)tableViewProvider:(AOZTableViewProvider *)provider didSelectRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents {
+    [_tableViewProvider.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    NSLog(@"%@", contents);
 }
 
 @end
