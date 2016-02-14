@@ -29,6 +29,7 @@
 - (void)connectToTableView:(UITableView *)tableView;
 - (void)reloadTableView;
 - (void)setNeedsReloadForMode:(int)mode;
+- (void)setNeedsReloadForCurrentMode;
 - (id)rowContentsAtIndexPath:(NSIndexPath *)indexPath;
 - (id)sectionContentsAtSection:(NSInteger)section;
 @end

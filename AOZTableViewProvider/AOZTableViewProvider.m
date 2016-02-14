@@ -466,6 +466,11 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     theMode.needsReload = YES;
 }
 
+- (void)setNeedsReloadForCurrentMode {
+    AOZTVPMode *theMode = [self currentMode];
+    theMode.needsReload = YES;
+}
+
 - (id)rowContentsAtIndexPath:(NSIndexPath *)indexPath {
     return [self contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
 }
