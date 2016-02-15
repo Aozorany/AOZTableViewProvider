@@ -159,8 +159,10 @@
             } else {//如果sectionElement本身属于其他样式
                 rowCollection.rowRange = NSMakeRange(currentLocation, 1);
             }
-        } else {//如果row自身的source没有被指定，也没有指定sectionElement
+        } else if (rowDataConfig.source) {
             rowCollection.rowRange = NSMakeRange(currentLocation, 1);
+        } else {
+            rowCollection.rowRange = NSMakeRange(currentLocation, 0);
         }
         currentLocation = rowCollection.rowRange.location + rowCollection.rowRange.length;
     }
@@ -203,8 +205,10 @@
             } else {
                 sectionCollection.sectionRange = NSMakeRange(currentLocation, ceil((CGFloat) ((NSArray *) dataConfig.source).count / dataConfig.elementsPerRow));
             }
-        } else {
+        } else if (dataConfig.source) {
             sectionCollection.sectionRange = NSMakeRange(currentLocation, 1);
+        } else {
+            sectionCollection.sectionRange = NSMakeRange(0, 0);
         }
         currentLocation = sectionCollection.sectionRange.location + sectionCollection.sectionRange.length;
         

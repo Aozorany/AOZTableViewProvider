@@ -30,7 +30,7 @@
     [super viewDidLoad];
     
     _placeHolder = @"";
-    _array = @[@"1", @"2", @"3", @"4", @"5"];
+    _array = /*@[@"1", @"2", @"3", @"4", @"5"]*/nil;
     _multipleArray = @[@{@"subArray": @[@"1", @"2"], @"name": @"section name 1"}, @{@"subArray": @[@"3", @"4", @"5"], @"name": @"section name 2"}];
     _dictionary = @{@"first": @"first dictionary value", @"second": @"second dictionary value"};
     
