@@ -21,6 +21,7 @@
     AOZTableViewProvider *_tableViewProvider;
     NSArray *_multipleArray;
     NSArray *_array;
+    NSArray *_emptyArray;
     NSDictionary *_dictionary;
     NSString *_placeHolder;
 }
@@ -30,7 +31,8 @@
     [super viewDidLoad];
     
     _placeHolder = @"";
-    _array = /*@[@"1", @"2", @"3", @"4", @"5"]*/nil;
+    _array = @[@"1", @"2", @"3", @"4", @"5"];
+    _emptyArray = nil;
     _multipleArray = @[@{@"subArray": @[@"1", @"2"], @"name": @"section name 1"}, @{@"subArray": @[@"3", @"4", @"5"], @"name": @"section name 2"}];
     _dictionary = @{@"first": @"first dictionary value", @"second": @"second dictionary value"};
     
@@ -55,7 +57,6 @@
 #pragma mark delegate: AOZTableViewProviderDelegate
 - (void)tableViewProvider:(AOZTableViewProvider *)provider didSelectRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents {
     [_tableViewProvider.tableView deselectRowAtIndexPath:indexPath animated:YES];
-    NSLog(@"%@", contents);
 }
 
 @end

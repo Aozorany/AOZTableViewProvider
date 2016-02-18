@@ -22,4 +22,8 @@
     }
 }
 
+- (void)willDisplayCell {
+    self.contentView.backgroundColor = [UIColor lightGrayColor];
+}
+
 @end
