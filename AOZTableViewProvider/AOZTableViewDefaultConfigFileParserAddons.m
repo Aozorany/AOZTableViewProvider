@@ -147,6 +147,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
     AOZTVPDataConfig *dataConfig = [[AOZTVPDataConfig alloc] init];
     if (presetDataConfig) {
         dataConfig.cellClass = presetDataConfig.cellClass;
+        dataConfig.emptyCellClass = presetDataConfig.emptyCellClass;
         dataConfig.source = [presetDataConfig.source isKindOfClass:[NSArray class]]? [NSNull null]: presetDataConfig.source;
         dataConfig.elementsPerRow = presetDataConfig.elementsPerRow;
     }
@@ -178,22 +179,26 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
                 createAndLogError(self.class, @"-s is last, ignore", NULL);
             }
             index += 2;
-        } else if ([chunk isEqualToString:@"-c"]) {//-c指示符，下一个参数是单元格类型
+        } else if ([chunk isEqualToString:@"-c"] || [chunk isEqualToString:@"-ec"]) {//-c指示符，下一个参数是单元格类型
             if (index < chunksArray.count - 1) {//如果-c不是最后一个参数
                 NSString *nextChunk = chunksArray[index + 1];
                 Class cellClass = objc_getClass([nextChunk UTF8String]);
                 if (cellClass) {
                     if ([cellClass conformsToProtocol:@protocol(AOZTableViewCell)] && checkClassRelation(cellClass, [UITableViewCell class])) {//如果cellClass符合条件
-                        dataConfig.cellClass = cellClass;
+                        if ([chunk isEqualToString:@"-c"]) {
+                            dataConfig.cellClass = cellClass;
+                        } else {
+                            dataConfig.emptyCellClass = cellClass;
+                        }
                         [_tableView registerClass:cellClass forCellReuseIdentifier:NSStringFromClass(cellClass)];
                     } else {//如果cellClass不符合条件，则报错并忽略
-                        createAndLogError(self.class, [NSString stringWithFormat:@"Irregular class for -c arg %@", nextChunk], NULL);
+                        createAndLogError(self.class, [NSString stringWithFormat:@"Irregular class for %@ arg %@", chunk, nextChunk], NULL);
                     }
                 } else {//如果没查找到对应的类，则报错并忽略
-                    createAndLogError(self.class, [NSString stringWithFormat:@"No class for -c arg %@", nextChunk], NULL);
+                    createAndLogError(self.class, [NSString stringWithFormat:@"No class for %@ arg %@", chunk, nextChunk], NULL);
                 }
             } else {//如果是最后一个参数，报错并忽略
-                createAndLogError(self.class, @"-c is last, ignore", NULL);
+                createAndLogError(self.class, [NSString stringWithFormat:@"%@ is last, ignore", chunk], NULL);
             }
             index += 2;
         } else if ([chunk isEqualToString:@"-h"]) {//-c指示符，下一个参数是section header类型
