@@ -41,7 +41,7 @@ AOZTableViewProvider的主要目的是把UITableView的所有信息集成到一�
   _tableViewProvider.dataProvider = self;
   [_tableViewProvider connectToTableView:mainTableView];
   [_tableViewProvider parseConfigFile:NULL];
-  //[_tableViewProvider setNeedsReloadForMode:0];//called when data source for mode 0 is updated.
+  //[_tableViewProvider setNeedsReloadForMode:0];//如果模式0的数据源有更新，在更新表格之前需要调用这个方法
   [_tableViewProvider reloadTableView];
   ```
 
