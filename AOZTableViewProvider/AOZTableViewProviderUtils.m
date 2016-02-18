@@ -31,7 +31,7 @@
     AOZTVPDataConfig *anotherDataConfig = (AOZTVPDataConfig *)object;
     return _elementsPerRow == anotherDataConfig.elementsPerRow
            && [NSStringFromClass(_cellClass) isEqualToString:NSStringFromClass(anotherDataConfig.cellClass)]
-           && [NSStringFromClass(_emptyCellClass) isEqualToString:NSStringFromClass(anotherDataConfig.emptyCellClass)]
+           && ((_emptyCellClass == NULL && anotherDataConfig.emptyCellClass == NULL) || [NSStringFromClass(_emptyCellClass) isEqualToString:NSStringFromClass(anotherDataConfig.emptyCellClass)])
            && ((_source == nil && anotherDataConfig.source == nil) || [_source isEqual:anotherDataConfig.source]);
 }
 
