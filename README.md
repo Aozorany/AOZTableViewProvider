@@ -179,3 +179,5 @@ All lines with prefix other than mode, section and row are treated as comments, 
 -all: if data source is array, it means all elements are in the same line.
 
 -es: element source of a row, if section data source is an array, it means "search value from each element of that array".
+
+-ec: if data source is empty (that means, if source is nil if it's not an array, or it is nil or has no elements if it's an array), it means the cell class to use in this situation.
