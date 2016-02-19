@@ -36,7 +36,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"<AOZTVPDataConfig: _elementsPerRow: %d, _cellClass: %@, _emptyCellClass: %@, _source: %@>",
+    return [NSString stringWithFormat:@"<AOZTVPDataConfig: _elementsPerRow: %zd, _cellClass: %@, _emptyCellClass: %@, _source: %@>",
             _elementsPerRow, NSStringFromClass(_cellClass), NSStringFromClass(_emptyCellClass), _source];
 }
 @end
