@@ -15,18 +15,6 @@
 #endif
 
 
-/** cell位置指示符 */
-typedef NS_ENUM(NSInteger, AOZTableViewCellPosition) {
-    AOZTableViewCellPositionNormal = 0,/**< cell的位置在中间 */
-    AOZTableViewCellPositionTop = 1,/**< cell的位置在section中的第一个 */
-    AOZTableViewCellPositionBotton = 1 << 1,/**< cell的位置在section中的最后一个 */
-    AOZTableViewCellPositionOnly = AOZTableViewCellPositionTop | AOZTableViewCellPositionBotton,/**< cell是section中的唯一一个 */
-    AOZTableViewCellPositionPartTop = 1 << 2,/**< cell的位置在本数据结构的第一个 */
-    AOZTableViewCellPositionPartBotton = 1 << 3,/**< cell的位置在本数据结构的最后一个 */
-    AOZTableViewCellPositionPartOnly = AOZTableViewCellPositionPartTop | AOZTableViewCellPositionPartBotton,/**< cell是本数据结构中的唯一一个 */
-};
-
-
 #pragma mark -
 @protocol AOZTableViewProviderDelegate;
 /** UITableView的数据源与部分代理提供器, init - configFileUrl - parseConfigFile - connectToTableView - reloadTableView */
