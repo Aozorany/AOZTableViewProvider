@@ -8,5 +8,5 @@
 
 #import "AOZTableViewCell.h"
 
-@interface TableViewCell : AOZTableViewCell
+@interface TableViewCell : UITableViewCell <AOZTableViewCell>
 @end

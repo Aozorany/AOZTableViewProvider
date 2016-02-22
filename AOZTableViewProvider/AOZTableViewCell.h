@@ -14,19 +14,21 @@
 typedef NS_ENUM(NSInteger, AOZTableViewCellPosition) {
     AOZTableViewCellPositionNormal = 0,/**< cell的位置在中间 */
     AOZTableViewCellPositionTop = 1,/**< cell的位置在section中的第一个 */
-    AOZTableViewCellPositionBotton = 1 << 1,/**< cell的位置在section中的最后一个 */
-    AOZTableViewCellPositionOnly = AOZTableViewCellPositionTop | AOZTableViewCellPositionBotton,/**< cell是section中的唯一一个 */
-    AOZTableViewCellPositionPartTop = 1 << 2,/**< cell的位置在本数据结构的第一个 */
-    AOZTableViewCellPositionPartBotton = 1 << 3,/**< cell的位置在本数据结构的最后一个 */
-    AOZTableViewCellPositionPartOnly = AOZTableViewCellPositionPartTop | AOZTableViewCellPositionPartBotton,/**< cell是本数据结构中的唯一一个 */
+    AOZTableViewCellPositionBotton = 1 << 1,/**< 2, cell的位置在section中的最后一个 */
+    AOZTableViewCellPositionOnly = AOZTableViewCellPositionTop | AOZTableViewCellPositionBotton,/**< 3, cell是section中的唯一一个 */
+    AOZTableViewCellPositionPartTop = 1 << 2,/**< 4, cell的位置在本数据结构的第一个 */
+    AOZTableViewCellPositionPartBotton = 1 << 3,/**< 8, cell的位置在本数据结构的最后一个 */
+    AOZTableViewCellPositionPartOnly = AOZTableViewCellPositionPartTop | AOZTableViewCellPositionPartBotton,/**< 12, cell是本数据结构中的唯一一个 */
 };
 
 
 @protocol AOZTableViewCell <NSObject>
-@property (nonatomic, assign) int cellPositions;
+@optional
 - (void)setContents:(id)contents;
+- (void)setContents:(id)contents positions:(NSInteger)cellPositions indexPath:(NSIndexPath *)indexPath;
 - (void)willDisplayCell;
 + (CGFloat)heightForCell:(id)contents;
++ (CGFloat)heightForCell:(id)contents positions:(NSInteger)cellPositions indexPath:(NSIndexPath *)indexPath;
 @end
 
 

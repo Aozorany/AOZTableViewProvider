@@ -22,7 +22,7 @@
     }
 }
 
-+ (CGFloat)heightForCell:(id)contents {
++ (CGFloat)heightForCell:(id)contents positions:(NSInteger)cellPosition indexPath:(NSIndexPath *)indexPath {
     return 40;
 }
 

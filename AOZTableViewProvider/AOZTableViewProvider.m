@@ -19,6 +19,7 @@ static int _CACHE_TYPE_ROW_CONTENTS = 0;/**< 缓存类型：row里面的内容 *
 static int _CACHE_TYPE_SECTION_CONTENTS = 1;/**< 缓存类型：section里面的内容 */
 static int _CACHE_TYPE_CELL_CLASS = 2;/**< 缓存类型：row cell，它的值是class对应的string */
 static int _CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG = 3;/**< 缓存类型：row里面的内容是否为空，是一个NSNumber with bool值 */
+static int _CACHE_TYPE_CELL_POSITION = 4;/**< 缓存类型：cell position */
 
 
 #pragma mark -
@@ -123,9 +124,23 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     Class cellClass = (cellClassStr.length > 0? NSClassFromString(cellClassStr): NULL);
     id contents = [self contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
     BOOL contentsEmptyFlag = [[self contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG] boolValue];
+    NSInteger cellPositions = [[self contentAtIndexPath:indexPath type:_CACHE_TYPE_CELL_POSITION] integerValue];
     
     if ((!contentsEmptyFlag && contents == nil) || cellClass == NULL) {//如果从缓存里面读不到结果，则重新生成
         contents = [NSNull null];
+        
+        NSInteger cellPosition_section = AOZTableViewCellPositionNormal;
+        NSInteger numberOfRows = [self tableView:_tableView numberOfRowsInSection:indexPath.section];
+        if (numberOfRows == 1) {
+            cellPosition_section = AOZTableViewCellPositionOnly;
+        } else if (indexPath.row == 0) {
+            cellPosition_section = AOZTableViewCellPositionTop;
+        } else if (indexPath.row == numberOfRows - 1) {
+            cellPosition_section = AOZTableViewCellPositionBotton;
+        }
+        
+        NSInteger cellPosition_part = AOZTableViewCellPositionNormal;
+        
         AOZTVPMode *currentMode = [self currentMode];
         AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, indexPath.section);
         AOZTVPSectionCollection *newSectionCollection = nil;
@@ -141,49 +156,101 @@ id collectionForIndex(id parentCollection, NSInteger index) {
         }
         AOZTVPRowCollection *rowCollection = collectionForIndex(newSectionCollection, indexPath.row);
         
-        if (![rowCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在row里面设置了数据源，则使用row的设置
+        if (![rowCollection.dataConfig.source isEqual:[NSNull null]]) {
+            //如果在row里面设置了数据源，则使用row的设置
             if ([rowCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
                 if ([rowCollection.dataConfig.source count] > 0) {
-                    if (rowCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                    if (rowCollection.dataConfig.elementsPerRow < 0) {
+                        //全部数据都在一个单元格的情况
                         contents = rowCollection.dataConfig.source;
-                    } else if (rowCollection.dataConfig.elementsPerRow == 0 || rowCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                        cellPosition_part = AOZTableViewCellPositionPartOnly;
+                    } else if (rowCollection.dataConfig.elementsPerRow == 0 || rowCollection.dataConfig.elementsPerRow == 1) {
+                        //每个单元格只有一个元素的情况
                         contents = ((NSArray *) rowCollection.dataConfig.source)[indexPath.row - rowCollection.rowRange.location];
-                    } else {//每个单元格有多个元素的情况
+                        if (rowCollection.rowRange.length == 1) {
+                            cellPosition_part = AOZTableViewCellPositionPartOnly;;
+                        } else if (indexPath.row == rowCollection.rowRange.location) {
+                            cellPosition_part = AOZTableViewCellPositionPartTop;
+                        } else if (indexPath.row == rowCollection.rowRange.location + rowCollection.rowRange.length - 1) {
+                            cellPosition_part = AOZTableViewCellPositionPartBotton;
+                        } else {
+                            cellPosition_part = AOZTableViewCellPositionNormal;
+                        }
+                    } else {
+                        //每个单元格有多个元素的情况
                         NSRange subRange = NSMakeRange((indexPath.row - rowCollection.rowRange.location) * rowCollection.dataConfig.elementsPerRow, rowCollection.dataConfig.elementsPerRow);
                         if (subRange.location + subRange.length >= ((NSArray *) rowCollection.dataConfig.source).count) {
                             subRange.length = ((NSArray *) rowCollection.dataConfig.source).count - subRange.location;
                         }
                         contents = [((NSArray *) rowCollection.dataConfig.source) subarrayWithRange:subRange];
+                        
+                        if (rowCollection.rowRange.length == 1) {
+                            cellPosition_part = AOZTableViewCellPositionPartOnly;;
+                        } else if (indexPath.row == rowCollection.rowRange.location) {
+                            cellPosition_part = AOZTableViewCellPositionPartTop;
+                        } else if (indexPath.row == rowCollection.rowRange.location + rowCollection.rowRange.length - 1) {
+                            cellPosition_part = AOZTableViewCellPositionPartBotton;
+                        } else {
+                            cellPosition_part = AOZTableViewCellPositionNormal;
+                        }
                     }
                     contentsEmptyFlag = NO;
                 } else {
                     contentsEmptyFlag = YES;
+                    cellPosition_part = AOZTableViewCellPositionPartOnly;
                 }
             } else {
                 contents = rowCollection.dataConfig.source;
                 contentsEmptyFlag = (contents == nil);
+                cellPosition_part = AOZTableViewCellPositionPartOnly;
             }
-        } else if (![sectionCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在section里面设置了数据源，则使用section的设置
+        } else if (![sectionCollection.dataConfig.source isEqual:[NSNull null]]) {
+            //如果在section里面设置了数据源，则使用section的设置
             if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
                 if ([sectionCollection.dataConfig.source count] > 0) {
-                    if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                    if (sectionCollection.dataConfig.elementsPerRow < 0) {
+                        //全部数据都在一个单元格的情况
                         contents = sectionCollection.dataConfig.source;
-                    } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                        cellPosition_part = AOZTableViewCellPositionPartOnly;
+                    } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {
+                        //每个单元格只有一个元素的情况
                         contents = ((NSArray *) sectionCollection.dataConfig.source)[indexPath.section - sectionCollection.sectionRange.location];
-                    } else {//每个单元格有多个元素的情况
+                        if (sectionCollection.sectionRange.length == 1) {
+                            cellPosition_part = AOZTableViewCellPositionPartOnly;
+                        } else if (indexPath.row == sectionCollection.sectionRange.location) {
+                            cellPosition_part = AOZTableViewCellPositionPartTop;
+                        } else if (indexPath.row == sectionCollection.sectionRange.location + sectionCollection.sectionRange.length - 1) {
+                            cellPosition_part = AOZTableViewCellPositionPartBotton;
+                        } else {
+                            cellPosition_part = AOZTableViewCellPositionNormal;
+                        }
+                    } else {
+                        //每个单元格有多个元素的情况
                         NSRange subRange = NSMakeRange((indexPath.section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
                         if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
                             subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
                         }
                         contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
+                        
+                        if (sectionCollection.sectionRange.length == 1) {
+                            cellPosition_part = AOZTableViewCellPositionPartOnly;
+                        } else if (indexPath.row == sectionCollection.sectionRange.location) {
+                            cellPosition_part = AOZTableViewCellPositionPartTop;
+                        } else if (indexPath.row == sectionCollection.sectionRange.location + sectionCollection.sectionRange.length - 1) {
+                            cellPosition_part = AOZTableViewCellPositionPartBotton;
+                        } else {
+                            cellPosition_part = AOZTableViewCellPositionNormal;
+                        }
                     }
                     contentsEmptyFlag = NO;
                 } else {
                     contentsEmptyFlag = YES;
+                    cellPosition_part = AOZTableViewCellPositionPartOnly;
                 }
             } else {
                 contents = sectionCollection.dataConfig.source;
                 contentsEmptyFlag = (contents == nil);
+                cellPosition_part = AOZTableViewCellPositionPartOnly;
             }
         }
         //将取到的结果放入缓存，并记录cellClass和cellClassStr
@@ -193,10 +260,17 @@ id collectionForIndex(id parentCollection, NSInteger index) {
         [self setContent:contents indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
         [self setContent:@(contentsEmptyFlag) indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG];
         [self setContent:cellClassStr indexPath:indexPath type:_CACHE_TYPE_CELL_CLASS];
+        
+        cellPositions = (cellPosition_section | cellPosition_part);
+        [self setContent:@(cellPositions) indexPath:indexPath type:_CACHE_TYPE_CELL_POSITION];
     }
     
     AOZTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellClassStr];
-    [cell setContents:contents];
+    if ([cell respondsToSelector:@selector(setContents:positions:indexPath:)]) {
+        [cell setContents:contents positions:cellPositions indexPath:indexPath];
+    } else if ([cell respondsToSelector:@selector(setContents:)]) {
+        [cell setContents:contents];
+    }
     
     if ([_delegate respondsToSelector:@selector(tableViewProvider:cellForRowAtIndexPath:contents:cell:)]) {
         [_delegate tableViewProvider:self cellForRowAtIndexPath:indexPath contents:contents cell:cell];
@@ -211,9 +285,23 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     Class cellClass = (cellClassStr.length > 0? NSClassFromString(cellClassStr): NULL);
     id contents = [self contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
     BOOL contentsEmptyFlag = [[self contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG] boolValue];
+    NSInteger cellPositions = [[self contentAtIndexPath:indexPath type:_CACHE_TYPE_CELL_POSITION] integerValue];
     
     if ((!contentsEmptyFlag && contents == nil) || cellClass == NULL) {
         contents = [NSNull null];
+        
+        NSInteger cellPosition_section = AOZTableViewCellPositionNormal;
+        NSInteger numberOfRows = [self tableView:_tableView numberOfRowsInSection:indexPath.section];
+        if (numberOfRows == 1) {
+            cellPosition_section = AOZTableViewCellPositionOnly;
+        } else if (indexPath.row == 0) {
+            cellPosition_section = AOZTableViewCellPositionTop;
+        } else if (indexPath.row == numberOfRows - 1) {
+            cellPosition_section = AOZTableViewCellPositionBotton;
+        }
+        
+        NSInteger cellPosition_part = AOZTableViewCellPositionNormal;
+        
         AOZTVPMode *currentMode = [self currentMode];
         AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, indexPath.section);
         AOZTVPSectionCollection *newSectionCollection = nil;
@@ -229,49 +317,101 @@ id collectionForIndex(id parentCollection, NSInteger index) {
         }
         AOZTVPRowCollection *rowCollection = collectionForIndex(newSectionCollection, indexPath.row);
         
-        if (![rowCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在row里面设置了数据源，则使用row的设置
+        if (![rowCollection.dataConfig.source isEqual:[NSNull null]]) {
+            //如果在row里面设置了数据源，则使用row的设置
             if ([rowCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
                 if ([rowCollection.dataConfig.source count] > 0) {
-                    if (rowCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                    if (rowCollection.dataConfig.elementsPerRow < 0) {
+                        //全部数据都在一个单元格的情况
                         contents = rowCollection.dataConfig.source;
-                    } else if (rowCollection.dataConfig.elementsPerRow == 0 || rowCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                        cellPosition_part = AOZTableViewCellPositionPartOnly;
+                    } else if (rowCollection.dataConfig.elementsPerRow == 0 || rowCollection.dataConfig.elementsPerRow == 1) {
+                        //每个单元格只有一个元素的情况
                         contents = ((NSArray *) rowCollection.dataConfig.source)[indexPath.row - rowCollection.rowRange.location];
-                    } else {//每个单元格有多个元素的情况
+                        if (rowCollection.rowRange.length == 1) {
+                            cellPosition_part = AOZTableViewCellPositionPartOnly;;
+                        } else if (indexPath.row == rowCollection.rowRange.location) {
+                            cellPosition_part = AOZTableViewCellPositionPartTop;
+                        } else if (indexPath.row == rowCollection.rowRange.location + rowCollection.rowRange.length - 1) {
+                            cellPosition_part = AOZTableViewCellPositionPartBotton;
+                        } else {
+                            cellPosition_part = AOZTableViewCellPositionNormal;
+                        }
+                    } else {
+                        //每个单元格有多个元素的情况
                         NSRange subRange = NSMakeRange((indexPath.row - rowCollection.rowRange.location) * rowCollection.dataConfig.elementsPerRow, rowCollection.dataConfig.elementsPerRow);
                         if (subRange.location + subRange.length >= ((NSArray *) rowCollection.dataConfig.source).count) {
                             subRange.length = ((NSArray *) rowCollection.dataConfig.source).count - subRange.location;
                         }
                         contents = [((NSArray *) rowCollection.dataConfig.source) subarrayWithRange:subRange];
+                        
+                        if (rowCollection.rowRange.length == 1) {
+                            cellPosition_part = AOZTableViewCellPositionPartOnly;;
+                        } else if (indexPath.row == rowCollection.rowRange.location) {
+                            cellPosition_part = AOZTableViewCellPositionPartTop;
+                        } else if (indexPath.row == rowCollection.rowRange.location + rowCollection.rowRange.length - 1) {
+                            cellPosition_part = AOZTableViewCellPositionPartBotton;
+                        } else {
+                            cellPosition_part = AOZTableViewCellPositionNormal;
+                        }
                     }
                     contentsEmptyFlag = NO;
                 } else {
                     contentsEmptyFlag = YES;
+                    cellPosition_part = AOZTableViewCellPositionPartOnly;
                 }
             } else {
                 contents = rowCollection.dataConfig.source;
                 contentsEmptyFlag = (contents == nil);
+                cellPosition_part = AOZTableViewCellPositionPartOnly;
             }
-        } else if (![sectionCollection.dataConfig.source isEqual:[NSNull null]]) {//如果在section里面设置了数据源，则使用section的设置
+        } else if (![sectionCollection.dataConfig.source isEqual:[NSNull null]]) {
+            //如果在section里面设置了数据源，则使用section的设置
             if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
                 if ([sectionCollection.dataConfig.source count] > 0) {
-                    if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                    if (sectionCollection.dataConfig.elementsPerRow < 0) {
+                        //全部数据都在一个单元格的情况
                         contents = sectionCollection.dataConfig.source;
-                    } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                        cellPosition_part = AOZTableViewCellPositionPartOnly;
+                    } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {
+                        //每个单元格只有一个元素的情况
                         contents = ((NSArray *) sectionCollection.dataConfig.source)[indexPath.section - sectionCollection.sectionRange.location];
-                    } else {//每个单元格有多个元素的情况
+                        if (sectionCollection.sectionRange.length == 1) {
+                            cellPosition_part = AOZTableViewCellPositionPartOnly;
+                        } else if (indexPath.row == sectionCollection.sectionRange.location) {
+                            cellPosition_part = AOZTableViewCellPositionPartTop;
+                        } else if (indexPath.row == sectionCollection.sectionRange.location + sectionCollection.sectionRange.length - 1) {
+                            cellPosition_part = AOZTableViewCellPositionPartBotton;
+                        } else {
+                            cellPosition_part = AOZTableViewCellPositionNormal;
+                        }
+                    } else {
+                        //每个单元格有多个元素的情况
                         NSRange subRange = NSMakeRange((indexPath.section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
                         if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
                             subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
                         }
                         contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
+                        
+                        if (sectionCollection.sectionRange.length == 1) {
+                            cellPosition_part = AOZTableViewCellPositionPartOnly;
+                        } else if (indexPath.row == sectionCollection.sectionRange.location) {
+                            cellPosition_part = AOZTableViewCellPositionPartTop;
+                        } else if (indexPath.row == sectionCollection.sectionRange.location + sectionCollection.sectionRange.length - 1) {
+                            cellPosition_part = AOZTableViewCellPositionPartBotton;
+                        } else {
+                            cellPosition_part = AOZTableViewCellPositionNormal;
+                        }
                     }
                     contentsEmptyFlag = NO;
                 } else {
                     contentsEmptyFlag = YES;
+                    cellPosition_part = AOZTableViewCellPositionPartOnly;
                 }
             } else {
                 contents = sectionCollection.dataConfig.source;
                 contentsEmptyFlag = (contents == nil);
+                cellPosition_part = AOZTableViewCellPositionPartOnly;
             }
         }
         //将取到的结果放入缓存，并记录cellClass和cellClassStr
@@ -281,19 +421,37 @@ id collectionForIndex(id parentCollection, NSInteger index) {
         [self setContent:contents indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
         [self setContent:@(contentsEmptyFlag) indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG];
         [self setContent:cellClassStr indexPath:indexPath type:_CACHE_TYPE_CELL_CLASS];
+        
+        cellPositions = (cellPosition_section | cellPosition_part);
+        [self setContent:@(cellPositions) indexPath:indexPath type:_CACHE_TYPE_CELL_POSITION];
     }
 
-    NSMethodSignature *signiture = [cellClass methodSignatureForSelector:@selector(heightForCell:)];
-    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signiture];
-    [invocation setTarget:cellClass];
-    [invocation setSelector:@selector(heightForCell:)];
-    if (contents) {
-        [invocation setArgument:&contents atIndex:2];
-    }
+    //向cellClass本身查询单元格高度
     CGFloat height = 0;
-    [invocation retainArguments];
-    [invocation invoke];
-    [invocation getReturnValue:&height];
+    if ([((id) cellClass) respondsToSelector:@selector(heightForCell:positions:indexPath:)]) {
+        NSMethodSignature *signiture = [cellClass methodSignatureForSelector:@selector(heightForCell:positions:indexPath:)];
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signiture];
+        [invocation setTarget:cellClass];
+        [invocation setSelector:@selector(heightForCell:positions:indexPath:)];
+        if (contents) {
+            [invocation setArgument:&contents atIndex:2];
+        }
+        [invocation setArgument:&cellPositions atIndex:3];
+        [invocation retainArguments];
+        [invocation invoke];
+        [invocation getReturnValue:&height];
+    } else if ([((id) cellClass) respondsToSelector:@selector(heightForCell:)]) {
+        NSMethodSignature *signiture = [cellClass methodSignatureForSelector:@selector(heightForCell:)];
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signiture];
+        [invocation setTarget:cellClass];
+        [invocation setSelector:@selector(heightForCell:)];
+        if (contents) {
+            [invocation setArgument:&contents atIndex:2];
+        }
+        [invocation retainArguments];
+        [invocation invoke];
+        [invocation getReturnValue:&height];
+    }
 
     return height;
 }
@@ -444,6 +602,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     [_cacheDictionary removeObjectForKey:[NSIndexPath indexPathForRow:mode inSection:_CACHE_TYPE_SECTION_CONTENTS]];
     [_cacheDictionary removeObjectForKey:[NSIndexPath indexPathForRow:mode inSection:_CACHE_TYPE_CELL_CLASS]];
     [_cacheDictionary removeObjectForKey:[NSIndexPath indexPathForRow:mode inSection:_CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG]];
+    [_cacheDictionary removeObjectForKey:[NSIndexPath indexPathForRow:mode inSection:_CACHE_TYPE_CELL_POSITION]];
 }
 
 #pragma mark public: general
