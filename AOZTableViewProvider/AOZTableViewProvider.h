@@ -17,33 +17,34 @@
 
 #pragma mark -
 @protocol AOZTableViewProviderDelegate;
-/** UITableView的数据源与部分代理提供器, init - configFileUrl - parseConfigFile - connectToTableView - reloadTableView */
+/** Provides dataSource and some delegates for UITableView, init - connectToTableView - parseConfigFile - reloadTableView */
 @interface AOZTableViewProvider : NSObject <UITableViewDataSource, UITableViewDelegate>
-@property (nonatomic, copy) NSString *configBundleFileName;
-@property (nonatomic, readonly) UITableView *tableView;
-@property (nonatomic, assign) id dataProvider;
-@property (nonatomic, assign) NSInteger mode;
-@property (nonatomic, assign) id<AOZTableViewProviderDelegate> delegate;
-- (instancetype)initWithFileName:(NSString *)fileName dataProvider:(id)dataProvider tableView:(UITableView *)tableView;
-- (BOOL)parseConfigFile:(NSError **)pError;
-- (void)connectToTableView:(UITableView *)tableView;
-- (void)reloadTableView;
-- (void)setNeedsReloadForMode:(int)mode;
-- (void)setNeedsReloadForCurrentMode;
-- (id)rowContentsAtIndexPath:(NSIndexPath *)indexPath;
-- (id)sectionContentsAtSection:(NSInteger)section;
+@property (nonatomic, copy) NSString *configBundleFileName;/**< File name for config file, must contained in app bundle. If it hasn't extension name, then .tableViewConfig is the default extension. */
+@property (nonatomic, readonly) UITableView *tableView;/**< The tableView connected with this provider, use connectToTableView to set this value. */
+@property (nonatomic, assign) id dataProvider;/**< Tells this provider where to find values */
+@property (nonatomic, assign) NSInteger mode;/**< Current mode index for this provider */
+@property (nonatomic, assign) id<AOZTableViewProviderDelegate> delegate;/**< Delegate for this provider */
+- (instancetype)initWithFileName:(NSString *)fileName dataProvider:(id)dataProvider tableView:(UITableView *)tableView;/**< Create a new instance for this provider, with fileName, dataProvider and tableView established. */
+- (BOOL)parseConfigFile:(NSError **)pError;/**< Parse config file, must use after connectToTableView, if any error occurs, return it within pError, pError could be nil */
+- (void)connectToTableView:(UITableView *)tableView;/**< Connect to tableView, must use before parseConfigFile */
+- (void)reloadTableView;/**< Reload tableView, if dataSource has changed, use it after setNeedsReloadForCurrentMode or setNeedsReloadForMode */
+- (void)setNeedsReloadForMode:(int)mode;/**< Use before reloadTableView, tells this provider to re-compute sections and rows for mode before loading, invoked when dataSource is changed. If mode is not exist, do nothing */
+- (void)setNeedsReloadForCurrentMode;/**< Use before reloadTableView, tells this provider to re-compute sections and rows before loading for current mode. invoked when dataSource is changed. */
+- (id)rowContentsAtIndexPath:(NSIndexPath *)indexPath;/**< Get row contents for indexPath from cache, must use after the first time you reloadTableView and setNeedsReloadForMode or setNeedsReloadForCurrentMode */
+- (id)sectionContentsAtSection:(NSInteger)section;/**< Get section contents for section from cache, must use after the first time you reloadTableView and setNeedsReloadForMode or setNeedsReloadForCurrentMode */
 @end
 
 
 #pragma mark -
+/** delegate for AOZTableViewProvider, called when some UITableViewDataSource and UITableViewDelegate methods invoked. */
 @protocol AOZTableViewProviderDelegate <NSObject>
 @optional
-- (void)tableViewProvider:(AOZTableViewProvider *)provider cellForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cell:(UITableViewCell *)cell;
-- (void)tableViewProvider:(AOZTableViewProvider *)provider willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;
-- (void)tableViewProvider:(AOZTableViewProvider *)provider didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;
-- (void)tableViewProvider:(AOZTableViewProvider *)provider didSelectRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;
-- (UIView *)tableViewProvider:(AOZTableViewProvider *)provider viewForHeaderInSection:(NSInteger)section;
-- (UIView *)tableViewProvider:(AOZTableViewProvider *)provider viewForFooterInSection:(NSInteger)section;
-- (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForHeaderInSection:(NSInteger)section;
-- (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForFooterInSection:(NSInteger)section;
+- (void)tableViewProvider:(AOZTableViewProvider *)provider cellForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cell:(UITableViewCell *)cell;/**< Invoked after cellForRowAtIndexPath, you have the chance to re-config this cell */
+- (void)tableViewProvider:(AOZTableViewProvider *)provider willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;/**< Invoked in tableViewDelegate's willDisplayCell method */
+- (void)tableViewProvider:(AOZTableViewProvider *)provider didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;/**< Invoked in tableViewDelegate's didEndDisplayingCell method */
+- (void)tableViewProvider:(AOZTableViewProvider *)provider didSelectRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;/**< Invoked in tableViewDelegate's didSelectRowAtIndexPath method */
+- (UIView *)tableViewProvider:(AOZTableViewProvider *)provider viewForHeaderInSection:(NSInteger)section;/**< Invoked in tableViewDelegate's viewForFooterInSection method, if use this method, -h config will be ignored */
+- (UIView *)tableViewProvider:(AOZTableViewProvider *)provider viewForFooterInSection:(NSInteger)section;/**< Invoked in tableViewDelegate's viewForFooterInSection method */
+- (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForHeaderInSection:(NSInteger)section;/**< Invoked in tableViewDelegate's heightForHeaderInSection method, if use this method, -h config will be ignored */
+- (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForFooterInSection:(NSInteger)section;/**< Invoked in tableViewDelegate's heightForFooterInSection method */
 @end
