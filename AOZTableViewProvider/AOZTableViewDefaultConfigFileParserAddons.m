@@ -13,8 +13,8 @@
 
 
 /** 从一个正则表达式匹配结果中取得第index个字符串 */
-NSString *getChunkFromMatchesArray(NSString *str, NSArray<NSTextCheckingResult *> *matchesArray, int index);
-NSString *getChunkFromMatchesArray(NSString *str, NSArray<NSTextCheckingResult *> *matchesArray, int index) {
+NSString *_getChunkFromMatchesArray(NSString *str, NSArray<NSTextCheckingResult *> *matchesArray, int index);
+NSString *_getChunkFromMatchesArray(NSString *str, NSArray<NSTextCheckingResult *> *matchesArray, int index) {
     if (matchesArray == nil || str == nil) {
         return nil;
     }
@@ -40,7 +40,7 @@ NSArray<NSString *> *getChunksArray(NSString *lineStr) {
     NSArray<NSTextCheckingResult *> *matchesArray = [regEx matchesInString:lineStr options:0 range:NSMakeRange(0, lineStr.length)];
     NSMutableArray<NSString *> *chunksArray = [[NSMutableArray alloc] init];
     for (int index = 0; index < matchesArray.count; index++) {
-        NSString *chunkStr = getChunkFromMatchesArray(lineStr, matchesArray, index);
+        NSString *chunkStr = _getChunkFromMatchesArray(lineStr, matchesArray, index);
         if (chunkStr) {
             [chunksArray addObject:chunkStr];
         }
@@ -67,8 +67,8 @@ NSArray<NSArray<NSString *> *> *getLinesAndChunksArray(NSString *linesStr) {
 }
 
 /** 检查str是否是int */
-BOOL stringIsInt(NSString *str);
-BOOL stringIsInt(NSString *str) {
+BOOL _stringIsInt(NSString *str);
+BOOL _stringIsInt(NSString *str) {
     if (str.length == 0) {
         return NO;
     }
@@ -78,8 +78,8 @@ BOOL stringIsInt(NSString *str) {
 }
 
 /** 检查derivedClass是否是baseClass的派生类 */
-BOOL checkClassRelation(Class derivedClass, Class baseClass);
-BOOL checkClassRelation(Class derivedClass, Class baseClass) {
+BOOL _checkClassRelation(Class derivedClass, Class baseClass);
+BOOL _checkClassRelation(Class derivedClass, Class baseClass) {
     if (derivedClass == NULL || baseClass == NULL) {
         return NO;
     }
@@ -103,8 +103,8 @@ BOOL checkClassRelation(Class derivedClass, Class baseClass) {
 }
 
 /** 根据传入的class和错误原因创建错误，把这个错误保存在pError中，如果传入的pError为nil，则不创建这个错误 */
-void createAndLogError(Class class, NSString *localizedDescription, NSError **pError);
-void createAndLogError(Class class, NSString *localizedDescription, NSError **pError) {
+void _createAndLogError(Class class, NSString *localizedDescription, NSError **pError);
+void _createAndLogError(Class class, NSString *localizedDescription, NSError **pError) {
     if (localizedDescription.length == 0) {
         localizedDescription = @"Unknown error";
     }
@@ -140,7 +140,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
 
 - (AOZTVPDataConfig *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError dataConfig:(AOZTVPDataConfig *)presetDataConfig rowCollection:(AOZTVPRowCollection *)rowCollection sectionCollection:(AOZTVPSectionCollection *)sectionCollection {
     if (chunksArray.count == 0) {
-        createAndLogError(self.class, @"chunksArray has nothing, return nil", pError);
+        _createAndLogError(self.class, @"chunksArray has nothing, return nil", pError);
         return nil;
     }
     
@@ -170,13 +170,13 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
                     }
                     @catch (NSException *exception) {
                         //如果根据参数找到数据源，则返回空
-                        createAndLogError(self.class, [NSString stringWithFormat:@"No value for -s arg %@, ignore", nextChunk], NULL);
+                        _createAndLogError(self.class, [NSString stringWithFormat:@"No value for -s arg %@, ignore", nextChunk], NULL);
                     }
                 } else {//如果_dataProvider为空，报错并忽略
-                    createAndLogError(self.class, @"_dataProvider is nil, ignore", NULL);
+                    _createAndLogError(self.class, @"_dataProvider is nil, ignore", NULL);
                 }
             } else {//如果-s是最后一个，报错并忽略
-                createAndLogError(self.class, @"-s is last, ignore", NULL);
+                _createAndLogError(self.class, @"-s is last, ignore", NULL);
             }
             index += 2;
         } else if ([chunk isEqualToString:@"-c"] || [chunk isEqualToString:@"-ec"]) {//-c指示符，下一个参数是单元格类型
@@ -184,7 +184,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
                 NSString *nextChunk = chunksArray[index + 1];
                 Class cellClass = objc_getClass([nextChunk UTF8String]);
                 if (cellClass) {
-                    if ([cellClass conformsToProtocol:@protocol(AOZTableViewCell)] && checkClassRelation(cellClass, [UITableViewCell class])) {//如果cellClass符合条件
+                    if ([cellClass conformsToProtocol:@protocol(AOZTableViewCell)] && _checkClassRelation(cellClass, [UITableViewCell class])) {//如果cellClass符合条件
                         if ([chunk isEqualToString:@"-c"]) {
                             dataConfig.cellClass = cellClass;
                         } else {
@@ -192,13 +192,13 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
                         }
                         [_tableView registerClass:cellClass forCellReuseIdentifier:NSStringFromClass(cellClass)];
                     } else {//如果cellClass不符合条件，则报错并忽略
-                        createAndLogError(self.class, [NSString stringWithFormat:@"Irregular class for %@ arg %@", chunk, nextChunk], NULL);
+                        _createAndLogError(self.class, [NSString stringWithFormat:@"Irregular class for %@ arg %@", chunk, nextChunk], NULL);
                     }
                 } else {//如果没查找到对应的类，则报错并忽略
-                    createAndLogError(self.class, [NSString stringWithFormat:@"No class for %@ arg %@", chunk, nextChunk], NULL);
+                    _createAndLogError(self.class, [NSString stringWithFormat:@"No class for %@ arg %@", chunk, nextChunk], NULL);
                 }
             } else {//如果是最后一个参数，报错并忽略
-                createAndLogError(self.class, [NSString stringWithFormat:@"%@ is last, ignore", chunk], NULL);
+                _createAndLogError(self.class, [NSString stringWithFormat:@"%@ is last, ignore", chunk], NULL);
             }
             index += 2;
         } else if ([chunk isEqualToString:@"-h"]) {//-c指示符，下一个参数是section header类型
@@ -206,17 +206,17 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
                 NSString *nextChunk = chunksArray[index + 1];
                 Class headerClass = objc_getClass([nextChunk UTF8String]);
                 if (headerClass) {
-                    if ([headerClass conformsToProtocol:@protocol(AOZTableViewHeaderFooterView)] && checkClassRelation(headerClass, [UITableViewHeaderFooterView class]) && sectionCollection) {//如果cellClass符合条件
+                    if ([headerClass conformsToProtocol:@protocol(AOZTableViewHeaderFooterView)] && _checkClassRelation(headerClass, [UITableViewHeaderFooterView class]) && sectionCollection) {//如果cellClass符合条件
                         sectionCollection.headerClass = headerClass;
                         [_tableView registerClass:headerClass forHeaderFooterViewReuseIdentifier:NSStringFromClass(headerClass)];
                     } else {//如果cellClass不符合条件，则报错并忽略
-                        createAndLogError(self.class, [NSString stringWithFormat:@"Irregular class for -h arg %@", nextChunk], NULL);
+                        _createAndLogError(self.class, [NSString stringWithFormat:@"Irregular class for -h arg %@", nextChunk], NULL);
                     }
                 } else {//如果没查找到对应的类，则报错并忽略
-                    createAndLogError(self.class, [NSString stringWithFormat:@"No class for -h arg %@", nextChunk], NULL);
+                    _createAndLogError(self.class, [NSString stringWithFormat:@"No class for -h arg %@", nextChunk], NULL);
                 }
             } else {//如果是最后一个参数，报错并忽略
-                createAndLogError(self.class, @"-c is last, ignore", NULL);
+                _createAndLogError(self.class, @"-c is last, ignore", NULL);
             }
             index += 2;
         } else if ([chunk isEqualToString:@"-n"]) {
@@ -224,19 +224,19 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
             if (index < chunksArray.count - 1) {
                 //如果-n不是最后一个参数
                 NSString *nextChunk = chunksArray[index + 1];
-                if (stringIsInt(nextChunk)) {//如果nextChunk是整数
+                if (_stringIsInt(nextChunk)) {//如果nextChunk是整数
                     int elementsPerRow = [nextChunk intValue];
                     if (elementsPerRow > 0) {//如果nextChunk大于0，则直接指定
                         dataConfig.elementsPerRow = elementsPerRow;
                     } else {//如果是负数，报错，并且忽略
-                        createAndLogError(self.class, [NSString stringWithFormat:@"Negative -n arg %@, ignore", nextChunk], NULL);
+                        _createAndLogError(self.class, [NSString stringWithFormat:@"Negative -n arg %@, ignore", nextChunk], NULL);
                     }
                 } else {//如果不是合法的整数，报错，并且忽略
-                    createAndLogError(self.class, [NSString stringWithFormat:@"Irregular -n arg %@, ignore", nextChunk], NULL);
+                    _createAndLogError(self.class, [NSString stringWithFormat:@"Irregular -n arg %@, ignore", nextChunk], NULL);
                 }
             } else {
                 //如果-n是最后一个参数，报错，并且忽略
-                createAndLogError(self.class, @"-n is last, ignore", NULL);
+                _createAndLogError(self.class, @"-n is last, ignore", NULL);
             }
             index += 2;//读取下一个指示符
         } else if ([chunk isEqualToString:@"-all"]) {//-all指示符，所有参数都在同一行中
@@ -251,11 +251,11 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
                 }
             } else {
                 //如果-n是最后一个参数，报错，并且忽略
-                createAndLogError(self.class, @"-n is last, ignore", NULL);
+                _createAndLogError(self.class, @"-n is last, ignore", NULL);
             }
             index += 2;//读取下一个指示符
         } else {//如果不属于以上任何一种情况，则直接读取下一个
-            createAndLogError(self.class, [NSString stringWithFormat:@"Unrecognized prefix %@", chunk], NULL);
+            _createAndLogError(self.class, [NSString stringWithFormat:@"Unrecognized prefix %@", chunk], NULL);
             index++;
         }
     }
@@ -273,13 +273,13 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
 
 - (AOZTVPRowCollection *)parseNewConfig:(NSArray<NSString *> *)chunksArray error:(NSError **)pError dataConfig:(AOZTVPDataConfig *)presetDataConfig {
     if (chunksArray.count == 0) {
-        createAndLogError(self.class, @"chunksArray has nothing, return nil", pError);
+        _createAndLogError(self.class, @"chunksArray has nothing, return nil", pError);
         return nil;
     }
     
     NSString *prefix = chunksArray[0];
     if (![prefix isEqualToString:@"row"]) {
-        createAndLogError(self.class, @"chunksArray is not row config, return nil", pError);
+        _createAndLogError(self.class, @"chunksArray is not row config, return nil", pError);
         return nil;
     }
     
@@ -314,7 +314,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
     
     //处理特殊情况
     if (linesArray.count == 0) {
-        createAndLogError(self.class, @"linesArray is empty", pError);
+        _createAndLogError(self.class, @"linesArray is empty", pError);
         return nil;
     }
     
@@ -330,7 +330,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
             if (_sectionCollection == nil) {//如果_sectionCollection没初始化，则初始化
                 [self _createSectionCollectionWithConfig:chunksArray];
             } else {//如果在_sectionCollection被初始化好的情况下再出现一个section，则被判断为违规
-                createAndLogError(self.class, @"Multiple section prefix in linesArray", pError);
+                _createAndLogError(self.class, @"Multiple section prefix in linesArray", pError);
                 return nil;
             }
         } else if ([prefix isEqualToString:@"row"]) {//本行是一个关于row的设置
@@ -383,7 +383,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
     
     //处理特殊情况
     if (linesArray.count == 0) {
-        createAndLogError(self.class, @"linesArray is empty", pError);
+        _createAndLogError(self.class, @"linesArray is empty", pError);
         return nil;
     }
     
@@ -401,7 +401,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
             if (_mode == nil) {//如果_mode没有被创建，则创建
                 _mode = [[AOZTVPMode alloc] init];
             } else {//如果已经被创建了，则认为这些lines非法
-                createAndLogError(self.class, @"Multiple mode prefix in linesArray", pError);
+                _createAndLogError(self.class, @"Multiple mode prefix in linesArray", pError);
                 return nil;
             }
         } else if ([prefix isEqualToString:@"section"] || [prefix isEqualToString:@"row"]) {
