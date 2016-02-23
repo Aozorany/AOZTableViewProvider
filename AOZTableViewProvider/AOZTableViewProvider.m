@@ -482,26 +482,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     AOZTVPMode *currentMode = [self currentMode];
     AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, section);
     if (sectionCollection.headerClass) {
-        id contents = [self contentAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:section] type:_CACHE_TYPE_SECTION_CONTENTS];
-        if (contents == nil) {
-            if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
-                if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
-                    contents = sectionCollection.dataConfig.source;
-                } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
-                    contents = ((NSArray *) sectionCollection.dataConfig.source)[section - sectionCollection.sectionRange.location];
-                } else {//每个单元格有多个元素的情况
-                    NSRange subRange = NSMakeRange((section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
-                    if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
-                        subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
-                    }
-                    contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
-                }
-            } else {
-                contents = sectionCollection.dataConfig.source;
-            }
-            [self setContent:contents indexPath:[NSIndexPath indexPathForRow:0 inSection:section] type:_CACHE_TYPE_SECTION_CONTENTS];
-        }
-        
+        id contents = [self sectionContentsAtSection:section];;
         AOZTableViewHeaderFooterView *headerView = [_tableView dequeueReusableHeaderFooterViewWithIdentifier:NSStringFromClass(sectionCollection.headerClass)];
         [headerView setContents:contents];
         return headerView;
@@ -522,25 +503,7 @@ id collectionForIndex(id parentCollection, NSInteger index) {
     AOZTVPMode *currentMode = [self currentMode];
     AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, section);
     if (sectionCollection.headerClass) {
-        id contents = [self contentAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:section] type:_CACHE_TYPE_SECTION_CONTENTS];
-        if (contents == nil) {
-            if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
-                if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
-                    contents = sectionCollection.dataConfig.source;
-                } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
-                    contents = ((NSArray *) sectionCollection.dataConfig.source)[section - sectionCollection.sectionRange.location];
-                } else {//每个单元格有多个元素的情况
-                    NSRange subRange = NSMakeRange((section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
-                    if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
-                        subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
-                    }
-                    contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
-                }
-            } else {
-                contents = sectionCollection.dataConfig.source;
-            }
-            [self setContent:contents indexPath:[NSIndexPath indexPathForRow:0 inSection:section] type:_CACHE_TYPE_SECTION_CONTENTS];
-        }
+        id contents = [self sectionContentsAtSection:section];
         
         NSMethodSignature *signiture = [sectionCollection.headerClass methodSignatureForSelector:@selector(heightForView:)];
         NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signiture];
@@ -681,7 +644,28 @@ id collectionForIndex(id parentCollection, NSInteger index) {
 }
 
 - (id)sectionContentsAtSection:(NSInteger)section {
-    return [self contentAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:section] type:_CACHE_TYPE_SECTION_CONTENTS];
+    id contents = [self contentAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:section] type:_CACHE_TYPE_SECTION_CONTENTS];
+    if (contents == nil) {
+        AOZTVPMode *currentMode = [self currentMode];
+        AOZTVPSectionCollection *sectionCollection = collectionForIndex(currentMode, section);
+        if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+            if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
+                contents = sectionCollection.dataConfig.source;
+            } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+                contents = ((NSArray *) sectionCollection.dataConfig.source)[section - sectionCollection.sectionRange.location];
+            } else {//每个单元格有多个元素的情况
+                NSRange subRange = NSMakeRange((section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
+                if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
+                    subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
+                }
+                contents = [((NSArray *) sectionCollection.dataConfig.source) subarrayWithRange:subRange];
+            }
+        } else {
+            contents = sectionCollection.dataConfig.source;
+        }
+        [self setContent:contents indexPath:[NSIndexPath indexPathForRow:0 inSection:section] type:_CACHE_TYPE_SECTION_CONTENTS];
+    }
+    return contents;
 }
 
 @end
