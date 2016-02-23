@@ -328,14 +328,14 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
         NSString *prefix = chunksArray[0];
         if ([prefix isEqualToString:@"section"]) {//本行是一个关于section的设置
             if (_sectionCollection == nil) {//如果_sectionCollection没初始化，则初始化
-                [self createSectionCollectionWithConfig:chunksArray];
+                [self _createSectionCollectionWithConfig:chunksArray];
             } else {//如果在_sectionCollection被初始化好的情况下再出现一个section，则被判断为违规
                 createAndLogError(self.class, @"Multiple section prefix in linesArray", pError);
                 return nil;
             }
         } else if ([prefix isEqualToString:@"row"]) {//本行是一个关于row的设置
             if (_sectionCollection == nil) {//如果_sectionCollection没初始化，则初始化
-                [self createSectionCollectionWithConfig:nil];
+                [self _createSectionCollectionWithConfig:nil];
             }
             //解析出rowCollection实例
             NSError *rowParserError = nil;
@@ -353,7 +353,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
 }
 
 #pragma mark private: general
-- (void)createSectionCollectionWithConfig:(NSArray<NSString *> *)chunksArray {
+- (void)_createSectionCollectionWithConfig:(NSArray<NSString *> *)chunksArray {
     //传入空串或只传入section，结果都是默认
     _sectionCollection = [[AOZTVPSectionCollection alloc] init];
     //如果传入了更多的值，则交给AOZTableViewDefaultDataConfigParser来解析
