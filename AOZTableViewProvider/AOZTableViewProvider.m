@@ -22,6 +22,7 @@ static int _CACHE_TYPE_CELL_POSITION = 4;/**< 缓存类型：cell position */
 
 
 #pragma mark -
+/** Turple with 4 elements */
 @interface AOZTurple4 : NSObject
 @property (nonatomic, strong) id first;
 @property (nonatomic, strong) id second;
@@ -116,7 +117,8 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     AOZTVPMode *currentMode = [self _currentMode];
     AOZTVPSectionCollection *sectionCollection = _collectionForIndex(currentMode, section);
     AOZTVPSectionCollection *newSectionCollection = nil;
-    if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]] && sectionCollection.dataConfig.elementsPerRow == 1) {//如果section的source是array，极有可能出现其下属的某一个row的行数不等的情况，所以需要根据当前的section对应的那个元素重新计算row的布局
+    if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]] && sectionCollection.dataConfig.elementsPerRow == 1) {
+        //如果section的source是array，极有可能出现其下属的某一个row的行数不等的情况，所以需要根据当前的section对应的那个元素重新计算row的布局
         newSectionCollection = [sectionCollection copy];
         if ([newSectionCollection.dataConfig.source count] > 0) {
             [newSectionCollection reloadRowsWithSectionElement:((NSArray *) newSectionCollection.dataConfig.source)[section - newSectionCollection.sectionRange.location]];
