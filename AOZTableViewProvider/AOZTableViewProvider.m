@@ -315,7 +315,9 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
         if (![rowCollection.dataConfig.source isEqual:[NSNull null]]) {
             //如果在row里面设置了数据源，则使用row的设置
             if ([rowCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+                //如果数据源是array
                 if ([rowCollection.dataConfig.source count] > 0) {
+                    //如果array里面有数据
                     if (rowCollection.dataConfig.elementsPerRow < 0) {
                         //全部数据都在一个单元格的情况
                         contents = rowCollection.dataConfig.source;
@@ -352,10 +354,12 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
                     }
                     contentsEmptyFlag = NO;
                 } else {
+                    //如果array里面没有数据
                     contentsEmptyFlag = YES;
                     cellPosition_part = AOZTableViewCellPositionPartOnly;
                 }
             } else {
+                //如果数据源不是array
                 contents = rowCollection.dataConfig.source;
                 contentsEmptyFlag = (contents == nil);
                 cellPosition_part = AOZTableViewCellPositionPartOnly;
@@ -363,7 +367,9 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
         } else if (![sectionCollection.dataConfig.source isEqual:[NSNull null]]) {
             //如果在section里面设置了数据源，则使用section的设置
             if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
+                //如果数据源是array
                 if ([sectionCollection.dataConfig.source count] > 0) {
+                    //如果array里面有数据
                     if (sectionCollection.dataConfig.elementsPerRow < 0) {
                         //全部数据都在一个单元格的情况
                         contents = sectionCollection.dataConfig.source;
@@ -400,10 +406,12 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
                     }
                     contentsEmptyFlag = NO;
                 } else {
+                    //如果array里面没有数据
                     contentsEmptyFlag = YES;
                     cellPosition_part = AOZTableViewCellPositionPartOnly;
                 }
             } else {
+                //如果数据源不是array
                 contents = sectionCollection.dataConfig.source;
                 contentsEmptyFlag = (contents == nil);
                 cellPosition_part = AOZTableViewCellPositionPartOnly;
@@ -541,9 +549,11 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
         if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
             if (sectionCollection.dataConfig.elementsPerRow < 0) {//全部数据都在一个单元格的情况
                 contents = sectionCollection.dataConfig.source;
-            } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {//每个单元格只有一个元素的情况
+            } else if (sectionCollection.dataConfig.elementsPerRow == 0 || sectionCollection.dataConfig.elementsPerRow == 1) {
+                //每个单元格只有一个元素的情况
                 contents = ((NSArray *) sectionCollection.dataConfig.source)[section - sectionCollection.sectionRange.location];
-            } else {//每个单元格有多个元素的情况
+            } else {
+                //每个单元格有多个元素的情况
                 NSRange subRange = NSMakeRange((section - sectionCollection.sectionRange.location) * sectionCollection.dataConfig.elementsPerRow, sectionCollection.dataConfig.elementsPerRow);
                 if (subRange.location + subRange.length >= ((NSArray *) sectionCollection.dataConfig.source).count) {
                     subRange.length = ((NSArray *) sectionCollection.dataConfig.source).count - subRange.location;
