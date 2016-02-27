@@ -1,4 +1,4 @@
 
-section -s _multipleArray
-row -es subArray -c TableViewCell
-row -es name -c TableViewCell
+section
+row -c TableViewCell
+row -c TableViewCell

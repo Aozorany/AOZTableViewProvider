@@ -24,6 +24,7 @@
 @property (nonatomic, assign) id dataProvider;/**< Tells this provider where to find values */
 @property (nonatomic, assign) NSInteger mode;/**< Current mode index for this provider */
 @property (nonatomic, assign) id<AOZTableViewProviderDelegate> delegate;/**< Delegate for this provider */
+@property (nonatomic, assign) id<UIScrollViewDelegate> scrollViewDelegate;/**< ScrollViewDelegate associated with this tableView */
 - (instancetype)initWithFileName:(NSString *)fileName dataProvider:(id)dataProvider tableView:(UITableView *)tableView;/**< Create a new instance for this provider, with fileName, dataProvider and tableView established. */
 - (BOOL)parseConfigFile:(NSError **)pError;/**< Parse config file, must use after connectToTableView, if any error occurs, return it within pError, pError could be nil */
 - (void)connectToTableView:(UITableView *)tableView;/**< Connect to tableView, must use before parseConfigFile */

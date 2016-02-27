@@ -213,6 +213,62 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     }
 }
 
+#pragma mark delegate: UIScrollViewDelegate
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    if ([_scrollViewDelegate respondsToSelector:@selector(scrollViewDidScroll:)]) {
+        [_scrollViewDelegate scrollViewDidScroll:scrollView];
+    }
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    if ([_scrollViewDelegate respondsToSelector:@selector(scrollViewWillBeginDragging:)]) {
+        [_scrollViewDelegate scrollViewWillBeginDragging:scrollView];
+    }
+}
+
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
+    if ([_scrollViewDelegate respondsToSelector:@selector(scrollViewWillEndDragging:withVelocity:targetContentOffset:)]) {
+        [_scrollViewDelegate scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset];
+    }
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if ([_scrollViewDelegate respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
+        [_scrollViewDelegate scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
+    }
+}
+
+- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView {
+    if ([_scrollViewDelegate respondsToSelector:@selector(scrollViewShouldScrollToTop:)]) {
+        return [_scrollViewDelegate scrollViewShouldScrollToTop:scrollView];
+    }
+    return YES;
+}
+
+- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView {
+    if ([_scrollViewDelegate respondsToSelector:@selector(scrollViewDidScrollToTop:)]) {
+        [_scrollViewDelegate scrollViewDidScrollToTop:scrollView];
+    }
+}
+
+- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
+    if ([_scrollViewDelegate respondsToSelector:@selector(scrollViewWillBeginDecelerating:)]) {
+        [_scrollViewDelegate scrollViewWillBeginDecelerating:scrollView];
+    }
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    if ([_scrollViewDelegate respondsToSelector:@selector(scrollViewDidEndDecelerating:)]) {
+        [_scrollViewDelegate scrollViewDidEndDecelerating:scrollView];
+    }
+}
+
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
+    if ([_scrollViewDelegate respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)]) {
+        [_scrollViewDelegate scrollViewDidEndScrollingAnimation:scrollView];
+    }
+}
+
 #pragma mark delegate: UITableViewDelegate section headers and footers
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     AOZTVPMode *currentMode = [self _currentMode];
