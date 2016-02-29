@@ -121,7 +121,6 @@
     [self reloadRowsWithSectionElement:nil];
 }
 
-/** 根据sectionElement重新确认row的range，sectionElement为分配给每个section的数据源元素，一般sectionCollection的source是array的时候才会用到这个方法 */
 - (void)reloadRowsWithSectionElement:(id)sectionElement {
     NSInteger currentLocation = 0;
     if (_rowCollectionsArray.count == 0) {

@@ -31,8 +31,8 @@
 @property (nonatomic, retain) AOZTVPDataConfig *dataConfig;
 @property (nonatomic, assign) Class headerClass;
 @property (nonatomic, assign) NSRange sectionRange;
-- (void)reloadRows;
-- (void)reloadRowsWithSectionElement:(id)sectionElement;
+- (void)reloadRows;/**< 重新载入rows，计算其rowRange */
+- (void)reloadRowsWithSectionElement:(id)sectionElement;/**< 根据sectionElement重新确认row的range，sectionElement为分配给每个section的数据源元素，一般sectionCollection的source是array的时候才会用到这个方法 */
 @end
 
 
