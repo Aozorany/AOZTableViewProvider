@@ -1,8 +1,8 @@
 
 Pod::Spec.new do |s|
   s.name         = "AOZTableViewProvider"
-  s.version      = '0.3'
-  s.summary      = "table view provider can generate tableView from a configuration file"
+  s.version      = '0.4'
+  s.summary      = "AOZTableViewProvider can generate tableView from a configuration file"
   s.description  = <<-DESC
                    AOZTableViewProvider generates UITableView from a config file, without writing any dataSource and delegate.
                    DESC
