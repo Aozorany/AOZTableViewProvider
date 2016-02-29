@@ -23,17 +23,25 @@ AOZTableViewProvider的主要目的是把UITableView的所有信息集成到一�
 
 安装完成
 
+##通过CocoaPods安装
+
+AOZTableViewProvider现已加入CocoaPods豪华套餐，直接在pod文件里面加上：
+
+```
+pod 'AOZTableViewProvider', '~> 0.3'
+```
+
 ## 快速指引
 
 * 在自己的工程中新建一个空白文件，加入以下内容：
-  
+
   ``` 
   row
   ```
 
 
 * 在你自己的viewController.m中，导入AOZTableViewProvider.h并编写以下代码
-  
+
   ``` 
   //_tableView: 你自己的UITableView
   _tableViewProvider = [[AOZTableViewProvider alloc] init];

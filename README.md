@@ -23,17 +23,25 @@ Chinese document please visit README_CN.md.
 
 That finishes the installation.
 
+##Install via CocoaPods
+
+AOZTableViewProvider now avaliable on CocoaPods, just add the following line into your pod file:
+
+```
+pod 'AOZTableViewProvider', '~> 0.3'
+```
+
 ## Quick start
 
 * Write your own config file, for example, as follow:
-  
+
   ``` 
   row
   ```
 
 
 * In your viewController.m, import AOZTableViewProvider.h and write the following code:
-  
+
   ``` 
   //_tableView: your own UITableView
   _tableViewProvider = [[AOZTableViewProvider alloc] init];
