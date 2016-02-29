@@ -593,6 +593,12 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     theMode.needsReload = YES;
 }
 
+- (void)setNeedsReloadForAllModes {
+    for (AOZTVPMode *aMode in _modesArray) {
+        aMode.needsReload = YES;
+    }
+}
+
 - (id)rowContentsAtIndexPath:(NSIndexPath *)indexPath {
     return [self _rowContentsAtIndexPath:indexPath].first;
 }
