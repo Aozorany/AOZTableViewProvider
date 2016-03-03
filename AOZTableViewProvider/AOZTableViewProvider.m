@@ -630,4 +630,21 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     return contents;
 }
 
+- (NSIndexPath *)indexPathForTouchEvent:(UIEvent *)event {
+    if (event == nil) {
+        return nil;
+    }
+    UITouch *touch = event.allTouches.anyObject;
+    CGPoint touchPoint = [touch locationInView:_tableView];
+    return [_tableView indexPathForRowAtPoint:touchPoint];
+}
+
+- (NSIndexPath *)indexPathForGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer {
+    if (gestureRecognizer == nil) {
+        return nil;
+    }
+    CGPoint touchPoint = [gestureRecognizer locationInView:_tableView];
+    return [_tableView indexPathForRowAtPoint:touchPoint];
+}
+
 @end
