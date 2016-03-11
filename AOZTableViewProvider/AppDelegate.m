@@ -19,7 +19,8 @@
     
     //viewCtl
     ViewController *viewCtl = [[ViewController alloc] init];
-    self.window.rootViewController = viewCtl;
+    UINavigationController *navCtl = [[UINavigationController alloc] initWithRootViewController:viewCtl];
+    self.window.rootViewController = navCtl;
     
     [self.window makeKeyAndVisible];
     return YES;

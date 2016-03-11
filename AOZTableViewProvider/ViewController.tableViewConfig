@@ -1,4 +1,12 @@
 
-section
-row -c TableViewCell
-row -c TableViewCell
+mode
+row -c TableViewCell -s _array
+
+mode
+section -s _dictionary -c TableViewCell
+row -s first
+row -s second
+
+mode
+section -s _multipleArray -c TableViewCell
+row -es subArray

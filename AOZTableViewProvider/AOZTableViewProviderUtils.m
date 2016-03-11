@@ -20,6 +20,7 @@
         _emptyCellClass = nil;
         _elementsPerRow = 1;
         _source = [NSNull null];
+        _sourceKey = nil;
     }
     return self;
 }
@@ -32,12 +33,29 @@
     return _elementsPerRow == anotherDataConfig.elementsPerRow
            && [NSStringFromClass(_cellClass) isEqualToString:NSStringFromClass(anotherDataConfig.cellClass)]
            && ((_emptyCellClass == NULL && anotherDataConfig.emptyCellClass == NULL) || [NSStringFromClass(_emptyCellClass) isEqualToString:NSStringFromClass(anotherDataConfig.emptyCellClass)])
-           && ((_source == nil && anotherDataConfig.source == nil) || [_source isEqual:anotherDataConfig.source]);
+           && ((_source == nil && anotherDataConfig.source == nil) || [_source isEqual:anotherDataConfig.source])
+           && ((_sourceKey == nil && anotherDataConfig.sourceKey == nil) || [_sourceKey isEqualToString:anotherDataConfig.sourceKey]);
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"<AOZTVPDataConfig: _elementsPerRow: %zd, _cellClass: %@, _emptyCellClass: %@, _source: %@>",
-            _elementsPerRow, NSStringFromClass(_cellClass), NSStringFromClass(_emptyCellClass), _source];
+    return [NSString stringWithFormat:@"<AOZTVPDataConfig: _elementsPerRow: %zd, _cellClass: %@, _emptyCellClass: %@, _source: %@, sourceKey: %@>", _elementsPerRow, NSStringFromClass(_cellClass), NSStringFromClass(_emptyCellClass), _source, _sourceKey];
+}
+
+- (void)rebindSourceWithDataProvider:(id)dataProvider {
+    if (dataProvider == nil || _sourceKey.length == 0) {
+        return;
+    }
+    @try {
+        self.source = [dataProvider valueForKey:_sourceKey];
+    }
+    @catch (NSException *exception) {
+#if DEBUG
+        NSLog(@"Unknown value for key: %@", _sourceKey);
+#endif
+    }
+    @finally {
+        //DO NOTHING
+    }
 }
 @end
 
@@ -61,6 +79,7 @@
             _dataConfig.emptyCellClass = dataConfig.emptyCellClass;
             _dataConfig.elementsPerRow = dataConfig.elementsPerRow;
             _dataConfig.source = [dataConfig.source isKindOfClass:[NSArray class]]? [NSNull null]: dataConfig.source;
+            _dataConfig.sourceKey = dataConfig.sourceKey;
         }
         _rowRange = NSMakeRange(0, 0);
     }
@@ -99,6 +118,7 @@
     if (newSectionCollection) {
         newSectionCollection.dataConfig.elementsPerRow = _dataConfig.elementsPerRow;
         newSectionCollection.dataConfig.source = _dataConfig.source;
+        newSectionCollection.dataConfig.sourceKey = _dataConfig.sourceKey;
         newSectionCollection.dataConfig.cellClass = _dataConfig.cellClass;
         newSectionCollection.dataConfig.emptyCellClass = _dataConfig.emptyCellClass;
         newSectionCollection.sectionRange = _sectionRange;
@@ -107,10 +127,11 @@
             AOZTVPRowCollection *newRowCollection = [[AOZTVPRowCollection alloc] init];
             newRowCollection.dataConfig.elementsPerRow = rowCollection.dataConfig.elementsPerRow;
             newRowCollection.dataConfig.source = rowCollection.dataConfig.source;
+            newRowCollection.dataConfig.sourceKey = rowCollection.dataConfig.sourceKey;
             newRowCollection.dataConfig.cellClass = rowCollection.dataConfig.cellClass;
             newRowCollection.dataConfig.emptyCellClass = rowCollection.dataConfig.emptyCellClass;
             newRowCollection.rowRange = rowCollection.rowRange;
-            newRowCollection.elementSource = rowCollection.elementSource;
+            newRowCollection.elementSourceKey = rowCollection.elementSourceKey;
             [newSectionCollection.rowCollectionsArray addObject:newRowCollection];
         }
     }
@@ -166,10 +187,10 @@
                     //如果数组里面没有数据，而且也没指定emptyCellClass
                     rowCollection.rowRange = NSMakeRange(currentLocation, 0);
                 }
-            } else if (rowCollection.elementSource.length > 0) {
-                //如果指定了row的elementSource，则尝试从sectionElement里面读取之
+            } else if (rowCollection.elementSourceKey.length > 0) {
+                //如果指定了row的elementSourceKey，则尝试从sectionElement里面读取之
                 @try {
-                    id elementSourceObj = [sectionElement valueForKey:rowCollection.elementSource];
+                    id elementSourceObj = [sectionElement valueForKey:rowCollection.elementSourceKey];
                     rowCollection.dataConfig.source = elementSourceObj;
                     if ([elementSourceObj isKindOfClass:[NSArray class]]) {
                         //如果elementSourceObj本身是一个数组
@@ -244,6 +265,19 @@
         _needsReload = YES;
     }
     return self;
+}
+
+- (void)rebindSourceWithDataProvider:(id)dataProvider {
+    if (dataProvider == nil) {
+        return;
+    }
+    for (AOZTVPSectionCollection *sectionCollection in _sectionCollectionsArray) {
+        [sectionCollection.dataConfig rebindSourceWithDataProvider:dataProvider];
+        id rowDataProvider = sectionCollection.dataConfig.sourceKey.length > 0? sectionCollection.dataConfig.source: dataProvider;
+        for (AOZTVPRowCollection *rowCollectoin in sectionCollection.rowCollectionsArray) {
+            [rowCollectoin.dataConfig rebindSourceWithDataProvider:rowDataProvider];
+        }
+    }
 }
 
 - (void)reloadSections {

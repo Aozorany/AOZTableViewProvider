@@ -73,10 +73,12 @@
     
     AOZTVPRowCollection *rowCollectionResult = [[AOZTVPRowCollection alloc] init];
     lineStr = @"row -s fakeSource";
+    rowCollectionResult.dataConfig.sourceKey = @"fakeSource";
     rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
     NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
     lineStr = @"row -s";
+    rowCollectionResult.dataConfig.sourceKey = nil;
     rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
     NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
@@ -105,6 +107,7 @@
     NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
     lineStr = @"row -s -all -c";
+    rowCollectionResult.dataConfig.sourceKey = nil;
     rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
     NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
 }
@@ -123,16 +126,19 @@
     NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
     rowCollectionResult.dataConfig.source = _nilArray;
+    rowCollectionResult.dataConfig.sourceKey = @"_nilArray";
     lineStr = @"row -s _nilArray";
     rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
     NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
     rowCollectionResult.dataConfig.source = _emptyArray;
+    rowCollectionResult.dataConfig.sourceKey = @"_emptyArray";
     lineStr = @"row -s _emptyArray";
     rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
     NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
     rowCollectionResult.dataConfig.source = _array;
+    rowCollectionResult.dataConfig.sourceKey = @"_array";
     lineStr = @"row -s _array";
     rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
     NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
@@ -142,22 +148,26 @@
     NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
     rowCollectionResult.dataConfig.source = _emptyDictionary;
+    rowCollectionResult.dataConfig.sourceKey = @"_emptyDictionary";
     lineStr = @"row -s _emptyDictionary";
     rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
     NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
     rowCollectionResult.dataConfig.source = _dictionary;
+    rowCollectionResult.dataConfig.sourceKey = @"_dictionary";
     lineStr = @"row -s _dictionary";
     rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
     NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
     rowCollectionResult.dataConfig.cellClass = [DerivedAOZTableViewCell class];
     rowCollectionResult.dataConfig.source = [NSNull null];
+    rowCollectionResult.dataConfig.sourceKey = nil;
     lineStr = @"row -c DerivedAOZTableViewCell";
     rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
     NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
     rowCollectionResult.dataConfig.source = _array;
+    rowCollectionResult.dataConfig.sourceKey = @"_array";
     lineStr = @"row -c DerivedAOZTableViewCell -s _array";
     rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
     NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
@@ -174,6 +184,7 @@
     NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);
     
     rowCollectionResult.dataConfig.source = _nilArray;
+    rowCollectionResult.dataConfig.sourceKey = @"_nilArray";
     lineStr = @"row -s _nilArray -all";
     rowCollection = [_rowParser parseNewConfig:getChunksArray(lineStr) error:nil];
     NSAssert([rowCollection isEqual:rowCollectionResult], lineStr);

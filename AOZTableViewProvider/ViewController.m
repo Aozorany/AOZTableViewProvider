@@ -45,18 +45,32 @@
     [self.view addSubview:mainTableView];
     
     //_tableViewProvider
-    _tableViewProvider = [[AOZTableViewProvider alloc] init];
-    _tableViewProvider.configBundleFileName = @"ViewController.tableViewConfig";
-    _tableViewProvider.dataProvider = self;
+    _tableViewProvider = [[AOZTableViewProvider alloc] initWithFileName:@"ViewController.tableViewConfig" dataProvider:self tableView:mainTableView];
     _tableViewProvider.delegate = self;
-    [_tableViewProvider connectToTableView:mainTableView];
     [_tableViewProvider parseConfigFile:NULL];
+    _tableViewProvider.mode = 2;
     [_tableViewProvider reloadTableView];
+    
+    //changeSourceBtn
+    UIBarButtonItem *changeSourceBtn = [[UIBarButtonItem alloc] initWithTitle:@"Change Source" style:UIBarButtonItemStyleDone target:self action:@selector(onChangeSourceBtnTouchUpInside)];
+    self.navigationItem.rightBarButtonItem = changeSourceBtn;
 }
 
 #pragma mark delegate: AOZTableViewProviderDelegate
 - (void)tableViewProvider:(AOZTableViewProvider *)provider didSelectRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents {
     [_tableViewProvider.tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+#pragma mark private: actions
+- (void)onChangeSourceBtnTouchUpInside {
+    _placeHolder = @"";
+    _array = @[@"5", @"6", @"7", @"8", @"9"];
+    _emptyArray = nil;
+    _multipleArray = @[@{@"subArray": @[@"4"], @"name": @"section name 4"}, @{@"subArray": @[@"5", @"6", @"7", @"8", @"9"], @"name": @"section name 5"}];
+    _dictionary = @{@"first": @"first dictionary value changed", @"second": @"second dictionary value changed"};
+    
+    [_tableViewProvider setNeedsReloadForCurrentMode];
+    [_tableViewProvider reloadTableView];
 }
 
 @end

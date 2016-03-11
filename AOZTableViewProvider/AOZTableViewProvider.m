@@ -213,6 +213,60 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     }
 }
 
+#pragma mark delegate: UITableViewDelegate section headers and footers
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    AOZTVPMode *currentMode = [self _currentMode];
+    AOZTVPSectionCollection *sectionCollection = _collectionForIndex(currentMode, section);
+    if (sectionCollection.headerClass) {
+        id contents = [self sectionContentsAtSection:section];;
+        AOZTableViewHeaderFooterView *headerView = [_tableView dequeueReusableHeaderFooterViewWithIdentifier:NSStringFromClass(sectionCollection.headerClass)];
+        [headerView setContents:contents];
+        return headerView;
+    } else if ([_delegate respondsToSelector:@selector(tableViewProvider:viewForHeaderInSection:)]) {
+        return [_delegate tableViewProvider:self viewForHeaderInSection:section];
+    }
+    return nil;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:viewForFooterInSection:)]) {
+        return [_delegate tableViewProvider:self viewForFooterInSection:section];
+    }
+    return nil;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    AOZTVPMode *currentMode = [self _currentMode];
+    AOZTVPSectionCollection *sectionCollection = _collectionForIndex(currentMode, section);
+    if (sectionCollection.headerClass) {
+        id contents = [self sectionContentsAtSection:section];
+        
+        NSMethodSignature *signiture = [sectionCollection.headerClass methodSignatureForSelector:@selector(heightForView:)];
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signiture];
+        [invocation setTarget:sectionCollection.headerClass];
+        [invocation setSelector:@selector(heightForView:)];
+        if (contents) {
+            [invocation setArgument:&contents atIndex:2];
+        }
+        CGFloat height = 0;
+        [invocation retainArguments];
+        [invocation invoke];
+        [invocation getReturnValue:&height];
+        
+        return height;
+    } else if ([_delegate respondsToSelector:@selector(tableViewProvider:heightForHeaderInSection:)]) {
+        return [_delegate tableViewProvider:self heightForHeaderInSection:section];
+    }
+    return 0;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:heightForFooterInSection:)]) {
+        return [_delegate tableViewProvider:self heightForFooterInSection:section];
+    }
+    return 0;
+}
+
 #pragma mark delegate: UIScrollViewDelegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     if ([_scrollViewDelegate respondsToSelector:@selector(scrollViewDidScroll:)]) {
@@ -267,60 +321,6 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     if ([_scrollViewDelegate respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)]) {
         [_scrollViewDelegate scrollViewDidEndScrollingAnimation:scrollView];
     }
-}
-
-#pragma mark delegate: UITableViewDelegate section headers and footers
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    AOZTVPMode *currentMode = [self _currentMode];
-    AOZTVPSectionCollection *sectionCollection = _collectionForIndex(currentMode, section);
-    if (sectionCollection.headerClass) {
-        id contents = [self sectionContentsAtSection:section];;
-        AOZTableViewHeaderFooterView *headerView = [_tableView dequeueReusableHeaderFooterViewWithIdentifier:NSStringFromClass(sectionCollection.headerClass)];
-        [headerView setContents:contents];
-        return headerView;
-    } else if ([_delegate respondsToSelector:@selector(tableViewProvider:viewForHeaderInSection:)]) {
-        return [_delegate tableViewProvider:self viewForHeaderInSection:section];
-    }
-    return nil;
-}
-
-- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
-    if ([_delegate respondsToSelector:@selector(tableViewProvider:viewForFooterInSection:)]) {
-        return [_delegate tableViewProvider:self viewForFooterInSection:section];
-    }
-    return nil;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    AOZTVPMode *currentMode = [self _currentMode];
-    AOZTVPSectionCollection *sectionCollection = _collectionForIndex(currentMode, section);
-    if (sectionCollection.headerClass) {
-        id contents = [self sectionContentsAtSection:section];
-        
-        NSMethodSignature *signiture = [sectionCollection.headerClass methodSignatureForSelector:@selector(heightForView:)];
-        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signiture];
-        [invocation setTarget:sectionCollection.headerClass];
-        [invocation setSelector:@selector(heightForView:)];
-        if (contents) {
-            [invocation setArgument:&contents atIndex:2];
-        }
-        CGFloat height = 0;
-        [invocation retainArguments];
-        [invocation invoke];
-        [invocation getReturnValue:&height];
-        
-        return height;
-    } else if ([_delegate respondsToSelector:@selector(tableViewProvider:heightForHeaderInSection:)]) {
-        return [_delegate tableViewProvider:self heightForHeaderInSection:section];
-    }
-    return 0;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
-    if ([_delegate respondsToSelector:@selector(tableViewProvider:heightForFooterInSection:)]) {
-        return [_delegate tableViewProvider:self heightForFooterInSection:section];
-    }
-    return 0;
 }
 
 #pragma mark private: general
@@ -542,13 +542,12 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
         return NO;
     }
     
-    //解析配置文件
+    //解析配置文件，如果发生解析错误则返回
     NSError *configParserError = nil;
     AOZTableViewConfigFileParser *parser = [[AOZTableViewConfigFileParser alloc] initWithFilePath:configFilePath];
     parser.dataProvider = _dataProvider;
     parser.tableView = _tableView;
     NSArray *newModesArray = [parser parseFile:&configParserError];
-    
     if (configParserError) {
         if (pError) {
             *pError = configParserError;
@@ -556,9 +555,11 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
         return NO;
     }
     
+    //将结果装入_modesArray中
     [_modesArray removeAllObjects];
     [_modesArray addObjectsFromArray:newModesArray];
     
+    //注册默认cellClass
     [_tableView registerClass:[AOZTableViewCell class] forCellReuseIdentifier:NSStringFromClass([AOZTableViewCell class])];
     
     return YES;
@@ -574,7 +575,8 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     AOZTVPMode *currentMode = [self _currentMode];
     if (currentMode.needsReload) {
         [self _removeAllCachesForMode:_mode];
-        [currentMode reloadSections];
+        [currentMode rebindSourceWithDataProvider:_dataProvider];//重新绑定数据
+        [currentMode reloadSections];//重新计算sectionRange和rowRange
         currentMode.needsReload = NO;
     }
     [_tableView reloadData];

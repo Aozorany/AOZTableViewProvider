@@ -149,6 +149,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
         dataConfig.cellClass = presetDataConfig.cellClass;
         dataConfig.emptyCellClass = presetDataConfig.emptyCellClass;
         dataConfig.source = [presetDataConfig.source isKindOfClass:[NSArray class]]? [NSNull null]: presetDataConfig.source;
+        dataConfig.sourceKey = presetDataConfig.sourceKey;
         dataConfig.elementsPerRow = presetDataConfig.elementsPerRow;
     }
     
@@ -162,15 +163,15 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
             if (index < chunksArray.count - 1) {
                 if (_dataProvider) {
                     NSString *nextChunk = chunksArray[index + 1];
-                    @try {
-                        dataConfig.source = [_dataProvider valueForKey:nextChunk];
+                    if (![nextChunk hasPrefix:@"-"]) {
+                        dataConfig.sourceKey = nextChunk;
                         if (rowCollection) {
-                            rowCollection.elementSource = nil;
+                            rowCollection.elementSourceKey = nil;
                         }
-                    }
-                    @catch (NSException *exception) {
-                        //如果根据参数找到数据源，则返回空
-                        _createAndLogError(self.class, [NSString stringWithFormat:@"No value for -s arg %@, ignore", nextChunk], NULL);
+                        //尝试绑定数据
+                        [dataConfig rebindSourceWithDataProvider:_dataProvider];
+                    } else {
+                        _createAndLogError(self.class, [NSString stringWithFormat:@"Invalid value for -s arg %@, ignore", nextChunk], NULL);
                     }
                 } else {//如果_dataProvider为空，报错并忽略
                     _createAndLogError(self.class, @"_dataProvider is nil, ignore", NULL);
@@ -246,7 +247,8 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
             if (index < chunksArray.count - 1) {
                 NSString *nextChunk = chunksArray[index + 1];
                 if (rowCollection && nextChunk.length > 0) {
-                    rowCollection.elementSource = nextChunk;
+                    rowCollection.elementSourceKey = nextChunk;
+                    dataConfig.sourceKey = nil;
                     dataConfig.source = [NSNull null];
                 }
             } else {

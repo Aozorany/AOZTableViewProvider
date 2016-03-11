@@ -69,37 +69,44 @@
     
     line = @"row -s _array";
     dataConfigResult.source = _array;
+    dataConfigResult.sourceKey = @"_array";
     dataConfig = [_dataConfigParser parseNewConfig:getChunksArray(line) error:NULL];
     NSAssert([dataConfig isEqual:dataConfigResult], line);
     
     line = @"row -s _emptyArray";
     dataConfigResult.source = _emptyArray;
+    dataConfigResult.sourceKey = @"_emptyArray";
     dataConfig = [_dataConfigParser parseNewConfig:getChunksArray(line) error:NULL];
     NSAssert([dataConfig isEqual:dataConfigResult], line);
     
     line = @"row -s _nilArray";
     dataConfigResult.source = _nilArray;
+    dataConfigResult.sourceKey = @"_nilArray";
     dataConfig = [_dataConfigParser parseNewConfig:getChunksArray(line) error:NULL];
     NSAssert([dataConfig isEqual:dataConfigResult], line);
     
     line = @"row -s _dictionary";
     dataConfigResult.source = _dictionary;
+    dataConfigResult.sourceKey = @"_dictionary";
     dataConfig = [_dataConfigParser parseNewConfig:getChunksArray(line) error:NULL];
     NSAssert([dataConfig isEqual:dataConfigResult], line);
     
     line = @"row -s _emptyDictionary";
     dataConfigResult.source = _emptyDictionary;
+    dataConfigResult.sourceKey = @"_emptyDictionary";
     dataConfig = [_dataConfigParser parseNewConfig:getChunksArray(line) error:NULL];
     NSAssert([dataConfig isEqual:dataConfigResult], line);
     
     line = @"row -s _array";
     _dataConfigParser.dataProvider = nil;
     dataConfigResult.source = [NSNull null];
+    dataConfigResult.sourceKey = nil;
     dataConfig = [_dataConfigParser parseNewConfig:getChunksArray(line) error:NULL];
     NSAssert([dataConfig isEqual:dataConfigResult], line);
     _dataConfigParser.dataProvider = self;
     
     line = @"row -s fakeArray";
+    dataConfigResult.sourceKey = @"fakeArray";
     dataConfig = [_dataConfigParser parseNewConfig:getChunksArray(line) error:NULL];
     NSAssert([dataConfig isEqual:dataConfigResult], line);
 }
