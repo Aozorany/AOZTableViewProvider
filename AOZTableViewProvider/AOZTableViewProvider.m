@@ -164,7 +164,9 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 
     //向cellClass本身查询单元格高度
     CGFloat height = 0;
-    if ([((id) cellClass) respondsToSelector:@selector(heightForCell:positions:indexPath:)]) {
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:heightForRowAtIndexPath:contents:cellClass:)]) {
+        height = [_delegate tableViewProvider:self heightForRowAtIndexPath:indexPath contents:contents cellClass:cellClass];
+    } else if ([((id) cellClass) respondsToSelector:@selector(heightForCell:positions:indexPath:)]) {
         NSMethodSignature *signiture = [cellClass methodSignatureForSelector:@selector(heightForCell:positions:indexPath:)];
         NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signiture];
         [invocation setTarget:cellClass];

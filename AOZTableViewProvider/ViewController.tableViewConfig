@@ -1,6 +1,6 @@
 
 mode
-row -c TableViewCell -s _array
+section -c TableViewCell -s _emptyArray
 
 mode
 section -s _dictionary -c TableViewCell

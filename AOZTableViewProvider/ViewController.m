@@ -32,7 +32,7 @@
     
     _placeHolder = @"";
     _array = @[@"1", @"2", @"3", @"4", @"5"];
-    _emptyArray = nil;
+    _emptyArray = @[@[@"1", @"2", @"3", @"4", @"5"], @[@"1", @"2", @"3"]];
     _multipleArray = @[@{@"subArray": @[@"1"], @"name": @"section name 1"}, @{@"subArray": @[@"3", @"4", @"5"], @"name": @"section name 2"}];
     _dictionary = @{@"first": @"first dictionary value", @"second": @"second dictionary value"};
     
@@ -48,7 +48,7 @@
     _tableViewProvider = [[AOZTableViewProvider alloc] initWithFileName:@"ViewController.tableViewConfig" dataProvider:self tableView:mainTableView];
     _tableViewProvider.delegate = self;
     [_tableViewProvider parseConfigFile:NULL];
-    _tableViewProvider.mode = 2;
+    _tableViewProvider.mode = 0;
     [_tableViewProvider reloadTableView];
     
     //changeSourceBtn
