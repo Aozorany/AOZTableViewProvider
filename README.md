@@ -75,23 +75,73 @@ Means a single row, can proceed with -s, -c, -n and -all.
 For example:
 
 ``` 
-//_array = @[@1, @2, @3, @4, @5]
+//_array = @[@1, @2, @3, @4, @5]: I just write it here for convenience, this line doesn't belongs to the comfig file, you should write it in your code
 row -s _array -c TableViewCell
 ```
 
 Means rows with _array as their data source, and TableViewCell as their cell class, and only one element per row.
 
 ``` 
-row -s _array -n 2
+row -s _array -n 2 -c TableViewCell
 ```
 
 Means the row with _array as it's data source and have two elements per row.
 
 ``` 
-row -s _array -all
+row -s _array -all -c TableViewCell
 ```
 
 Means the row with _array as it's data source and all elements are in the same row.
+
+###About TableViewCell
+
+The TableViewCell in our config files is a sub class of AOZTableViewCell, or an implementation to AOZTableViewCell.
+
+```objective-c
+//TableViewCell.h
+#import "AOZTableViewCell.h"
+
+@interface TableViewCell : UITableViewCell <AOZTableViewCell>
+@end
+```
+
+```objective-c
+//TableViewCell.m
+#import "TableViewCell.h"
+
+@implementation TableViewCell
+
+- (void)setContents:(id)contents {
+    if ([contents isKindOfClass:[NSString class]]) {
+        self.textLabel.text = (NSString *)contents;
+    } else if ([contents isKindOfClass:[NSArray class]]) {
+        NSMutableString *str = [NSMutableString string];
+        for (NSString *subStr in ((NSArray *) contents)) {
+            [str appendFormat:@"%@ ", subStr];
+        }
+        self.textLabel.text = str;
+    } else if ([contents isKindOfClass:[NSDictionary class]]) {
+        self.textLabel.text = contents[@"title"];
+    }
+}
+
++ (CGFloat)heightForCell:(id)contents {
+    return 40;
+}
+
+@end
+```
+
+Generally you should override **setContents** and **heightForCell** method to tell the tableViewProvider how height is it, or how to deal with different contents.
+
+In your **setContents:(id)contents** method, different contents will send to you according to different -all or -n parameters in your config files:
+
+| Configs                             | contents                                 |
+| ----------------------------------- | ---------------------------------------- |
+| row -s _array -c TableViewCell      | contents is the element in your array    |
+| row -s _array -n 2 -c TableViewCell | contents is a NSArray, with at most 2 elements |
+| row -s _array -all -c TableViewCell | contents is a NSArray, with all elements in _array |
+| row -s _dictionary -c TableViewCell | contents is a NSDictionary, with the same keys and values in _dictionary |
 
 ### Section
 

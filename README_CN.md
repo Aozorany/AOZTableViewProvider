@@ -75,7 +75,7 @@ pod 'AOZTableViewProvider', '~> 0.3'
 例如：
 
 ``` 
-//_array = @[@1, @2, @3, @4, @5]
+//_array = @[@1, @2, @3, @4, @5]:写这一行只是为了方便理解_array里面包含的内容，你应该在代码里面写上这一行，而不是在配置文件里面
 row -s _array -c TableViewCell
 ```
 
@@ -92,6 +92,56 @@ row -s _array -all
 ```
 
 代表一行row，它的数据源是_array，且所有数据都在同一行里面。
+
+###TableViewCell相关
+
+上述配置文件中出现的TableViewCell需要单独定义，它是AOZTableViewCell的派生，或者是AOZTableViewCell协议的实现以及UITableViewCell的派生。
+
+```objective-c
+//TableViewCell.h
+#import "AOZTableViewCell.h"
+
+@interface TableViewCell : UITableViewCell <AOZTableViewCell>
+@end
+```
+
+```objective-c
+//TableViewCell.m
+#import "TableViewCell.h"
+
+@implementation TableViewCell
+
+- (void)setContents:(id)contents {
+    if ([contents isKindOfClass:[NSString class]]) {
+        self.textLabel.text = (NSString *)contents;
+    } else if ([contents isKindOfClass:[NSArray class]]) {
+        NSMutableString *str = [NSMutableString string];
+        for (NSString *subStr in ((NSArray *) contents)) {
+            [str appendFormat:@"%@ ", subStr];
+        }
+        self.textLabel.text = str;
+    } else if ([contents isKindOfClass:[NSDictionary class]]) {
+        self.textLabel.text = contents[@"title"];
+    }
+}
+
++ (CGFloat)heightForCell:(id)contents {
+    return 40;
+}
+
+@end
+```
+
+通常情况下，你需要重写**setContents**和**heightForCell**方法，来返回这个cell的高度，或者告诉这个派生类如何处理属于它自己的内容。
+
+在**setContents:(id)contents**方法中，根据你使用的配置参数，不同的contents参数将传到这个方法里面，如下表所示：
+
+| 配置文件                                | contents参数                         |
+| ----------------------------------- | ---------------------------------- |
+| row -s _array -c TableViewCell      | contents参数代表_array中的每一个元素          |
+| row -s _array -n 2 -c TableViewCell | contents参数是一个数组，含有最多两个元素           |
+| row -s _array -all -c TableViewCell | contents参数包含了_array数组中的全部元素        |
+| row -s _dictionary -c TableViewCell | contents是一个字典，包含了_dictionary中的全部内容 |
 
 ### Section
 
