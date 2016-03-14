@@ -19,6 +19,8 @@
             [str appendFormat:@"%@ ", subStr];
         }
         self.textLabel.text = str;
+    } else if ([contents isKindOfClass:[NSDictionary class]]) {
+        self.textLabel.text = contents[@"title"];
     }
 }
 

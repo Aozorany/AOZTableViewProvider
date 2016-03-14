@@ -32,9 +32,18 @@
     
     _placeHolder = @"";
     _array = @[@"1", @"2", @"3", @"4", @"5"];
-    _emptyArray = @[@[@"1", @"2", @"3", @"4", @"5"], @[@"1", @"2", @"3"]];
+//    _emptyArray = @[@[@"1", @"2", @"3", @"4", @"5"], @[@"1", @"2", @"3"]];
+    _emptyArray = @[@[@{@"tag": @"id", @"title": @"ID"},
+                      @{@"tag": @"name", @"title": @"昵称"}],
+                    @[@{@"tag": @"sex", @"title": @"性别"},
+                      @{@"tag": @"art", @"title": @"才艺"},
+                      @{@"tag": @"city", @"title": @"城市"}],
+                    @[@{@"tag": @"time", @"title": @"档期"},
+                      @{@"tag": @"price", @"title": @"薪酬"},
+                      @{@"tag": @"intro", @"title": @"简介"},
+                      @{@"tag": @"award", @"title": @"获奖"}]];
     _multipleArray = @[@{@"subArray": @[@"1"], @"name": @"section name 1"}, @{@"subArray": @[@"3", @"4", @"5"], @"name": @"section name 2"}];
-    _dictionary = @{@"first": @"first dictionary value", @"second": @"second dictionary value"};
+    _dictionary = @{@"first": @"first dictionary value", @"second": @"second dictionary value", @"title": @"This is a dictionary"};
     
     self.view.backgroundColor = [UIColor whiteColor];
     
@@ -65,9 +74,18 @@
 - (void)onChangeSourceBtnTouchUpInside {
     _placeHolder = @"";
     _array = @[@"5", @"6", @"7", @"8", @"9"];
-    _emptyArray = nil;
+//    _emptyArray = @[@[@"1", @"2", @"3", @"4", @"5", @"6"], @[@"1", @"2", @"3", @"4"]];
+    _emptyArray = @[@[@{@"tag": @"id", @"title": @"ID"},
+                      @{@"tag": @"name", @"title": @"昵称"}],
+                    @[@{@"tag": @"sex", @"title": @"性别"},
+                      @{@"tag": @"art", @"title": @"才艺"},
+                      @{@"tag": @"city", @"title": @"城市"}],
+                    @[@{@"tag": @"time", @"title": @"档期"},
+                      @{@"tag": @"price", @"title": @"薪酬"},
+                      @{@"tag": @"intro", @"title": @"简介"},
+                      @{@"tag": @"award", @"title": @"获奖"}]];
     _multipleArray = @[@{@"subArray": @[@"4"], @"name": @"section name 4"}, @{@"subArray": @[@"5", @"6", @"7", @"8", @"9"], @"name": @"section name 5"}];
-    _dictionary = @{@"first": @"first dictionary value changed", @"second": @"second dictionary value changed"};
+    _dictionary = @{@"first": @"first dictionary value changed", @"second": @"second dictionary value changed", @"title": @"This is a dictionary changed."};
     
     [_tableViewProvider setNeedsReloadForCurrentMode];
     [_tableViewProvider reloadTableView];

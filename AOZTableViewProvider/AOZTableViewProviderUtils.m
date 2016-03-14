@@ -43,6 +43,7 @@
 
 - (void)rebindSourceWithDataProvider:(id)dataProvider {
     if (dataProvider == nil || _sourceKey.length == 0) {
+        self.source = [NSNull null];
         return;
     }
     @try {
@@ -79,7 +80,6 @@
             _dataConfig.emptyCellClass = dataConfig.emptyCellClass;
             _dataConfig.elementsPerRow = dataConfig.elementsPerRow;
             _dataConfig.source = [dataConfig.source isKindOfClass:[NSArray class]]? [NSNull null]: dataConfig.source;
-            _dataConfig.sourceKey = dataConfig.sourceKey;
         }
         _rowRange = NSMakeRange(0, 0);
     }
