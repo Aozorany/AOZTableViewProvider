@@ -43,11 +43,17 @@
 /** delegate for AOZTableViewProvider, called when some UITableViewDataSource and UITableViewDelegate methods invoked. */
 @protocol AOZTableViewProviderDelegate <NSObject>
 @optional
+#pragma mark delegates for cells
 - (void)tableViewProvider:(AOZTableViewProvider *)provider cellForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cell:(UITableViewCell *)cell;/**< Invoked after cellForRowAtIndexPath, you have the chance to re-config this cell */
 - (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cellClass:(Class)cellClass;
 - (void)tableViewProvider:(AOZTableViewProvider *)provider willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;/**< Invoked in tableViewDelegate's willDisplayCell method */
 - (void)tableViewProvider:(AOZTableViewProvider *)provider didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;/**< Invoked in tableViewDelegate's didEndDisplayingCell method */
 - (void)tableViewProvider:(AOZTableViewProvider *)provider didSelectRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;/**< Invoked in tableViewDelegate's didSelectRowAtIndexPath method */
+#pragma mark delegates for cell edit
+- (BOOL)tableViewProvider:(AOZTableViewProvider *)provider canEditRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;
+- (UITableViewCellEditingStyle)tableViewProvider:(AOZTableViewProvider *)provider editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;
+- (void)tableViewProvider:(AOZTableViewProvider *)provider commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;
+#pragma mark delegates for section headers and footers
 - (UIView *)tableViewProvider:(AOZTableViewProvider *)provider viewForHeaderInSection:(NSInteger)section;/**< Invoked in tableViewDelegate's viewForFooterInSection method, if use this method, -h config will be ignored */
 - (UIView *)tableViewProvider:(AOZTableViewProvider *)provider viewForFooterInSection:(NSInteger)section;/**< Invoked in tableViewDelegate's viewForFooterInSection method */
 - (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForHeaderInSection:(NSInteger)section;/**< Invoked in tableViewDelegate's heightForHeaderInSection method, if use this method, -h config will be ignored */

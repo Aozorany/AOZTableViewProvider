@@ -154,6 +154,22 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     return cell;
 }
 
+#pragma mark delegate: UITableViewCellDataSource for cell editing
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:canEditRowAtIndexPath:contents:)]) {
+        id contents = [self rowContentsAtIndexPath:indexPath];
+        return [_delegate tableViewProvider:self canEditRowAtIndexPath:indexPath contents:contents];
+    }
+    return NO;
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:commitEditingStyle:forRowAtIndexPath:contents:)]) {
+        id contents = [self rowContentsAtIndexPath:indexPath];
+        [_delegate tableViewProvider:self commitEditingStyle:editingStyle forRowAtIndexPath:indexPath contents:contents];
+    }
+}
+
 #pragma mark delegate: UITableViewDelegate
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     AOZTurple4 *contentsTurple = [self _rowContentsAtIndexPath:indexPath];
@@ -213,6 +229,15 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     if ([_delegate respondsToSelector:@selector(tableViewProvider:didSelectRowAtIndexPath:contents:)]) {
         [_delegate tableViewProvider:self didSelectRowAtIndexPath:indexPath contents:[self _contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS]];
     }
+}
+
+#pragma mark delegate: UITableViewDelegate cell editing
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:editingStyleForRowAtIndexPath:contents:)]) {
+        id contents = [self rowContentsAtIndexPath:indexPath];
+        return [_delegate tableViewProvider:self editingStyleForRowAtIndexPath:indexPath contents:contents];
+    }
+    return UITableViewCellEditingStyleNone;
 }
 
 #pragma mark delegate: UITableViewDelegate section headers and footers
