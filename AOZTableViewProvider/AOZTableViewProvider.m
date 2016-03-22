@@ -245,7 +245,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     AOZTVPMode *currentMode = [self _currentMode];
     AOZTVPSectionCollection *sectionCollection = _collectionForIndex(currentMode, section);
     if (sectionCollection.headerClass) {
-        id contents = [self sectionContentsAtSection:section];;
+        id contents = [self sectionContentsAtSection:section];
         AOZTableViewHeaderFooterView *headerView = [_tableView dequeueReusableHeaderFooterViewWithIdentifier:NSStringFromClass(sectionCollection.headerClass)];
         [headerView setContents:contents];
         return headerView;

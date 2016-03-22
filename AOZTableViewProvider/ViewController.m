@@ -70,11 +70,24 @@
     [_tableViewProvider.tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
+- (BOOL)tableViewProvider:(AOZTableViewProvider *)provider canEditRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents {
+    NSLog(@"canEditRowAtIndexPath %@", indexPath);
+    return YES;
+}
+
+- (UITableViewCellEditingStyle)tableViewProvider:(AOZTableViewProvider *)provider editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents {
+    NSLog(@"editingStyleForRowAtIndexPath %@", indexPath);
+    return UITableViewCellEditingStyleDelete;
+}
+
+- (void)tableViewProvider:(AOZTableViewProvider *)provider commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents {
+    NSLog(@"commitEditingStyle %@", indexPath);
+}
+
 #pragma mark private: actions
 - (void)onChangeSourceBtnTouchUpInside {
     _placeHolder = @"";
     _array = @[@"5", @"6", @"7", @"8", @"9"];
-//    _emptyArray = @[@[@"1", @"2", @"3", @"4", @"5", @"6"], @[@"1", @"2", @"3", @"4"]];
     _emptyArray = @[@[@{@"tag": @"id", @"title": @"ID"},
                       @{@"tag": @"name", @"title": @"昵称"}],
                     @[@{@"tag": @"sex", @"title": @"性别"},
