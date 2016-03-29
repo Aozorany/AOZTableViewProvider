@@ -355,7 +355,14 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     if (_mode < 0 || _mode >= _modesArray.count) {
         return nil;
     }
-    return _modesArray[_mode];
+    AOZTVPMode *currentMode = _modesArray[_mode];
+    if (currentMode.needsReload) {
+        [self _removeAllCachesForMode:_mode];
+        [currentMode rebindSourceWithDataProvider:_dataProvider];//重新绑定数据
+        [currentMode reloadSections];//重新计算sectionRange和rowRange
+        currentMode.needsReload = NO;
+    }
+    return currentMode;
 }
 
 - (AOZTurple4 *)_rowContentsAtIndexPath:(NSIndexPath *)indexPath {
@@ -600,12 +607,6 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 
 - (void)reloadTableView {
     AOZTVPMode *currentMode = [self _currentMode];
-    if (currentMode.needsReload) {
-        [self _removeAllCachesForMode:_mode];
-        [currentMode rebindSourceWithDataProvider:_dataProvider];//重新绑定数据
-        [currentMode reloadSections];//重新计算sectionRange和rowRange
-        currentMode.needsReload = NO;
-    }
     [_tableView reloadData];
 }
 
