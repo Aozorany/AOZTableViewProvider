@@ -606,7 +606,6 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 }
 
 - (void)reloadTableView {
-    AOZTVPMode *currentMode = [self _currentMode];
     [_tableView reloadData];
 }
 
