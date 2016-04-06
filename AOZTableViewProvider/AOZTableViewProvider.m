@@ -676,4 +676,10 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     return [_tableView indexPathForRowAtPoint:touchPoint];
 }
 
+- (void)scrollToLastCell:(UITableViewScrollPosition)scrollPosition animated:(BOOL)animated {
+    NSInteger lastSectionIndex = [_tableView numberOfSections] - 1;
+    NSInteger lastRowIndex = [_tableView numberOfRowsInSection:lastSectionIndex] - 1;
+    [_tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:lastRowIndex inSection:lastSectionIndex] atScrollPosition:scrollPosition animated:animated];
+}
+
 @end
