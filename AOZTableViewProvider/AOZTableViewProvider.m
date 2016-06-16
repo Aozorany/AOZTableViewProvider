@@ -154,7 +154,14 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     return cell;
 }
 
-#pragma mark delegate: UITableViewCellDataSource for cell editing
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:titleForHeaderInSection:)]) {
+        return [_delegate tableViewProvider:self titleForHeaderInSection:section];
+    }
+    return nil;
+}
+
+#pragma mark delegate: UITableViewDataSource for cell editing
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     if ([_delegate respondsToSelector:@selector(tableViewProvider:canEditRowAtIndexPath:contents:)]) {
         id contents = [self rowContentsAtIndexPath:indexPath];

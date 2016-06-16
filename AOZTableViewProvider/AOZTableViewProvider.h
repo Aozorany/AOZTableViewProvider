@@ -59,4 +59,5 @@
 - (UIView *)tableViewProvider:(AOZTableViewProvider *)provider viewForFooterInSection:(NSInteger)section;/**< Invoked in tableViewDelegate's viewForFooterInSection method */
 - (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForHeaderInSection:(NSInteger)section;/**< Invoked in tableViewDelegate's heightForHeaderInSection method, if use this method, -h config will be ignored */
 - (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForFooterInSection:(NSInteger)section;/**< Invoked in tableViewDelegate's heightForFooterInSection method */
+- (NSString *)tableViewProvider:(AOZTableViewProvider *)tableViewProvider titleForHeaderInSection:(NSInteger)section;
 @end
