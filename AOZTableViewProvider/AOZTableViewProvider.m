@@ -103,6 +103,18 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     return self;
 }
 
+- (instancetype)initWithConfigString:(NSString *)config dataProvider:(id)dataProvider tableView:(UITableView *)tableView {
+    self = [super init];
+    if (self) {
+        _modesArray = [[NSMutableArray alloc] init];
+        _cacheDictionary = [[NSMutableDictionary alloc] init];
+        self.dataProvider = dataProvider;
+        self.configString = config;
+        [self connectToTableView:tableView];
+    }
+    return self;
+}
+
 #pragma mark delegate: UITableViewDataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     NSInteger sectionCount = 0;
@@ -198,6 +210,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
             [invocation setArgument:&contents atIndex:2];
         }
         [invocation setArgument:&cellPositions atIndex:3];
+        [invocation setArgument:&indexPath atIndex:4];
         [invocation retainArguments];
         [invocation invoke];
         [invocation getReturnValue:&height];
@@ -565,30 +578,40 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 
 #pragma mark public: general
 - (BOOL)parseConfigFile:(NSError **)pError {
-    if (_configBundleFileName.length == 0) {
+    return [self parseConfigWithError:pError];
+}
+
+- (BOOL)parseConfigWithError:(NSError **)pError {
+    if (_configBundleFileName.length == 0 && _configString.length == 0) {
         return NO;
     }
     
     //检查配置文件存在性
-    NSString *configFileName = [_configBundleFileName stringByDeletingPathExtension];
-    NSString *configFileExtention = [_configBundleFileName pathExtension];
-    if (configFileExtention.length == 0) {
-        configFileExtention = @"tableViewConfig";
-    }
-    NSString *configFilePath = [[NSBundle mainBundle] pathForResource:configFileName ofType:configFileExtention];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:configFilePath]) {
-        if (pError) {
-            *pError = [NSError errorWithDomain:AOZTableViewProviderErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey: @"配置文件不存在"}];
+    AOZTableViewConfigFileParser *parser = nil;
+    if (_configBundleFileName.length > 0) {
+        NSString *configFileName = [_configBundleFileName stringByDeletingPathExtension];
+        NSString *configFileExtention = [_configBundleFileName pathExtension];
+        if (configFileExtention.length == 0) {
+            configFileExtention = @"tableViewConfig";
         }
-        return NO;
+        NSString *configFilePath = [[NSBundle mainBundle] pathForResource:configFileName ofType:configFileExtention];
+        if (![[NSFileManager defaultManager] fileExistsAtPath:configFilePath]) {
+            if (pError) {
+                *pError = [NSError errorWithDomain:AOZTableViewProviderErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey: @"配置文件不存在"}];
+            }
+            return NO;
+        }
+        
+        //解析配置文件，如果发生解析错误则返回
+        parser = [[AOZTableViewConfigFileParser alloc] initWithFilePath:configFilePath];
+    } else if (_configString.length > 0) {
+        parser = [[AOZTableViewConfigFileParser alloc] initWithString:_configString];
     }
     
-    //解析配置文件，如果发生解析错误则返回
     NSError *configParserError = nil;
-    AOZTableViewConfigFileParser *parser = [[AOZTableViewConfigFileParser alloc] initWithFilePath:configFilePath];
     parser.dataProvider = _dataProvider;
     parser.tableView = _tableView;
-    NSArray *newModesArray = [parser parseFile:&configParserError];
+    NSArray *newModesArray = [parser parseConfigWithError:&configParserError];
     if (configParserError) {
         if (pError) {
             *pError = configParserError;

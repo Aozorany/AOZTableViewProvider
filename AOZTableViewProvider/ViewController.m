@@ -11,6 +11,14 @@
 #import "AOZTableViewProvider.h"
 
 
+NSString *configString = @"\
+section -s _dictionary -c TableViewCell\n\
+    row -s first\n\
+    row -s second\n\
+section -s _multipleArray -c TableViewCell\n\
+    row -es subArray";
+
+
 #pragma mark -
 @interface ViewController () <AOZTableViewProviderDelegate>
 @end
@@ -54,9 +62,14 @@
     [self.view addSubview:mainTableView];
     
     //_tableViewProvider
-    _tableViewProvider = [[AOZTableViewProvider alloc] initWithFileName:@"ViewController.tableViewConfig" dataProvider:self tableView:mainTableView];
-    _tableViewProvider.delegate = self;
-    [_tableViewProvider parseConfigFile:NULL];
+//    _tableViewProvider = [[AOZTableViewProvider alloc] initWithFileName:@"ViewController.tableViewConfig" dataProvider:self tableView:mainTableView];
+//    _tableViewProvider.delegate = self;
+//    [_tableViewProvider parseConfigFile:NULL];
+//    _tableViewProvider.mode = 0;
+//    [_tableViewProvider reloadTableView];
+    
+    _tableViewProvider = [[AOZTableViewProvider alloc] initWithConfigString:configString dataProvider:self tableView:mainTableView];
+    [_tableViewProvider parseConfigWithError:nil];
     _tableViewProvider.mode = 0;
     [_tableViewProvider reloadTableView];
     

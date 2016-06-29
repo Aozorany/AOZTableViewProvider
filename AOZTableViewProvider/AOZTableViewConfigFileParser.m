@@ -18,8 +18,12 @@
     return [[AOZTableViewDefaultConfigFileParser alloc] initWithFilePath:filePath];
 }
 
+- (instancetype)initWithString:(NSString *)configStr {
+    return [[AOZTableViewDefaultConfigFileParser alloc] initWithString:configStr];
+}
+
 #pragma mark public: general
-- (NSArray *)parseFile:(NSError **)pError {
+- (NSArray<AOZTVPMode *> *)parseConfigWithError:(NSError **)pError {
     return nil;
 }
 

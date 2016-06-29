@@ -20,13 +20,16 @@
 /** Provides dataSource and some delegates for UITableView, init - connectToTableView - parseConfigFile - reloadTableView */
 @interface AOZTableViewProvider : NSObject <UITableViewDataSource, UITableViewDelegate>
 @property (nonatomic, copy) NSString *configBundleFileName;/**< File name for config file, must contained in app bundle. If it hasn't extension name, then .tableViewConfig is the default extension. */
+@property (nonatomic, copy) NSString *configString;
 @property (nonatomic, readonly) UITableView *tableView;/**< The tableView connected with this provider, use connectToTableView to set this value. */
 @property (nonatomic, assign) id dataProvider;/**< Tells this provider where to find values */
 @property (nonatomic, assign) NSInteger mode;/**< Current mode index for this provider */
 @property (nonatomic, assign) id<AOZTableViewProviderDelegate> delegate;/**< Delegate for this provider */
 @property (nonatomic, assign) id<UIScrollViewDelegate> scrollViewDelegate;/**< ScrollViewDelegate associated with this tableView */
 - (instancetype)initWithFileName:(NSString *)fileName dataProvider:(id)dataProvider tableView:(UITableView *)tableView;/**< Create a new instance for this provider, with fileName, dataProvider and tableView established. */
-- (BOOL)parseConfigFile:(NSError **)pError;/**< Parse config file, must use after connectToTableView, if any error occurs, return it within pError, pError could be nil */
+- (instancetype)initWithConfigString:(NSString *)config dataProvider:(id)dataProvider tableView:(UITableView *)tableView;
+- (BOOL)parseConfigFile:(NSError **)pError __attribute__((deprecated));/**< Parse config file, must use after connectToTableView, if any error occurs, return it within pError, pError could be nil */
+- (BOOL)parseConfigWithError:(NSError **)pError;
 - (void)connectToTableView:(UITableView *)tableView;/**< Connect to tableView, must use before parseConfigFile */
 - (void)reloadTableView;/**< Reload tableView, if dataSource has changed, use it after setNeedsReloadForCurrentMode or setNeedsReloadForMode */
 - (void)setNeedsReloadForMode:(int)mode;/**< Use before reloadTableView, tells this provider to re-compute sections and rows for mode before loading, invoked when dataSource is changed. If mode is not exist, do nothing */

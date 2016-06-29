@@ -14,6 +14,7 @@
 #pragma mark -
 @implementation AOZTableViewDefaultConfigFileParser {
     NSString *_filePath;
+    NSString *_configStr;
     AOZTableViewDefaultModeParser *_modeParser;
 }
 
@@ -22,6 +23,15 @@
     self = [super init];
     if (self) {
         _filePath = [filePath copy];
+        _modeParser = [[AOZTableViewDefaultModeParser alloc] init];
+    }
+    return self;
+}
+
+- (instancetype)initWithString:(NSString *)configStr {
+    self = [super init];
+    if (self) {
+        _configStr = [configStr copy];
         _modeParser = [[AOZTableViewDefaultModeParser alloc] init];
     }
     return self;
@@ -37,16 +47,21 @@
 }
 
 #pragma mark public: general
-- (NSArray *)parseFile:(NSError **)pError {
+- (NSArray<AOZTVPMode *> *)parseConfigWithError:(NSError **)pError {
     @autoreleasepool {
         //读取，并分行
-        NSString *fileContentStr = [NSString stringWithContentsOfFile:_filePath encoding:NSUTF8StringEncoding error:pError];
-        NSArray<NSArray<NSString *> *> *linesArray = getLinesAndChunksArray(fileContentStr);
+        NSArray<NSArray<NSString *> *> *linesArray = nil;
+        if (_filePath.length > 0) {
+            NSString *fileContentStr = [NSString stringWithContentsOfFile:_filePath encoding:NSUTF8StringEncoding error:pError];
+            linesArray = getLinesAndChunksArray(fileContentStr);
+        } else if (_configStr.length > 0) {
+            linesArray = getLinesAndChunksArray(_configStr);
+        }
         
         //如果没有任何内容，则发起异常
         if (linesArray.count == 0) {
             if (pError) {
-                *pError = [NSError errorWithDomain:AOZTableViewConfigFileParserErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey: @"文件内容为空"}];
+                *pError = [NSError errorWithDomain:AOZTableViewConfigFileParserErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey: @"配置内容为空"}];
             }
             return nil;
         }
