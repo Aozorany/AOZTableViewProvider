@@ -19,20 +19,22 @@ static int _CACHE_TYPE_SECTION_CONTENTS = 1;/**< 缓存类型：section里面的
 static int _CACHE_TYPE_CELL_CLASS = 2;/**< 缓存类型：row cell，它的值是class对应的string */
 static int _CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG = 3;/**< 缓存类型：row里面的内容是否为空，是一个NSNumber with bool值 */
 static int _CACHE_TYPE_CELL_POSITION = 4;/**< 缓存类型：cell position */
+static int _CACHE_TYPE_CELL_KEY = 5;/**< 缓存类型：cell key，如果没有内容则为NSNull，有内容则为NSString */
 
 
 #pragma mark -
 /** Turple with 4 elements */
-@interface AOZTurple4 : NSObject
+@interface AOZTurple5 : NSObject
 @property (nonatomic, strong) id first;
 @property (nonatomic, strong) id second;
 @property (nonatomic, strong) id third;
 @property (nonatomic, strong) id forth;
+@property (nonatomic, strong) id fifth;
 @end
 
 
 #pragma mark -
-@implementation AOZTurple4
+@implementation AOZTurple5
 @end
 
 
@@ -147,10 +149,11 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    AOZTurple4 *contentsTurple = [self _rowContentsAtIndexPath:indexPath];
+    AOZTurple5 *contentsTurple = [self _rowContentsAtIndexPath:indexPath];
     id contents = contentsTurple.first;
     NSString *cellClassStr = contentsTurple.second;
     NSInteger cellPositions = [contentsTurple.forth integerValue];
+    NSString *cellKey = contentsTurple.fifth;
     
     AOZTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellClassStr];
     if ([cell respondsToSelector:@selector(setContents:positions:indexPath:)]) {
@@ -191,7 +194,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 
 #pragma mark delegate: UITableViewDelegate
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    AOZTurple4 *contentsTurple = [self _rowContentsAtIndexPath:indexPath];
+    AOZTurple5 *contentsTurple = [self _rowContentsAtIndexPath:indexPath];
     id contents = contentsTurple.first;
     NSString *cellClassStr = contentsTurple.second;
     Class cellClass = (cellClassStr.length > 0? NSClassFromString(cellClassStr): NULL);
@@ -385,14 +388,16 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     return currentMode;
 }
 
-- (AOZTurple4 *)_rowContentsAtIndexPath:(NSIndexPath *)indexPath {
+- (AOZTurple5 *)_rowContentsAtIndexPath:(NSIndexPath *)indexPath {
     NSString *cellClassStr = [self _contentAtIndexPath:indexPath type:_CACHE_TYPE_CELL_CLASS];
     Class cellClass = (cellClassStr.length > 0? NSClassFromString(cellClassStr): NULL);
     id contents = [self _contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
     BOOL contentsEmptyFlag = [[self _contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG] boolValue];
     NSInteger cellPositions = [[self _contentAtIndexPath:indexPath type:_CACHE_TYPE_CELL_POSITION] integerValue];
+    NSString *cellKey = [self _contentAtIndexPath:indexPath type:_CACHE_TYPE_CELL_KEY];
     
-    if ((!contentsEmptyFlag && contents == nil) || cellClass == NULL) {//如果从缓存里面读不到结果，则重新生成
+    if ((!contentsEmptyFlag && contents == nil) || cellClass == NULL) {
+        //如果从缓存里面读不到结果，则重新生成
         contents = [NSNull null];
         
         NSInteger cellPosition_section = AOZTableViewCellPositionNormal;
@@ -530,20 +535,27 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
         //将取到的结果放入缓存，并记录cellClass和cellClassStr
         cellClass = (contentsEmptyFlag? rowCollection.dataConfig.emptyCellClass: rowCollection.dataConfig.cellClass);
         cellClassStr = NSStringFromClass(cellClass);
+        if ([rowCollection.elementSourceKey isKindOfClass:[NSString class]] && rowCollection.elementSourceKey.length > 0) {
+            cellKey = rowCollection.elementSourceKey;
+        } else if ([rowCollection.dataConfig.sourceKey isKindOfClass:[NSString class]] && rowCollection.dataConfig.sourceKey.length > 0) {
+            cellKey = rowCollection.dataConfig.sourceKey;
+        }
         
         [self _setContent:contents indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
         [self _setContent:@(contentsEmptyFlag) indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG];
         [self _setContent:cellClassStr indexPath:indexPath type:_CACHE_TYPE_CELL_CLASS];
+        [self _setContent:cellKey indexPath:indexPath type:_CACHE_TYPE_CELL_KEY];
         
         cellPositions = (cellPosition_section | cellPosition_part);
         [self _setContent:@(cellPositions) indexPath:indexPath type:_CACHE_TYPE_CELL_POSITION];
     }
     
-    AOZTurple4 *result = [[AOZTurple4 alloc] init];
+    AOZTurple5 *result = [[AOZTurple5 alloc] init];
     result.first = contents;
     result.second = cellClassStr;
     result.third = @(contentsEmptyFlag);
     result.forth = @(cellPositions);
+    result.fifth = cellKey;
     return result;
 }
 
@@ -558,6 +570,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 /** 在当前mode下，将某个indexPath对应的内容存入缓存 */
 - (void)_setContent:(id<NSCopying>)content indexPath:(NSIndexPath *)indexPath type:(int)cacheType {
     if (content == nil || indexPath == nil) { return; }
+    
     NSIndexPath *cacheKey = [NSIndexPath indexPathForRow:_mode inSection:cacheType];
     NSMutableDictionary *detailsDictionary = _cacheDictionary[cacheKey];
     if (detailsDictionary == nil) {
@@ -660,6 +673,10 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 
 - (id)rowContentsAtIndexPath:(NSIndexPath *)indexPath {
     return [self _rowContentsAtIndexPath:indexPath].first;
+}
+
+- (NSString *)rowKeyAtIndexPath:(NSIndexPath *)indexPath {
+    return [self _rowContentsAtIndexPath:indexPath].fifth;
 }
 
 - (id)sectionContentsAtSection:(NSInteger)section {

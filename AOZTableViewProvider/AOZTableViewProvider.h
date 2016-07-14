@@ -36,6 +36,7 @@
 - (void)setNeedsReloadForCurrentMode;/**< Use before reloadTableView, tells this provider to re-compute sections and rows before loading for current mode. invoked when dataSource is changed. */
 - (void)setNeedsReloadForAllModes;/**< Use before reloadTableView, tells this provider to re-compute sections and rows for all modes before loading, invoked when dataSource is changed. */
 - (id)rowContentsAtIndexPath:(NSIndexPath *)indexPath;/**< Get row contents for indexPath from cache, must use after the first time you reloadTableView and setNeedsReloadForMode or setNeedsReloadForCurrentMode */
+- (NSString *)rowKeyAtIndexPath:(NSIndexPath *)indexPath;
 - (id)sectionContentsAtSection:(NSInteger)section;/**< Get section contents for section from cache, must use after the first time you reloadTableView and setNeedsReloadForMode or setNeedsReloadForCurrentMode */
 - (NSIndexPath *)indexPathForTouchEvent:(UIEvent *)event;/**< Get indexPath from a touch event */
 - (NSIndexPath *)indexPathForGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer;/**< Get indexPath for gestureRecognizer on subview in cell */
