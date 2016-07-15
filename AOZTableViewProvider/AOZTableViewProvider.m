@@ -156,7 +156,9 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     NSString *cellKey = contentsTurple.fifth;
     
     AOZTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellClassStr];
-    if ([cell respondsToSelector:@selector(setContents:positions:indexPath:)]) {
+    if ([cell respondsToSelector:@selector(setContents:positions:indexPath:key:)]) {
+        [cell setContents:contents positions:cellPositions indexPath:indexPath key:cellKey];
+    } else if ([cell respondsToSelector:@selector(setContents:positions:indexPath:)]) {
         [cell setContents:contents positions:cellPositions indexPath:indexPath];
     } else if ([cell respondsToSelector:@selector(setContents:)]) {
         [cell setContents:contents];

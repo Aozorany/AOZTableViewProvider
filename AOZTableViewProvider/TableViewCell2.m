@@ -22,6 +22,10 @@
     }
 }
 
+- (void)setContents:(id)contents positions:(NSInteger)cellPositions indexPath:(NSIndexPath *)indexPath key:(NSString *)key {
+    self.textLabel.text = key;
+}
+
 - (void)willDisplayCell {
     self.contentView.backgroundColor = [UIColor lightGrayColor];
 }
