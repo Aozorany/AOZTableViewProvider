@@ -6,7 +6,9 @@
 //  Copyright © 2016 Aozorany. All rights reserved.
 //
 
+
 #import "TableViewCell.h"
+
 
 @implementation TableViewCell
 
@@ -22,6 +24,10 @@
     } else if ([contents isKindOfClass:[NSDictionary class]]) {
         self.textLabel.text = contents[@"title"];
     }
+}
+
+- (void)setContents:(id)contents positions:(NSInteger)cellPositions indexPath:(NSIndexPath *)indexPath key:(NSString *)key {
+    self.textLabel.text = key;
 }
 
 + (CGFloat)heightForCell:(id)contents positions:(NSInteger)cellPosition indexPath:(NSIndexPath *)indexPath {

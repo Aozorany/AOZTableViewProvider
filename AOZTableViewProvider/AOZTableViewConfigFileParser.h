@@ -21,5 +21,6 @@
 @property (nonatomic, assign) id dataProvider;
 @property (nonatomic, assign) UITableView *tableView;
 - (instancetype)initWithFilePath:(NSString *)filePath;
-- (NSArray<AOZTVPMode *> *)parseFile:(NSError **)pError;
+- (instancetype)initWithString:(NSString *)configStr;
+- (NSArray<AOZTVPMode *> *)parseConfigWithError:(NSError **)pError;
 @end

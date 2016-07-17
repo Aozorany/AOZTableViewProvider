@@ -19,20 +19,22 @@ static int _CACHE_TYPE_SECTION_CONTENTS = 1;/**< 缓存类型：section里面的
 static int _CACHE_TYPE_CELL_CLASS = 2;/**< 缓存类型：row cell，它的值是class对应的string */
 static int _CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG = 3;/**< 缓存类型：row里面的内容是否为空，是一个NSNumber with bool值 */
 static int _CACHE_TYPE_CELL_POSITION = 4;/**< 缓存类型：cell position */
+static int _CACHE_TYPE_CELL_KEY = 5;/**< 缓存类型：cell key，如果没有内容则为NSNull，有内容则为NSString */
 
 
 #pragma mark -
 /** Turple with 4 elements */
-@interface AOZTurple4 : NSObject
+@interface AOZTurple5 : NSObject
 @property (nonatomic, strong) id first;
 @property (nonatomic, strong) id second;
 @property (nonatomic, strong) id third;
 @property (nonatomic, strong) id forth;
+@property (nonatomic, strong) id fifth;
 @end
 
 
 #pragma mark -
-@implementation AOZTurple4
+@implementation AOZTurple5
 @end
 
 
@@ -103,6 +105,18 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     return self;
 }
 
+- (instancetype)initWithConfigString:(NSString *)config dataProvider:(id)dataProvider tableView:(UITableView *)tableView {
+    self = [super init];
+    if (self) {
+        _modesArray = [[NSMutableArray alloc] init];
+        _cacheDictionary = [[NSMutableDictionary alloc] init];
+        self.dataProvider = dataProvider;
+        self.configString = config;
+        [self connectToTableView:tableView];
+    }
+    return self;
+}
+
 #pragma mark delegate: UITableViewDataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     NSInteger sectionCount = 0;
@@ -135,13 +149,16 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    AOZTurple4 *contentsTurple = [self _rowContentsAtIndexPath:indexPath];
+    AOZTurple5 *contentsTurple = [self _rowContentsAtIndexPath:indexPath];
     id contents = contentsTurple.first;
     NSString *cellClassStr = contentsTurple.second;
     NSInteger cellPositions = [contentsTurple.forth integerValue];
+    NSString *cellKey = contentsTurple.fifth;
     
     AOZTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellClassStr];
-    if ([cell respondsToSelector:@selector(setContents:positions:indexPath:)]) {
+    if ([cell respondsToSelector:@selector(setContents:positions:indexPath:key:)]) {
+        [cell setContents:contents positions:cellPositions indexPath:indexPath key:cellKey];
+    } else if ([cell respondsToSelector:@selector(setContents:positions:indexPath:)]) {
         [cell setContents:contents positions:cellPositions indexPath:indexPath];
     } else if ([cell respondsToSelector:@selector(setContents:)]) {
         [cell setContents:contents];
@@ -154,7 +171,14 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     return cell;
 }
 
-#pragma mark delegate: UITableViewCellDataSource for cell editing
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    if ([_delegate respondsToSelector:@selector(tableViewProvider:titleForHeaderInSection:)]) {
+        return [_delegate tableViewProvider:self titleForHeaderInSection:section];
+    }
+    return nil;
+}
+
+#pragma mark delegate: UITableViewDataSource for cell editing
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     if ([_delegate respondsToSelector:@selector(tableViewProvider:canEditRowAtIndexPath:contents:)]) {
         id contents = [self rowContentsAtIndexPath:indexPath];
@@ -172,7 +196,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 
 #pragma mark delegate: UITableViewDelegate
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    AOZTurple4 *contentsTurple = [self _rowContentsAtIndexPath:indexPath];
+    AOZTurple5 *contentsTurple = [self _rowContentsAtIndexPath:indexPath];
     id contents = contentsTurple.first;
     NSString *cellClassStr = contentsTurple.second;
     Class cellClass = (cellClassStr.length > 0? NSClassFromString(cellClassStr): NULL);
@@ -191,6 +215,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
             [invocation setArgument:&contents atIndex:2];
         }
         [invocation setArgument:&cellPositions atIndex:3];
+        [invocation setArgument:&indexPath atIndex:4];
         [invocation retainArguments];
         [invocation invoke];
         [invocation getReturnValue:&height];
@@ -365,14 +390,16 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     return currentMode;
 }
 
-- (AOZTurple4 *)_rowContentsAtIndexPath:(NSIndexPath *)indexPath {
+- (AOZTurple5 *)_rowContentsAtIndexPath:(NSIndexPath *)indexPath {
     NSString *cellClassStr = [self _contentAtIndexPath:indexPath type:_CACHE_TYPE_CELL_CLASS];
     Class cellClass = (cellClassStr.length > 0? NSClassFromString(cellClassStr): NULL);
     id contents = [self _contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
     BOOL contentsEmptyFlag = [[self _contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG] boolValue];
     NSInteger cellPositions = [[self _contentAtIndexPath:indexPath type:_CACHE_TYPE_CELL_POSITION] integerValue];
+    NSString *cellKey = [self _contentAtIndexPath:indexPath type:_CACHE_TYPE_CELL_KEY];
     
-    if ((!contentsEmptyFlag && contents == nil) || cellClass == NULL) {//如果从缓存里面读不到结果，则重新生成
+    if ((!contentsEmptyFlag && contents == nil) || cellClass == NULL) {
+        //如果从缓存里面读不到结果，则重新生成
         contents = [NSNull null];
         
         NSInteger cellPosition_section = AOZTableViewCellPositionNormal;
@@ -510,20 +537,27 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
         //将取到的结果放入缓存，并记录cellClass和cellClassStr
         cellClass = (contentsEmptyFlag? rowCollection.dataConfig.emptyCellClass: rowCollection.dataConfig.cellClass);
         cellClassStr = NSStringFromClass(cellClass);
+        if ([rowCollection.elementSourceKey isKindOfClass:[NSString class]] && rowCollection.elementSourceKey.length > 0) {
+            cellKey = rowCollection.elementSourceKey;
+        } else if ([rowCollection.dataConfig.sourceKey isKindOfClass:[NSString class]] && rowCollection.dataConfig.sourceKey.length > 0) {
+            cellKey = rowCollection.dataConfig.sourceKey;
+        }
         
         [self _setContent:contents indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
         [self _setContent:@(contentsEmptyFlag) indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG];
         [self _setContent:cellClassStr indexPath:indexPath type:_CACHE_TYPE_CELL_CLASS];
+        [self _setContent:cellKey indexPath:indexPath type:_CACHE_TYPE_CELL_KEY];
         
         cellPositions = (cellPosition_section | cellPosition_part);
         [self _setContent:@(cellPositions) indexPath:indexPath type:_CACHE_TYPE_CELL_POSITION];
     }
     
-    AOZTurple4 *result = [[AOZTurple4 alloc] init];
+    AOZTurple5 *result = [[AOZTurple5 alloc] init];
     result.first = contents;
     result.second = cellClassStr;
     result.third = @(contentsEmptyFlag);
     result.forth = @(cellPositions);
+    result.fifth = cellKey;
     return result;
 }
 
@@ -538,6 +572,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 /** 在当前mode下，将某个indexPath对应的内容存入缓存 */
 - (void)_setContent:(id<NSCopying>)content indexPath:(NSIndexPath *)indexPath type:(int)cacheType {
     if (content == nil || indexPath == nil) { return; }
+    
     NSIndexPath *cacheKey = [NSIndexPath indexPathForRow:_mode inSection:cacheType];
     NSMutableDictionary *detailsDictionary = _cacheDictionary[cacheKey];
     if (detailsDictionary == nil) {
@@ -558,30 +593,40 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 
 #pragma mark public: general
 - (BOOL)parseConfigFile:(NSError **)pError {
-    if (_configBundleFileName.length == 0) {
+    return [self parseConfigWithError:pError];
+}
+
+- (BOOL)parseConfigWithError:(NSError **)pError {
+    if (_configBundleFileName.length == 0 && _configString.length == 0) {
         return NO;
     }
     
     //检查配置文件存在性
-    NSString *configFileName = [_configBundleFileName stringByDeletingPathExtension];
-    NSString *configFileExtention = [_configBundleFileName pathExtension];
-    if (configFileExtention.length == 0) {
-        configFileExtention = @"tableViewConfig";
-    }
-    NSString *configFilePath = [[NSBundle mainBundle] pathForResource:configFileName ofType:configFileExtention];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:configFilePath]) {
-        if (pError) {
-            *pError = [NSError errorWithDomain:AOZTableViewProviderErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey: @"配置文件不存在"}];
+    AOZTableViewConfigFileParser *parser = nil;
+    if (_configBundleFileName.length > 0) {
+        NSString *configFileName = [_configBundleFileName stringByDeletingPathExtension];
+        NSString *configFileExtention = [_configBundleFileName pathExtension];
+        if (configFileExtention.length == 0) {
+            configFileExtention = @"tableViewConfig";
         }
-        return NO;
+        NSString *configFilePath = [[NSBundle mainBundle] pathForResource:configFileName ofType:configFileExtention];
+        if (![[NSFileManager defaultManager] fileExistsAtPath:configFilePath]) {
+            if (pError) {
+                *pError = [NSError errorWithDomain:AOZTableViewProviderErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey: @"配置文件不存在"}];
+            }
+            return NO;
+        }
+        
+        //解析配置文件，如果发生解析错误则返回
+        parser = [[AOZTableViewConfigFileParser alloc] initWithFilePath:configFilePath];
+    } else if (_configString.length > 0) {
+        parser = [[AOZTableViewConfigFileParser alloc] initWithString:_configString];
     }
     
-    //解析配置文件，如果发生解析错误则返回
     NSError *configParserError = nil;
-    AOZTableViewConfigFileParser *parser = [[AOZTableViewConfigFileParser alloc] initWithFilePath:configFilePath];
     parser.dataProvider = _dataProvider;
     parser.tableView = _tableView;
-    NSArray *newModesArray = [parser parseFile:&configParserError];
+    NSArray *newModesArray = [parser parseConfigWithError:&configParserError];
     if (configParserError) {
         if (pError) {
             *pError = configParserError;
@@ -630,6 +675,10 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 
 - (id)rowContentsAtIndexPath:(NSIndexPath *)indexPath {
     return [self _rowContentsAtIndexPath:indexPath].first;
+}
+
+- (NSString *)rowKeyAtIndexPath:(NSIndexPath *)indexPath {
+    return [self _rowContentsAtIndexPath:indexPath].fifth;
 }
 
 - (id)sectionContentsAtSection:(NSInteger)section {
