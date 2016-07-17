@@ -15,6 +15,7 @@
 @property (nonatomic, assign) Class emptyCellClass;/**< source为nil，或者source元素个数为0时，单元格所属类名，必须是AOZTableViewCell的派生类 */
 @property (nonatomic, assign) id source;/**< 数据源 */
 @property (nonatomic, copy) NSString *sourceKey;/**< 数据源对应的key值 */
+@property (nonatomic, copy) NSString *tag;
 @property (nonatomic, assign) NSInteger elementsPerRow;/**< 每个单元格的元素个数，如果是-1则表示所有元素都在同一行内，默认是1 */
 - (void)rebindSourceWithDataProvider:(id)dataProvider;
 @end

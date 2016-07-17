@@ -13,9 +13,9 @@
 
 NSString *configString = @"\
 section -s _dictionary -c TableViewCell\n\
-    row -s first\n\
-    row -s second\n\
-section -s _multipleArray -c TableViewCell\n\
+    row -s first -t firstTag\n\
+    row -s second -t secondTag\n\
+section -s _multipleArray -c TableViewCell -t sectionTag\n\
     row -es subArray";
 
 

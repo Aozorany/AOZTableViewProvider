@@ -19,7 +19,7 @@ static int _CACHE_TYPE_SECTION_CONTENTS = 1;/**< 缓存类型：section里面的
 static int _CACHE_TYPE_CELL_CLASS = 2;/**< 缓存类型：row cell，它的值是class对应的string */
 static int _CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG = 3;/**< 缓存类型：row里面的内容是否为空，是一个NSNumber with bool值 */
 static int _CACHE_TYPE_CELL_POSITION = 4;/**< 缓存类型：cell position */
-static int _CACHE_TYPE_CELL_KEY = 5;/**< 缓存类型：cell key，如果没有内容则为NSNull，有内容则为NSString */
+static int _CACHE_TYPE_CELL_TAG = 5;/**< 缓存类型：cell tag，如果没有内容则为NSNull，有内容则为NSString */
 
 
 #pragma mark -
@@ -153,11 +153,11 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     id contents = contentsTurple.first;
     NSString *cellClassStr = contentsTurple.second;
     NSInteger cellPositions = [contentsTurple.forth integerValue];
-    NSString *cellKey = contentsTurple.fifth;
+    NSString *cellTag = contentsTurple.fifth;
     
     AOZTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellClassStr];
-    if ([cell respondsToSelector:@selector(setContents:positions:indexPath:key:)]) {
-        [cell setContents:contents positions:cellPositions indexPath:indexPath key:cellKey];
+    if ([cell respondsToSelector:@selector(setContents:positions:indexPath:tag:)]) {
+        [cell setContents:contents positions:cellPositions indexPath:indexPath tag:cellTag];
     } else if ([cell respondsToSelector:@selector(setContents:positions:indexPath:)]) {
         [cell setContents:contents positions:cellPositions indexPath:indexPath];
     } else if ([cell respondsToSelector:@selector(setContents:)]) {
@@ -396,7 +396,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     id contents = [self _contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
     BOOL contentsEmptyFlag = [[self _contentAtIndexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG] boolValue];
     NSInteger cellPositions = [[self _contentAtIndexPath:indexPath type:_CACHE_TYPE_CELL_POSITION] integerValue];
-    NSString *cellKey = [self _contentAtIndexPath:indexPath type:_CACHE_TYPE_CELL_KEY];
+    NSString *cellTag = [self _contentAtIndexPath:indexPath type:_CACHE_TYPE_CELL_TAG];
     
     if ((!contentsEmptyFlag && contents == nil) || cellClass == NULL) {
         //如果从缓存里面读不到结果，则重新生成
@@ -481,6 +481,14 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
                 contentsEmptyFlag = (contents == nil);
                 cellPosition_part = AOZTableViewCellPositionPartOnly;
             }
+            
+            if ([rowCollection.dataConfig.tag isKindOfClass:[NSString class]] && rowCollection.dataConfig.tag.length > 0) {
+                cellTag = rowCollection.dataConfig.tag;
+            } else if ([rowCollection.elementSourceKey isKindOfClass:[NSString class]] && rowCollection.elementSourceKey.length > 0) {
+                cellTag = rowCollection.elementSourceKey;
+            } else if ([rowCollection.dataConfig.sourceKey isKindOfClass:[NSString class]] && rowCollection.dataConfig.sourceKey.length > 0) {
+                cellTag = rowCollection.dataConfig.sourceKey;
+            }
         } else if (![sectionCollection.dataConfig.source isEqual:[NSNull null]]) {
             //如果在section里面设置了数据源，则使用section的设置
             if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
@@ -533,20 +541,20 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
                 contentsEmptyFlag = (contents == nil);
                 cellPosition_part = AOZTableViewCellPositionPartOnly;
             }
+            if ([sectionCollection.dataConfig.tag isKindOfClass:[NSString class]] && sectionCollection.dataConfig.tag.length > 0) {
+                cellTag = sectionCollection.dataConfig.tag;
+            } else if ([sectionCollection.dataConfig.sourceKey isKindOfClass:[NSString class]] && sectionCollection.dataConfig.sourceKey.length > 0) {
+                cellTag = sectionCollection.dataConfig.sourceKey;
+            }
         }
         //将取到的结果放入缓存，并记录cellClass和cellClassStr
         cellClass = (contentsEmptyFlag? rowCollection.dataConfig.emptyCellClass: rowCollection.dataConfig.cellClass);
         cellClassStr = NSStringFromClass(cellClass);
-        if ([rowCollection.elementSourceKey isKindOfClass:[NSString class]] && rowCollection.elementSourceKey.length > 0) {
-            cellKey = rowCollection.elementSourceKey;
-        } else if ([rowCollection.dataConfig.sourceKey isKindOfClass:[NSString class]] && rowCollection.dataConfig.sourceKey.length > 0) {
-            cellKey = rowCollection.dataConfig.sourceKey;
-        }
         
         [self _setContent:contents indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
         [self _setContent:@(contentsEmptyFlag) indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG];
         [self _setContent:cellClassStr indexPath:indexPath type:_CACHE_TYPE_CELL_CLASS];
-        [self _setContent:cellKey indexPath:indexPath type:_CACHE_TYPE_CELL_KEY];
+        [self _setContent:cellTag indexPath:indexPath type:_CACHE_TYPE_CELL_TAG];
         
         cellPositions = (cellPosition_section | cellPosition_part);
         [self _setContent:@(cellPositions) indexPath:indexPath type:_CACHE_TYPE_CELL_POSITION];
@@ -557,7 +565,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     result.second = cellClassStr;
     result.third = @(contentsEmptyFlag);
     result.forth = @(cellPositions);
-    result.fifth = cellKey;
+    result.fifth = cellTag;
     return result;
 }
 
@@ -677,7 +685,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     return [self _rowContentsAtIndexPath:indexPath].first;
 }
 
-- (NSString *)rowKeyAtIndexPath:(NSIndexPath *)indexPath {
+- (NSString *)rowTagAtIndexPath:(NSIndexPath *)indexPath {
     return [self _rowContentsAtIndexPath:indexPath].fifth;
 }
 

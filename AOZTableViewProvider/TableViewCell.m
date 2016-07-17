@@ -26,8 +26,8 @@
     }
 }
 
-- (void)setContents:(id)contents positions:(NSInteger)cellPositions indexPath:(NSIndexPath *)indexPath key:(NSString *)key {
-    self.textLabel.text = key;
+- (void)setContents:(id)contents positions:(NSInteger)cellPositions indexPath:(NSIndexPath *)indexPath tag:(NSString *)tag {
+    self.textLabel.text = tag;
 }
 
 + (CGFloat)heightForCell:(id)contents positions:(NSInteger)cellPosition indexPath:(NSIndexPath *)indexPath {

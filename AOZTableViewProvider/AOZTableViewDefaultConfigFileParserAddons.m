@@ -150,6 +150,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
         dataConfig.emptyCellClass = presetDataConfig.emptyCellClass;
         dataConfig.source = [presetDataConfig.source isKindOfClass:[NSArray class]]? [NSNull null]: presetDataConfig.source;
         dataConfig.elementsPerRow = presetDataConfig.elementsPerRow;
+        dataConfig.tag = presetDataConfig.tag;
     }
     
     if (chunksArray.count == 1) {
@@ -252,7 +253,18 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
                 }
             } else {
                 //如果-n是最后一个参数，报错，并且忽略
-                _createAndLogError(self.class, @"-n is last, ignore", NULL);
+                _createAndLogError(self.class, @"-es is last, ignore", NULL);
+            }
+            index += 2;//读取下一个指示符
+        } else if ([chunk isEqualToString:@"-t"]) {//-t指示符，tag名称
+            if (index < chunksArray.count - 1) {
+                NSString *nextChunk = chunksArray[index + 1];
+                if (nextChunk.length > 0) {
+                    dataConfig.tag = nextChunk;
+                }
+            } else {
+                //如果-n是最后一个参数，报错，并且忽略
+                _createAndLogError(self.class, @"-t is last, ignore", NULL);
             }
             index += 2;//读取下一个指示符
         } else {//如果不属于以上任何一种情况，则直接读取下一个

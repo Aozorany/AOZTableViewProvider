@@ -34,11 +34,12 @@
            && [NSStringFromClass(_cellClass) isEqualToString:NSStringFromClass(anotherDataConfig.cellClass)]
            && ((_emptyCellClass == NULL && anotherDataConfig.emptyCellClass == NULL) || [NSStringFromClass(_emptyCellClass) isEqualToString:NSStringFromClass(anotherDataConfig.emptyCellClass)])
            && ((_source == nil && anotherDataConfig.source == nil) || [_source isEqual:anotherDataConfig.source])
-           && ((_sourceKey == nil && anotherDataConfig.sourceKey == nil) || [_sourceKey isEqualToString:anotherDataConfig.sourceKey]);
+           && ((_sourceKey == nil && anotherDataConfig.sourceKey == nil) || [_sourceKey isEqualToString:anotherDataConfig.sourceKey])
+           && ((_tag == nil && anotherDataConfig.tag == nil) || [_tag isEqualToString:anotherDataConfig.tag]);
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"<AOZTVPDataConfig: _elementsPerRow: %zd, _cellClass: %@, _emptyCellClass: %@, _source: %@, sourceKey: %@>", _elementsPerRow, NSStringFromClass(_cellClass), NSStringFromClass(_emptyCellClass), _source, _sourceKey];
+    return [NSString stringWithFormat:@"<AOZTVPDataConfig: _elementsPerRow: %zd, _cellClass: %@, _emptyCellClass: %@, _source: %@, sourceKey: %@, tag: %@>", _elementsPerRow, NSStringFromClass(_cellClass), NSStringFromClass(_emptyCellClass), _source, _sourceKey, _tag];
 }
 
 - (void)rebindSourceWithDataProvider:(id)dataProvider {
@@ -80,6 +81,7 @@
             _dataConfig.emptyCellClass = dataConfig.emptyCellClass;
             _dataConfig.elementsPerRow = dataConfig.elementsPerRow;
             _dataConfig.source = [dataConfig.source isKindOfClass:[NSArray class]]? [NSNull null]: dataConfig.source;
+            _dataConfig.tag = dataConfig.tag;
         }
         _rowRange = NSMakeRange(0, 0);
     }
@@ -121,6 +123,7 @@
         newSectionCollection.dataConfig.sourceKey = _dataConfig.sourceKey;
         newSectionCollection.dataConfig.cellClass = _dataConfig.cellClass;
         newSectionCollection.dataConfig.emptyCellClass = _dataConfig.emptyCellClass;
+        newSectionCollection.dataConfig.tag = _dataConfig.tag;
         newSectionCollection.sectionRange = _sectionRange;
         newSectionCollection.headerClass = _headerClass;
         for (AOZTVPRowCollection *rowCollection in _rowCollectionsArray) {
@@ -130,6 +133,7 @@
             newRowCollection.dataConfig.sourceKey = rowCollection.dataConfig.sourceKey;
             newRowCollection.dataConfig.cellClass = rowCollection.dataConfig.cellClass;
             newRowCollection.dataConfig.emptyCellClass = rowCollection.dataConfig.emptyCellClass;
+            newRowCollection.dataConfig.tag = rowCollection.dataConfig.tag;
             newRowCollection.rowRange = rowCollection.rowRange;
             newRowCollection.elementSourceKey = rowCollection.elementSourceKey;
             [newSectionCollection.rowCollectionsArray addObject:newRowCollection];
