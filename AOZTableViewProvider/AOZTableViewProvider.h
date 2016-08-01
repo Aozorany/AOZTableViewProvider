@@ -49,6 +49,7 @@
 @protocol AOZTableViewProviderDelegate <NSObject>
 @optional
 #pragma mark delegates for cells
+- (void)tableViewProvider:(AOZTableViewProvider *)provider willSetCellForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cell:(UITableViewCell *)cell;
 - (void)tableViewProvider:(AOZTableViewProvider *)provider cellForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cell:(UITableViewCell *)cell;/**< Invoked after cellForRowAtIndexPath, you have the chance to re-config this cell */
 - (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cellClass:(Class)cellClass;
 - (void)tableViewProvider:(AOZTableViewProvider *)provider willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;/**< Invoked in tableViewDelegate's willDisplayCell method */
