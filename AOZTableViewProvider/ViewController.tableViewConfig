@@ -1,10 +1,9 @@
 
-mode
-section -c TableViewCell -s _emptyArray -t sampleTag
-
-#mode
-#section -s _dictionary -c TableViewCell
-#row -s first
-#row -s second
-#section -s _multipleArray -c TableViewCell
-#row -es subArray
+section -s _dictionary -c TableViewCell
+    row -s first
+    row -s second
+section -s _multipleArray -c TableViewCell
+    row -es subArray
+section -s _dictionary -c TableViewCell
+    row -s first
+    row -s second

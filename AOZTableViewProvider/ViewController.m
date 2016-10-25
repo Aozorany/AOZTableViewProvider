@@ -62,16 +62,15 @@ section -s _multipleArray -c TableViewCell -t sectionTag\n\
     [self.view addSubview:mainTableView];
     
     //_tableViewProvider
-//    _tableViewProvider = [[AOZTableViewProvider alloc] initWithFileName:@"ViewController.tableViewConfig" dataProvider:self tableView:mainTableView];
-//    _tableViewProvider.delegate = self;
-//    [_tableViewProvider parseConfigFile:NULL];
-//    _tableViewProvider.mode = 0;
-//    [_tableViewProvider reloadTableView];
-    
-    _tableViewProvider = [[AOZTableViewProvider alloc] initWithConfigString:configString dataProvider:self tableView:mainTableView];
-    [_tableViewProvider parseConfigWithError:nil];
+    _tableViewProvider = [[AOZTableViewProvider alloc] initWithFileName:@"ViewController.tableViewConfig" dataProvider:self tableView:mainTableView];
+    [_tableViewProvider parseConfigWithError:NULL];
     _tableViewProvider.mode = 0;
     [_tableViewProvider reloadTableView];
+    
+//    _tableViewProvider = [[AOZTableViewProvider alloc] initWithConfigString:configString dataProvider:self tableView:mainTableView];
+//    [_tableViewProvider parseConfigWithError:nil];
+//    _tableViewProvider.mode = 0;
+//    [_tableViewProvider reloadTableView];
     
     //changeSourceBtn
     UIBarButtonItem *changeSourceBtn = [[UIBarButtonItem alloc] initWithTitle:@"Change Source" style:UIBarButtonItemStyleDone target:self action:@selector(onChangeSourceBtnTouchUpInside)];
