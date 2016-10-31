@@ -158,7 +158,8 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     AOZTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellClassStr];
     
     if ([_delegate respondsToSelector:@selector(tableViewProvider:willSetCellForRowAtIndexPath:contents:cell:)]) {
-        [_delegate tableViewProvider:self willSetCellForRowAtIndexPath:indexPath contents:contents cell:cell];
+        BOOL shouldContinue = [_delegate tableViewProvider:self willSetCellForRowAtIndexPath:indexPath contents:contents cell:cell];
+        if (!shouldContinue) { return cell;}
     }
     
     if ([cell respondsToSelector:@selector(setContents:positions:indexPath:tag:)]) {
@@ -206,12 +207,16 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     NSString *cellClassStr = contentsTurple.second;
     Class cellClass = (cellClassStr.length > 0? NSClassFromString(cellClassStr): NULL);
     NSInteger cellPositions = [contentsTurple.forth integerValue];
-
-    //向cellClass本身查询单元格高度
     CGFloat height = 0;
+    
+    //如果有代理，则先从代理查询
     if ([_delegate respondsToSelector:@selector(tableViewProvider:heightForRowAtIndexPath:contents:cellClass:)]) {
         height = [_delegate tableViewProvider:self heightForRowAtIndexPath:indexPath contents:contents cellClass:cellClass];
-    } else if ([((id) cellClass) respondsToSelector:@selector(heightForCell:positions:indexPath:)]) {
+    }
+    if (height >= 0) { return height; }
+    
+    //向cellClass本身查询单元格高度
+    if ([((id) cellClass) respondsToSelector:@selector(heightForCell:positions:indexPath:)]) {
         NSMethodSignature *signiture = [cellClass methodSignatureForSelector:@selector(heightForCell:positions:indexPath:)];
         NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signiture];
         [invocation setTarget:cellClass];
@@ -553,7 +558,14 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
             }
         }
         //将取到的结果放入缓存，并记录cellClass和cellClassStr
-        cellClass = (contentsEmptyFlag? rowCollection.dataConfig.emptyCellClass: rowCollection.dataConfig.cellClass);
+        if ([_delegate respondsToSelector:@selector(tableViewProvider:cellClassForRowAtIndexPath:contents:isEmptyCell:)]) {
+            cellClass = [_delegate tableViewProvider:self cellClassForRowAtIndexPath:indexPath contents:contents isEmptyCell:contentsEmptyFlag];
+        }
+        if (cellClass == NULL) {
+            cellClass = (contentsEmptyFlag? rowCollection.dataConfig.emptyCellClass: rowCollection.dataConfig.cellClass);
+        } else {
+            [self registerCellClass:cellClass];
+        }
         cellClassStr = NSStringFromClass(cellClass);
         
         [self _setContent:contents indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
@@ -743,6 +755,11 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     NSInteger lastSectionIndex = [_tableView numberOfSections] - 1;
     NSInteger lastRowIndex = [_tableView numberOfRowsInSection:lastSectionIndex] - 1;
     [_tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:lastRowIndex inSection:lastSectionIndex] atScrollPosition:scrollPosition animated:animated];
+}
+
+- (void)registerCellClass:(Class)cellClass {
+    if (cellClass == NULL) { return; }
+    [_tableView registerClass:cellClass forCellReuseIdentifier:NSStringFromClass(cellClass)];
 }
 
 @end

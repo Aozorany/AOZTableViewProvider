@@ -8,15 +8,15 @@
 
 
 #import "ViewController.h"
+
 #import "AOZTableViewProvider.h"
+#import "TableViewCell.h"
+#import "TableViewCell2.h"
 
 
 NSString *configString = @"\
-section -s _dictionary -c TableViewCell\n\
-    row -s first -t firstTag\n\
-    row -s second -t secondTag\n\
 section -s _multipleArray -c TableViewCell -t sectionTag\n\
-    row -es subArray";
+    row -es subArray -ec TableViewCell";
 
 
 #pragma mark -
@@ -50,7 +50,7 @@ section -s _multipleArray -c TableViewCell -t sectionTag\n\
                       @{@"tag": @"price", @"title": @"薪酬"},
                       @{@"tag": @"intro", @"title": @"简介"},
                       @{@"tag": @"award", @"title": @"获奖"}]];
-    _multipleArray = @[@{@"subArray": @[@"1"], @"name": @"section name 1"}, @{@"subArray": @[@"3", @"4", @"5"], @"name": @"section name 2"}];
+    _multipleArray = @[@{@"name": @"section name 1"}, @{@"subArray": @[@"3", @"4", @"5"], @"name": @"section name 2"}];
     _dictionary = @{@"first": @"first dictionary value", @"second": @"second dictionary value", @"title": @"This is a dictionary"};
     
     self.view.backgroundColor = [UIColor whiteColor];
@@ -62,15 +62,16 @@ section -s _multipleArray -c TableViewCell -t sectionTag\n\
     [self.view addSubview:mainTableView];
     
     //_tableViewProvider
-    _tableViewProvider = [[AOZTableViewProvider alloc] initWithFileName:@"ViewController.tableViewConfig" dataProvider:self tableView:mainTableView];
-    [_tableViewProvider parseConfigWithError:NULL];
-    _tableViewProvider.mode = 0;
-    [_tableViewProvider reloadTableView];
-    
-//    _tableViewProvider = [[AOZTableViewProvider alloc] initWithConfigString:configString dataProvider:self tableView:mainTableView];
-//    [_tableViewProvider parseConfigWithError:nil];
+//    _tableViewProvider = [[AOZTableViewProvider alloc] initWithFileName:@"ViewController.tableViewConfig" dataProvider:self tableView:mainTableView];
+//    [_tableViewProvider parseConfigWithError:NULL];
 //    _tableViewProvider.mode = 0;
 //    [_tableViewProvider reloadTableView];
+    
+    _tableViewProvider = [[AOZTableViewProvider alloc] initWithConfigString:configString dataProvider:self tableView:mainTableView];
+    [_tableViewProvider parseConfigWithError:nil];
+    _tableViewProvider.delegate = self;
+    _tableViewProvider.mode = 0;
+    [_tableViewProvider reloadTableView];
     
     //changeSourceBtn
     UIBarButtonItem *changeSourceBtn = [[UIBarButtonItem alloc] initWithTitle:@"Change Source" style:UIBarButtonItemStyleDone target:self action:@selector(onChangeSourceBtnTouchUpInside)];
@@ -78,22 +79,24 @@ section -s _multipleArray -c TableViewCell -t sectionTag\n\
 }
 
 #pragma mark delegate: AOZTableViewProviderDelegate
+- (Class)tableViewProvider:(AOZTableViewProvider *)provider cellClassForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents isEmptyCell:(BOOL)isEmptyCell {
+    if (isEmptyCell) { return TableViewCell.class; }
+    
+    if (indexPath.row % 2) {
+        return TableViewCell.class;
+    }
+    return TableViewCell2.class;
+}
+
+- (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cellClass:(Class)cellClass {
+    if (cellClass == TableViewCell2.class) {
+        return 88;
+    }
+    return -1;
+}
+
 - (void)tableViewProvider:(AOZTableViewProvider *)provider didSelectRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents {
     [_tableViewProvider.tableView deselectRowAtIndexPath:indexPath animated:YES];
-}
-
-- (BOOL)tableViewProvider:(AOZTableViewProvider *)provider canEditRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents {
-    NSLog(@"canEditRowAtIndexPath %@", indexPath);
-    return YES;
-}
-
-- (UITableViewCellEditingStyle)tableViewProvider:(AOZTableViewProvider *)provider editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents {
-    NSLog(@"editingStyleForRowAtIndexPath %@", indexPath);
-    return UITableViewCellEditingStyleDelete;
-}
-
-- (void)tableViewProvider:(AOZTableViewProvider *)provider commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents {
-    NSLog(@"commitEditingStyle %@", indexPath);
 }
 
 #pragma mark private: actions

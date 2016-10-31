@@ -41,6 +41,7 @@
 - (NSIndexPath *)indexPathForTouchEvent:(UIEvent *)event;/**< Get indexPath from a touch event */
 - (NSIndexPath *)indexPathForGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer;/**< Get indexPath for gestureRecognizer on subview in cell */
 - (void)scrollToLastCell:(UITableViewScrollPosition)scrollPosition animated:(BOOL)animated;/**< Scrolls to the last cell for this tableView */
+- (void)registerCellClass:(Class)cellClass;/**< Register cell to this tableView */
 @end
 
 
@@ -49,9 +50,10 @@
 @protocol AOZTableViewProviderDelegate <NSObject>
 @optional
 #pragma mark delegates for cells
-- (void)tableViewProvider:(AOZTableViewProvider *)provider willSetCellForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cell:(UITableViewCell *)cell;
+- (Class)tableViewProvider:(AOZTableViewProvider *)provider cellClassForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents isEmptyCell:(BOOL)isEmptyCell;/**< Returns cell class for cell at indexPath, return NULL if you don't want to the delegate determine the cell class */
+- (BOOL)tableViewProvider:(AOZTableViewProvider *)provider willSetCellForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cell:(UITableViewCell *)cell;/**< Invoked before the delegate cellForRowAtIndexPath and setContents (the AOZTableViewCell method), return YES if you want cellForRowAtIndexPath and setContents to be called, return NO if you don't want */
 - (void)tableViewProvider:(AOZTableViewProvider *)provider cellForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cell:(UITableViewCell *)cell;/**< Invoked after cellForRowAtIndexPath, you have the chance to re-config this cell */
-- (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cellClass:(Class)cellClass;
+- (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cellClass:(Class)cellClass;/**< Returns height for row at indexPath, if height you returned is minus, it will call heightForCell (the AOZTableViewCell method) to get cell height */
 - (void)tableViewProvider:(AOZTableViewProvider *)provider willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;/**< Invoked in tableViewDelegate's willDisplayCell method */
 - (void)tableViewProvider:(AOZTableViewProvider *)provider didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;/**< Invoked in tableViewDelegate's didEndDisplayingCell method */
 - (void)tableViewProvider:(AOZTableViewProvider *)provider didSelectRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents;/**< Invoked in tableViewDelegate's didSelectRowAtIndexPath method */
