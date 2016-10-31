@@ -557,7 +557,12 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
                 cellTag = sectionCollection.dataConfig.sourceKey;
             }
         }
+        
         //将取到的结果放入缓存，并记录cellClass和cellClassStr
+        [self _setContent:contents indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
+        [self _setContent:@(contentsEmptyFlag) indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG];
+        [self _setContent:cellTag indexPath:indexPath type:_CACHE_TYPE_CELL_TAG];
+        [self _setContent:NSStringFromClass(contentsEmptyFlag? rowCollection.dataConfig.emptyCellClass: rowCollection.dataConfig.cellClass) indexPath:indexPath type:_CACHE_TYPE_CELL_CLASS];
         if ([_delegate respondsToSelector:@selector(tableViewProvider:cellClassForRowAtIndexPath:contents:isEmptyCell:)]) {
             cellClass = [_delegate tableViewProvider:self cellClassForRowAtIndexPath:indexPath contents:contents isEmptyCell:contentsEmptyFlag];
         }
@@ -567,11 +572,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
             [self registerCellClass:cellClass];
         }
         cellClassStr = NSStringFromClass(cellClass);
-        
-        [self _setContent:contents indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS];
-        [self _setContent:@(contentsEmptyFlag) indexPath:indexPath type:_CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG];
         [self _setContent:cellClassStr indexPath:indexPath type:_CACHE_TYPE_CELL_CLASS];
-        [self _setContent:cellTag indexPath:indexPath type:_CACHE_TYPE_CELL_TAG];
         
         cellPositions = (cellPosition_section | cellPosition_part);
         [self _setContent:@(cellPositions) indexPath:indexPath type:_CACHE_TYPE_CELL_POSITION];

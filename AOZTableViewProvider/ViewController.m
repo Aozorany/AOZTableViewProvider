@@ -81,7 +81,7 @@ section -s _multipleArray -c TableViewCell -t sectionTag\n\
 #pragma mark delegate: AOZTableViewProviderDelegate
 - (Class)tableViewProvider:(AOZTableViewProvider *)provider cellClassForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents isEmptyCell:(BOOL)isEmptyCell {
     if (isEmptyCell) { return TableViewCell.class; }
-    
+
     if (indexPath.row % 2) {
         return TableViewCell.class;
     }
