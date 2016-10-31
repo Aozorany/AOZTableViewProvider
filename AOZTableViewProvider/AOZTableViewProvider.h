@@ -50,7 +50,7 @@
 @protocol AOZTableViewProviderDelegate <NSObject>
 @optional
 #pragma mark delegates for cells
-- (Class)tableViewProvider:(AOZTableViewProvider *)provider cellClassForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents isEmptyCell:(BOOL)isEmptyCell;/**< Returns cell class for cell at indexPath, return NULL if you don't want to the delegate determine the cell class */
+- (Class)tableViewProvider:(AOZTableViewProvider *)provider cellClassForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents isEmptyCell:(BOOL)isEmptyCell;/**< Returns cell class for cell at indexPath, return NULL if you don't want to the delegate determine the cell class. */
 - (BOOL)tableViewProvider:(AOZTableViewProvider *)provider willSetCellForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cell:(UITableViewCell *)cell;/**< Invoked before the delegate cellForRowAtIndexPath and setContents (the AOZTableViewCell method), return YES if you want cellForRowAtIndexPath and setContents to be called, return NO if you don't want */
 - (void)tableViewProvider:(AOZTableViewProvider *)provider cellForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cell:(UITableViewCell *)cell;/**< Invoked after cellForRowAtIndexPath, you have the chance to re-config this cell */
 - (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cellClass:(Class)cellClass;/**< Returns height for row at indexPath, if height you returned is minus, it will call heightForCell (the AOZTableViewCell method) to get cell height */

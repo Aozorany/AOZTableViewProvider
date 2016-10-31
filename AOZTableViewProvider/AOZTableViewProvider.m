@@ -155,7 +155,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     NSInteger cellPositions = [contentsTurple.forth integerValue];
     NSString *cellTag = contentsTurple.fifth;
     
-    AOZTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellClassStr];
+    AOZTableViewCell  *cell = [tableView dequeueReusableCellWithIdentifier:cellClassStr];
     
     if ([_delegate respondsToSelector:@selector(tableViewProvider:willSetCellForRowAtIndexPath:contents:cell:)]) {
         BOOL shouldContinue = [_delegate tableViewProvider:self willSetCellForRowAtIndexPath:indexPath contents:contents cell:cell];
