@@ -212,8 +212,8 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     //如果有代理，则先从代理查询
     if ([_delegate respondsToSelector:@selector(tableViewProvider:heightForRowAtIndexPath:contents:cellClass:)]) {
         height = [_delegate tableViewProvider:self heightForRowAtIndexPath:indexPath contents:contents cellClass:cellClass];
+        if (height >= 0) { return height; }
     }
-    if (height >= 0) { return height; }
     
     //向cellClass本身查询单元格高度
     if ([((id) cellClass) respondsToSelector:@selector(heightForCell:positions:indexPath:)]) {
