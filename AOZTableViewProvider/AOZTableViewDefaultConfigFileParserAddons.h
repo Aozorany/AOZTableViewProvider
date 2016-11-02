@@ -16,6 +16,8 @@
 NSArray<NSString *> *getChunksArray(NSString *lineStr);
 /** 把一个带有换行的字符串先按换行符，再按空格分开 */
 NSArray<NSArray<NSString *> *> *getLinesAndChunksArray(NSString *linesStr);
+/** 检查derivedClass是否是baseClass的派生类 */
+BOOL checkClassRelation(Class derivedClass, Class baseClass);
 
 
 #pragma mark -

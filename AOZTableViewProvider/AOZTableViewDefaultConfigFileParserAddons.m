@@ -77,9 +77,7 @@ BOOL _stringIsInt(NSString *str) {
     return [scan scanInt:&val] && [scan isAtEnd];
 }
 
-/** 检查derivedClass是否是baseClass的派生类 */
-BOOL _checkClassRelation(Class derivedClass, Class baseClass);
-BOOL _checkClassRelation(Class derivedClass, Class baseClass) {
+BOOL checkClassRelation(Class derivedClass, Class baseClass) {
     if (derivedClass == NULL || baseClass == NULL) {
         return NO;
     }
@@ -185,7 +183,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
                 NSString *nextChunk = chunksArray[index + 1];
                 Class cellClass = objc_getClass([nextChunk UTF8String]);
                 if (cellClass) {
-                    if ([cellClass conformsToProtocol:@protocol(AOZTableViewCell)] && _checkClassRelation(cellClass, [UITableViewCell class])) {//如果cellClass符合条件
+                    if ([cellClass conformsToProtocol:@protocol(AOZTableViewCell)] && checkClassRelation(cellClass, [UITableViewCell class])) {//如果cellClass符合条件
                         if ([chunk isEqualToString:@"-c"]) {
                             dataConfig.cellClass = cellClass;
                         } else {
@@ -207,7 +205,7 @@ NSString * const AOZTableViewDefaultDataConfigParserDomain = @"AOZTableViewDefau
                 NSString *nextChunk = chunksArray[index + 1];
                 Class headerClass = objc_getClass([nextChunk UTF8String]);
                 if (headerClass) {
-                    if ([headerClass conformsToProtocol:@protocol(AOZTableViewHeaderFooterView)] && _checkClassRelation(headerClass, [UITableViewHeaderFooterView class]) && sectionCollection) {//如果cellClass符合条件
+                    if ([headerClass conformsToProtocol:@protocol(AOZTableViewHeaderFooterView)] && checkClassRelation(headerClass, [UITableViewHeaderFooterView class]) && sectionCollection) {//如果cellClass符合条件
                         sectionCollection.headerClass = headerClass;
                         [_tableView registerClass:headerClass forHeaderFooterViewReuseIdentifier:NSStringFromClass(headerClass)];
                     } else {//如果cellClass不符合条件，则报错并忽略

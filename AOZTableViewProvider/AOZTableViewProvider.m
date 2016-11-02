@@ -11,6 +11,7 @@
 #import "AOZTableViewProvider.h"
 #import "AOZTableViewProviderUtils.h"
 #import "AOZTableViewConfigFileParser.h"
+#import "AOZTableViewDefaultConfigFileParserAddons.h"
 #import "AOZTableViewCell.h"
 
 
@@ -565,6 +566,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
         [self _setContent:NSStringFromClass(contentsEmptyFlag? rowCollection.dataConfig.emptyCellClass: rowCollection.dataConfig.cellClass) indexPath:indexPath type:_CACHE_TYPE_CELL_CLASS];
         if ([_delegate respondsToSelector:@selector(tableViewProvider:cellClassForRowAtIndexPath:contents:isEmptyCell:)]) {
             cellClass = [_delegate tableViewProvider:self cellClassForRowAtIndexPath:indexPath contents:contents isEmptyCell:contentsEmptyFlag];
+            if (![cellClass conformsToProtocol:@protocol(AOZTableViewCell)] && !checkClassRelation(cellClass, [UITableViewCell class])) { cellClass = NULL; }
         }
         if (cellClass == NULL) {
             cellClass = (contentsEmptyFlag? rowCollection.dataConfig.emptyCellClass: rowCollection.dataConfig.cellClass);
