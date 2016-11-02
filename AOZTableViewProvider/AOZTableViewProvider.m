@@ -21,6 +21,7 @@ static int _CACHE_TYPE_CELL_CLASS = 2;/**< 缓存类型：row cell，它的值�
 static int _CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG = 3;/**< 缓存类型：row里面的内容是否为空，是一个NSNumber with bool值 */
 static int _CACHE_TYPE_CELL_POSITION = 4;/**< 缓存类型：cell position */
 static int _CACHE_TYPE_CELL_TAG = 5;/**< 缓存类型：cell tag，如果没有内容则为NSNull，有内容则为NSString */
+static int _CACHE_TYPE_SECTION_TAG = 6;/**< 缓存类型：section tag，如果没有内容则为NSNull，有内容则为NSString */
 
 
 #pragma mark -
@@ -618,6 +619,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%zd-%zd", _CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG, mode]];
     [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%zd-%zd", _CACHE_TYPE_CELL_POSITION, mode]];
     [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%zd-%zd", _CACHE_TYPE_CELL_TAG, mode]];
+    [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%zd-%zd", _CACHE_TYPE_SECTION_TAG, mode]];
 }
 
 #pragma mark public: general
@@ -735,6 +737,18 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
         [self _setContent:contents indexPath:[NSIndexPath indexPathForRow:0 inSection:section] type:_CACHE_TYPE_SECTION_CONTENTS];
     }
     return contents;
+}
+
+- (id)sectionTagAtSection:(NSInteger)section {
+    id sectionTag = [self _contentAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:section] type:_CACHE_TYPE_SECTION_TAG];
+    if (sectionTag == nil) {
+        AOZTVPMode *currentMode = [self _currentMode];
+        AOZTVPSectionCollection *sectionCollection = _collectionForIndex(currentMode, section);
+        sectionTag = sectionCollection.dataConfig.tag;
+        if (![sectionTag isKindOfClass:[NSString class]]) { sectionTag = [NSNull null]; }
+        [self _setContent:sectionTag indexPath:[NSIndexPath indexPathForRow:0 inSection:section] type:_CACHE_TYPE_SECTION_TAG];
+    }
+    return sectionTag;
 }
 
 - (NSIndexPath *)indexPathForTouchEvent:(UIEvent *)event {

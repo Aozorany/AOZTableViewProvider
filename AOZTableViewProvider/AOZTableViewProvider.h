@@ -38,6 +38,7 @@
 - (id)rowContentsAtIndexPath:(NSIndexPath *)indexPath;/**< Get row contents for indexPath from cache, must use after the first time you reloadTableView and setNeedsReloadForMode or setNeedsReloadForCurrentMode */
 - (NSString *)rowTagAtIndexPath:(NSIndexPath *)indexPath;
 - (id)sectionContentsAtSection:(NSInteger)section;/**< Get section contents for section from cache, must use after the first time you reloadTableView and setNeedsReloadForMode or setNeedsReloadForCurrentMode */
+- (id)sectionTagAtSection:(NSInteger)section;
 - (NSIndexPath *)indexPathForTouchEvent:(UIEvent *)event;/**< Get indexPath from a touch event */
 - (NSIndexPath *)indexPathForGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer;/**< Get indexPath for gestureRecognizer on subview in cell */
 - (void)scrollToLastCell:(UITableViewScrollPosition)scrollPosition animated:(BOOL)animated;/**< Scrolls to the last cell for this tableView */
