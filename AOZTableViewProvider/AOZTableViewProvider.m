@@ -493,14 +493,6 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
                 contentsEmptyFlag = (contents == nil);
                 cellPosition_part = AOZTableViewCellPositionPartOnly;
             }
-            
-            if ([rowCollection.dataConfig.tag isKindOfClass:[NSString class]] && rowCollection.dataConfig.tag.length > 0) {
-                cellTag = rowCollection.dataConfig.tag;
-            } else if ([rowCollection.elementSourceKey isKindOfClass:[NSString class]] && rowCollection.elementSourceKey.length > 0) {
-                cellTag = rowCollection.elementSourceKey;
-            } else if ([rowCollection.dataConfig.sourceKey isKindOfClass:[NSString class]] && rowCollection.dataConfig.sourceKey.length > 0) {
-                cellTag = rowCollection.dataConfig.sourceKey;
-            }
         } else if (![sectionCollection.dataConfig.source isEqual:[NSNull null]]) {
             //如果在section里面设置了数据源，则使用section的设置
             if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
@@ -553,11 +545,17 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
                 contentsEmptyFlag = (contents == nil);
                 cellPosition_part = AOZTableViewCellPositionPartOnly;
             }
-            if ([sectionCollection.dataConfig.tag isKindOfClass:[NSString class]] && sectionCollection.dataConfig.tag.length > 0) {
-                cellTag = sectionCollection.dataConfig.tag;
-            } else if ([sectionCollection.dataConfig.sourceKey isKindOfClass:[NSString class]] && sectionCollection.dataConfig.sourceKey.length > 0) {
-                cellTag = sectionCollection.dataConfig.sourceKey;
-            }
+        }
+        if ([rowCollection.dataConfig.tag isKindOfClass:[NSString class]] && rowCollection.dataConfig.tag.length > 0) {
+            cellTag = rowCollection.dataConfig.tag;
+        } else if ([sectionCollection.dataConfig.tag isKindOfClass:[NSString class]] && sectionCollection.dataConfig.tag.length > 0) {
+            cellTag = sectionCollection.dataConfig.tag;
+        } else if ([rowCollection.elementSourceKey isKindOfClass:[NSString class]] && rowCollection.elementSourceKey.length > 0) {
+            cellTag = rowCollection.elementSourceKey;
+        } else if ([rowCollection.dataConfig.sourceKey isKindOfClass:[NSString class]] && rowCollection.dataConfig.sourceKey.length > 0) {
+            cellTag = rowCollection.dataConfig.sourceKey;
+        } else if ([sectionCollection.dataConfig.sourceKey isKindOfClass:[NSString class]] && sectionCollection.dataConfig.sourceKey.length > 0) {
+            cellTag = sectionCollection.dataConfig.sourceKey;
         }
         
         //将取到的结果放入缓存，并记录cellClass和cellClassStr
