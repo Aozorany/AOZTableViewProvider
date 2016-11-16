@@ -22,6 +22,7 @@ typedef NS_ENUM(NSInteger, AOZTableViewCellPosition) {
 };
 
 
+#pragma mark -
 /** Protocol to cells in config file<br>
    setContents and heightForCell have two versions, implement only one version as you like.*/
 @protocol AOZTableViewCell <NSObject>
@@ -35,8 +36,39 @@ typedef NS_ENUM(NSInteger, AOZTableViewCellPosition) {
 @end
 
 
+#pragma mark -
 /** Base class to cells in config file */
 @interface AOZTableViewCell : UITableViewCell <AOZTableViewCell>
+@end
+
+
+#pragma mark -
+@interface AOZTableViewDetailCell: AOZTableViewCell
+@end
+
+
+#pragma mark -
+
+/**
+ AOZTableViewSwitchCell右端选择控件的状态
+
+ - AOZTableViewSwitchCellStateOff: 右端选择控件关闭
+ - AOZTableViewSwitchCellStateOn: 右端选择控件开启
+ - AOZTableViewSwitchCellStatePending: 右端选择控件正在进行
+ */
+typedef NS_ENUM(NSInteger, AOZTableViewSwitchCellState) {
+    AOZTableViewSwitchCellStateOff,
+    AOZTableViewSwitchCellStateOn,
+    AOZTableViewSwitchCellStatePending,
+};
+
+@interface AOZTableViewSwitchCell: AOZTableViewCell
+@property (nonatomic, assign, setter=setSwitchViewState:) AOZTableViewSwitchCellState state;
+@property (nonatomic, weak) id actionTarget;
+@property (nonatomic, assign) SEL switchViewValueChangedAction;
+- (void)setSwitchViewOnTintColor:(UIColor *)color;
+- (void)setSwitchViewThumbTintColor:(UIColor *)color;
+- (void)setSwitchViewTintColor:(UIColor *)color;
 @end
 
 
