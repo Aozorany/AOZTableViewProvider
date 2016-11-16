@@ -26,12 +26,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "AOZTableViewProvider/ViewController.m"
-            timestampString = "499769129.4569"
+            timestampString = "500956163.568345"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "77"
-            endingLineNumber = "77"
-            landmarkName = "-viewDidLoad"
+            startingLineNumber = "132"
+            endingLineNumber = "132"
+            landmarkName = "-onCellSwitchValueChanged:event:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

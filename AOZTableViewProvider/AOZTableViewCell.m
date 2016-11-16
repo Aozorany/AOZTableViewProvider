@@ -24,12 +24,45 @@
 
 
 #pragma mark -
+@interface AOZTableViewDetailCell ()
+@property (nonatomic, readonly) UIView *lowerSeparatorView;
+@end
+
+
 @implementation AOZTableViewDetailCell
 
 #pragma mark lifeCircle
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     self = [super initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:reuseIdentifier];
+    if (self) {
+        [self loadSubviews];
+    }
     return self;
+}
+
+#pragma mark private: load and reload
+- (void)loadSubviews {
+    //_lowerSeparatorView
+    _lowerSeparatorView = [[UIView alloc] init];
+    _lowerSeparatorView.backgroundColor = [UIColor colorWithRed:0xdd/256.0f green:0xdd/256.0f blue:0xdd/256.0f alpha:1];
+    _lowerSeparatorView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.contentView addSubview:_lowerSeparatorView];
+    
+    //constraints
+    NSLayoutConstraint *lowerSeparatorViewLeft = [NSLayoutConstraint constraintWithItem:_lowerSeparatorView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeLeft multiplier:1 constant:15];
+    NSLayoutConstraint *lowerSeparatorViewRight = [NSLayoutConstraint constraintWithItem:_lowerSeparatorView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeRight multiplier:1 constant:0];
+    NSLayoutConstraint *lowerSeparatorViewBottom = [NSLayoutConstraint constraintWithItem:_lowerSeparatorView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1 constant:0];
+    NSLayoutConstraint *lowerSeparatorViewHeight = [NSLayoutConstraint constraintWithItem:_lowerSeparatorView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:0 constant:1];
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 8.0) {
+        [self.contentView addConstraints:@[lowerSeparatorViewLeft, lowerSeparatorViewRight, lowerSeparatorViewBottom, lowerSeparatorViewHeight]];
+    } else {
+        [NSLayoutConstraint activateConstraints:@[lowerSeparatorViewLeft, lowerSeparatorViewRight, lowerSeparatorViewBottom, lowerSeparatorViewHeight]];
+    }
+}
+
+#pragma mark public: others
+- (void)setLowerSeparatorViewHidden:(BOOL)hidden {
+    _lowerSeparatorView.hidden = hidden;
 }
 
 @end
@@ -39,6 +72,7 @@
 @interface AOZTableViewSwitchCell ()
 @property (nonatomic, readonly) UISwitch *switchView;
 @property (nonatomic, readonly) UIActivityIndicatorView *activityView;
+@property (nonatomic, readonly) UIView *lowerSeparatorView;
 @end
 
 
@@ -72,10 +106,23 @@
     NSLayoutConstraint *switchViewRightConstraint = [NSLayoutConstraint constraintWithItem:_switchView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeRight multiplier:1 constant:-20];
     NSLayoutConstraint *activityViewCenterYConstraint = [NSLayoutConstraint constraintWithItem:_activityView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeCenterY multiplier:1 constant:0];
     NSLayoutConstraint *activityViewRightConstraint = [NSLayoutConstraint constraintWithItem:_activityView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeRight multiplier:1 constant:-20];
+    
+    //_lowerSeparatorView
+    _lowerSeparatorView = [[UIView alloc] init];
+    _lowerSeparatorView.backgroundColor = [UIColor colorWithRed:0xdd/256.0f green:0xdd/256.0f blue:0xdd/256.0f alpha:1];
+    _lowerSeparatorView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.contentView addSubview:_lowerSeparatorView];
+    
+    //constraints
+    NSLayoutConstraint *lowerSeparatorViewLeft = [NSLayoutConstraint constraintWithItem:_lowerSeparatorView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeLeft multiplier:1 constant:15];
+    NSLayoutConstraint *lowerSeparatorViewRight = [NSLayoutConstraint constraintWithItem:_lowerSeparatorView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeRight multiplier:1 constant:0];
+    NSLayoutConstraint *lowerSeparatorViewBottom = [NSLayoutConstraint constraintWithItem:_lowerSeparatorView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1 constant:0];
+    NSLayoutConstraint *lowerSeparatorViewHeight = [NSLayoutConstraint constraintWithItem:_lowerSeparatorView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:0 constant:1];
+    
     if ([[[UIDevice currentDevice] systemVersion] floatValue] < 8.0) {
-        [self.contentView addConstraints:@[switchViewCenterYConstraint, switchViewRightConstraint, activityViewCenterYConstraint, activityViewRightConstraint]];
+        [self.contentView addConstraints:@[switchViewCenterYConstraint, switchViewRightConstraint, activityViewCenterYConstraint, activityViewRightConstraint, lowerSeparatorViewLeft, lowerSeparatorViewRight, lowerSeparatorViewBottom, lowerSeparatorViewHeight]];
     } else {
-        [NSLayoutConstraint activateConstraints:@[switchViewCenterYConstraint, switchViewRightConstraint, activityViewCenterYConstraint, activityViewRightConstraint]];
+        [NSLayoutConstraint activateConstraints:@[switchViewCenterYConstraint, switchViewRightConstraint, activityViewCenterYConstraint, activityViewRightConstraint, lowerSeparatorViewLeft, lowerSeparatorViewRight, lowerSeparatorViewBottom, lowerSeparatorViewHeight]];
     }
 }
 
@@ -122,6 +169,10 @@
 
 - (void)setSwitchViewTintColor:(UIColor *)color {
     _switchView.tintColor = color;
+}
+
+- (void)setLowerSeparatorViewHidden:(BOOL)hidden {
+    _lowerSeparatorView.hidden = hidden;
 }
 
 @end

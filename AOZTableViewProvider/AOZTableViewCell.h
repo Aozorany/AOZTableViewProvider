@@ -44,17 +44,18 @@ typedef NS_ENUM(NSInteger, AOZTableViewCellPosition) {
 
 #pragma mark -
 @interface AOZTableViewDetailCell: AOZTableViewCell
+- (void)setLowerSeparatorViewHidden:(BOOL)hidden;
 @end
 
 
 #pragma mark -
 
 /**
- AOZTableViewSwitchCell右端选择控件的状态
+ State of UISwitch in AOZTableViewSwitchCell
 
- - AOZTableViewSwitchCellStateOff: 右端选择控件关闭
- - AOZTableViewSwitchCellStateOn: 右端选择控件开启
- - AOZTableViewSwitchCellStatePending: 右端选择控件正在进行
+ - AOZTableViewSwitchCellStateOff: UISwitch off
+ - AOZTableViewSwitchCellStateOn: UISwitch on
+ - AOZTableViewSwitchCellStatePending: UISwitch hides and shows the animating activityView
  */
 typedef NS_ENUM(NSInteger, AOZTableViewSwitchCellState) {
     AOZTableViewSwitchCellStateOff,
@@ -65,10 +66,11 @@ typedef NS_ENUM(NSInteger, AOZTableViewSwitchCellState) {
 @interface AOZTableViewSwitchCell: AOZTableViewCell
 @property (nonatomic, assign, setter=setSwitchViewState:) AOZTableViewSwitchCellState state;
 @property (nonatomic, weak) id actionTarget;
-@property (nonatomic, assign) SEL switchViewValueChangedAction;
+@property (nonatomic, assign) SEL switchViewValueChangedAction;/**< value changed action for UISwitch in this cell, it has UISwitch as its parameter, and you can get touch point via convertPoint:toView:, and use indexPathForRowAtPoint to get the cell's indexPath */
 - (void)setSwitchViewOnTintColor:(UIColor *)color;
 - (void)setSwitchViewThumbTintColor:(UIColor *)color;
 - (void)setSwitchViewTintColor:(UIColor *)color;
+- (void)setLowerSeparatorViewHidden:(BOOL)hidden;
 @end
 
 
