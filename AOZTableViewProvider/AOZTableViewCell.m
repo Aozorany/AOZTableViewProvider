@@ -60,6 +60,11 @@
     }
 }
 
+#pragma mark override: AOZTableViewCell
+- (void)willDisplayCell {
+    self.contentView.hidden = (CGRectGetHeight(self.bounds) <= 0);
+}
+
 #pragma mark public: others
 - (void)setLowerSeparatorViewHidden:(BOOL)hidden {
     _lowerSeparatorView.hidden = hidden;
@@ -124,6 +129,11 @@
     } else {
         [NSLayoutConstraint activateConstraints:@[switchViewCenterYConstraint, switchViewRightConstraint, activityViewCenterYConstraint, activityViewRightConstraint, lowerSeparatorViewLeft, lowerSeparatorViewRight, lowerSeparatorViewBottom, lowerSeparatorViewHeight]];
     }
+}
+
+#pragma mark AOZTableViewCell
+- (void)willDisplayCell {
+    self.contentView.hidden = (CGRectGetHeight(self.bounds) <= 0);
 }
 
 #pragma mark private: actions
