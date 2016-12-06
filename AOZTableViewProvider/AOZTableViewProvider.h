@@ -37,6 +37,7 @@
 - (void)setNeedsReloadForAllModes;/**< Use before reloadTableView, tells this provider to re-compute sections and rows for all modes before loading, invoked when dataSource is changed. */
 - (id)rowContentsAtIndexPath:(NSIndexPath *)indexPath;/**< Get row contents for indexPath from cache, must use after the first time you reloadTableView and setNeedsReloadForMode or setNeedsReloadForCurrentMode */
 - (NSString *)rowTagAtIndexPath:(NSIndexPath *)indexPath;
+- (NSInteger)rowPositionsAtIndexPath:(NSIndexPath *)indexPath;
 - (id)sectionContentsAtSection:(NSInteger)section;/**< Get section contents for section from cache, must use after the first time you reloadTableView and setNeedsReloadForMode or setNeedsReloadForCurrentMode */
 - (id)sectionTagAtSection:(NSInteger)section;
 - (NSIndexPath *)indexPathForTouchEvent:(UIEvent *)event;/**< Get indexPath from a touch event */

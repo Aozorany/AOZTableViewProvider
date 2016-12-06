@@ -710,6 +710,10 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     return [self _rowContentsAtIndexPath:indexPath].fifth;
 }
 
+- (NSInteger)rowPositionsAtIndexPath:(NSIndexPath *)indexPath {
+    return [[self _rowContentsAtIndexPath:indexPath].forth integerValue];
+}
+
 - (id)sectionContentsAtSection:(NSInteger)section {
     id contents = [self _contentAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:section] type:_CACHE_TYPE_SECTION_CONTENTS];
     if (contents == nil) {
