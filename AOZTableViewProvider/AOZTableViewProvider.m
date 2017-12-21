@@ -166,8 +166,6 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     
     if ([cell respondsToSelector:@selector(setContents:positions:indexPath:tag:)]) {
         [cell setContents:contents positions:cellPositions indexPath:indexPath tag:cellTag];
-    } else if ([cell respondsToSelector:@selector(setContents:positions:indexPath:)]) {
-        [cell setContents:contents positions:cellPositions indexPath:indexPath];
     } else if ([cell respondsToSelector:@selector(setContents:)]) {
         [cell setContents:contents];
     }
@@ -210,6 +208,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     Class cellClass = (cellClassStr.length > 0? NSClassFromString(cellClassStr): NULL);
     NSInteger cellPositions = [contentsTurple.forth integerValue];
     CGFloat height = 0;
+    NSString *tag = contentsTurple.fifth;
     
     //如果有代理，则先从代理查询
     if ([_delegate respondsToSelector:@selector(tableViewProvider:heightForRowAtIndexPath:contents:cellClass:)]) {
@@ -218,16 +217,19 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     }
     
     //向cellClass本身查询单元格高度
-    if ([((id) cellClass) respondsToSelector:@selector(heightForCell:positions:indexPath:)]) {
-        NSMethodSignature *signiture = [cellClass methodSignatureForSelector:@selector(heightForCell:positions:indexPath:)];
+    if ([((id) cellClass) respondsToSelector:@selector(heightForCell:positions:indexPath:tag:)]) {
+        NSMethodSignature *signiture = [cellClass methodSignatureForSelector:@selector(heightForCell:positions:indexPath:tag:)];
         NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signiture];
         [invocation setTarget:cellClass];
-        [invocation setSelector:@selector(heightForCell:positions:indexPath:)];
+        [invocation setSelector:@selector(heightForCell:positions:indexPath:tag:)];
         if (contents) {
             [invocation setArgument:&contents atIndex:2];
         }
         [invocation setArgument:&cellPositions atIndex:3];
         [invocation setArgument:&indexPath atIndex:4];
+        if (tag) {
+            [invocation setArgument:&tag atIndex:5];
+        }
         [invocation retainArguments];
         [invocation invoke];
         [invocation getReturnValue:&height];
