@@ -29,27 +29,33 @@
 @property (nonatomic, weak) id<AOZTableViewProviderDelegate> delegate;/**< Delegate for this provider */
 @property (nonatomic, weak) id<UIScrollViewDelegate> scrollViewDelegate;/**< ScrollViewDelegate associated with this tableView */
 
+#pragma mark init
 - (instancetype)initWithFileName:(NSString *)fileName dataProvider:(id)dataProvider tableView:(UITableView *)tableView;/**< Create a new instance for this provider, with fileName, dataProvider and tableView established. */
 - (instancetype)initWithConfigString:(NSString *)config dataProvider:(id)dataProvider tableView:(UITableView *)tableView;
 
+#pragma mark parse config
 - (BOOL)parseConfigFile:(NSError **)pError __attribute__((deprecated));/**< Parse config file, must use after connectToTableView, if any error occurs, return it within pError, pError could be nil */
 - (BOOL)parseConfigWithError:(NSError **)pError;
-- (void)connectToTableView:(UITableView *)tableView;/**< Connect to tableView, must use before parseConfigFile */
 
+#pragma mark reload
 - (void)reloadTableView;/**< Reload tableView, if dataSource has changed, use it after setNeedsReloadForCurrentMode or setNeedsReloadForMode */
 - (void)setNeedsReloadForMode:(int)mode;/**< Use before reloadTableView, tells this provider to re-compute sections and rows for mode before loading, invoked when dataSource is changed. If mode is not exist, do nothing */
 - (void)setNeedsReloadForCurrentMode;/**< Use before reloadTableView, tells this provider to re-compute sections and rows before loading for current mode. invoked when dataSource is changed. */
 - (void)setNeedsReloadForAllModes;/**< Use before reloadTableView, tells this provider to re-compute sections and rows for all modes before loading, invoked when dataSource is changed. */
 
+#pragma mark row and section contents
 - (id)rowContentsAtIndexPath:(NSIndexPath *)indexPath;/**< Get row contents for indexPath from cache, must use after the first time you reloadTableView and setNeedsReloadForMode or setNeedsReloadForCurrentMode */
 - (NSString *)rowTagAtIndexPath:(NSIndexPath *)indexPath;
 - (NSInteger)rowPositionsAtIndexPath:(NSIndexPath *)indexPath;
 - (id)sectionContentsAtSection:(NSInteger)section;/**< Get section contents for section from cache, must use after the first time you reloadTableView and setNeedsReloadForMode or setNeedsReloadForCurrentMode */
 - (id)sectionTagAtSection:(NSInteger)section;
 
+#pragma mark indexPaths for touches or gesture recognizers
 - (NSIndexPath *)indexPathForTouchEvent:(UIEvent *)event;/**< Get indexPath from a touch event */
 - (NSIndexPath *)indexPathForGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer;/**< Get indexPath for gestureRecognizer on subview in cell */
 
+#pragma mark about UITableView
+- (void)connectToTableView:(UITableView *)tableView;/**< Connect to tableView, must use before parseConfigFile */
 - (void)scrollToLastCell:(UITableViewScrollPosition)scrollPosition animated:(BOOL)animated;/**< Scrolls to the last cell for this tableView */
 - (void)registerCellClass:(Class)cellClass;/**< Register cell to this tableView */
 

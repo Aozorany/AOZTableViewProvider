@@ -7,12 +7,13 @@
 //
 
 
-#import <objc/runtime.h>
 #import "AOZTableViewProvider.h"
-#import "AOZTableViewProviderUtils.h"
+#import <objc/runtime.h>
+
+#import "AOZTableViewCell.h"
 #import "AOZTableViewConfigFileParser.h"
 #import "AOZTableViewDefaultConfigFileParserAddons.h"
-#import "AOZTableViewCell.h"
+#import "AOZTableViewProviderUtils.h"
 
 
 static int _CACHE_TYPE_ROW_CONTENTS = 0;/**< 缓存类型：row里面的内容 */
@@ -622,7 +623,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%zd-%zd", _CACHE_TYPE_SECTION_TAG, mode]];
 }
 
-#pragma mark public: general
+#pragma mark public: parse config
 - (BOOL)parseConfigFile:(NSError **)pError {
     return [self parseConfigWithError:pError];
 }
@@ -675,12 +676,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     return YES;
 }
 
-- (void)connectToTableView:(UITableView *)tableView {
-    _tableView = tableView;
-    _tableView.dataSource = self;
-    _tableView.delegate = self;
-}
-
+#pragma mark public: reload
 - (void)reloadTableView {
     [_tableView reloadData];
 }
@@ -704,6 +700,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     }
 }
 
+#pragma mark public: row and section contents
 - (id)rowContentsAtIndexPath:(NSIndexPath *)indexPath {
     return [self _rowContentsAtIndexPath:indexPath].first;
 }
@@ -755,6 +752,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     return sectionTag;
 }
 
+#pragma mark public: indexPaths for touches or gesture recognizers
 - (NSIndexPath *)indexPathForTouchEvent:(UIEvent *)event {
     if (event == nil) {
         return nil;
@@ -770,6 +768,13 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     }
     CGPoint touchPoint = [gestureRecognizer locationInView:_tableView];
     return [_tableView indexPathForRowAtPoint:touchPoint];
+}
+
+#pragma mark public: about UITableView
+- (void)connectToTableView:(UITableView *)tableView {
+    _tableView = tableView;
+    _tableView.dataSource = self;
+    _tableView.delegate = self;
 }
 
 - (void)scrollToLastCell:(UITableViewScrollPosition)scrollPosition animated:(BOOL)animated {
