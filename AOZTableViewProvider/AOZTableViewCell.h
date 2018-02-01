@@ -30,6 +30,7 @@ typedef NS_ENUM(NSInteger, AOZTableViewCellPosition) {
 - (void)setContents:(id)contents;/**< set contents of cell, contents may be nil, or NSDictionary, or NSArray, or other objects, don't call it directly */
 - (void)setContents:(id)contents positions:(NSInteger)cellPositions indexPath:(NSIndexPath *)indexPath tag:(NSString *)tag;/**< set contents of cell, contents may be nil, or NSDictionary, or NSArray, or other objects, don't call it directly */
 - (void)willDisplayCell;/**< called within UITableViewDelegate's willDisplayCell method, if you want to change backgroundColor, do it here, don't call it directly */
+- (void)willDisplayCell:(id)contents positions:(NSInteger)cellPositions indexPath:(NSIndexPath *)indexPath tag:(NSString *)tag;/**< called within UITableViewDelegate's willDisplayCell method, if you want to change backgroundColor, do it here, don't call it directly */
 + (CGFloat)heightForCell:(id)contents;/**< returns height to this cell, don't call it directly */
 + (CGFloat)heightForCell:(id)contents positions:(NSInteger)cellPositions indexPath:(NSIndexPath *)indexPath tag:(NSString *)tag;/**< returns height to this cell, don't call it directly */
 @end

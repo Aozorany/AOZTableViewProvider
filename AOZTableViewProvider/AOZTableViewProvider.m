@@ -25,6 +25,12 @@ static int _CACHE_TYPE_CELL_TAG = 5;/**< 缓存类型：cell tag，如果没有�
 static int _CACHE_TYPE_SECTION_TAG = 6;/**< 缓存类型：section tag，如果没有内容则为NSNull，有内容则为NSString */
 
 
+typedef NS_ENUM(NSInteger, _AOZTableViewProviderType) {
+    _AOZTableViewProviderTypeString,
+    _AOZTableViewProviderTypeData,
+};
+
+
 #pragma mark -
 /** Turple with 4 elements */
 @interface AOZTurple5 : NSObject
@@ -251,7 +257,13 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if ([cell respondsToSelector:@selector(willDisplayCell)]) {
+    if ([cell respondsToSelector:@selector(willDisplayCell:positions:indexPath:tag:)]) {
+        AOZTurple5 *contentsTurple = [self _rowContentsAtIndexPath:indexPath];
+        id contents = contentsTurple.first;
+        NSInteger cellPositions = [contentsTurple.forth integerValue];
+        NSString *tag = contentsTurple.fifth;
+        [((AOZTableViewCell *) cell) willDisplayCell:contents positions:cellPositions indexPath:indexPath tag:tag];
+    } else if ([cell respondsToSelector:@selector(willDisplayCell)]) {
         [((AOZTableViewCell *) cell) willDisplayCell];
     }
     if ([_delegate respondsToSelector:@selector(tableViewProvider:willDisplayCell:forRowAtIndexPath:contents:)]) {
