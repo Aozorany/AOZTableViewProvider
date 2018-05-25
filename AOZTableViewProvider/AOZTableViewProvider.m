@@ -654,7 +654,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
         parser = [[AOZTableViewConfigFileParser alloc] initWithString:_configString];
     }
     
-    NSError *configParserError = nil;
+    __autoreleasing NSError *configParserError = nil;
     parser.dataProvider = _dataProvider;
     parser.tableView = _tableView;
     NSArray *newModesArray = [parser parseConfigWithError:&configParserError];
