@@ -7,12 +7,13 @@
 //
 
 
-#import <objc/runtime.h>
 #import "AOZTableViewProvider.h"
-#import "AOZTableViewProviderUtils.h"
+#import <objc/runtime.h>
+
+#import "AOZTableViewCell.h"
 #import "AOZTableViewConfigFileParser.h"
 #import "AOZTableViewDefaultConfigFileParserAddons.h"
-#import "AOZTableViewCell.h"
+#import "AOZTableViewProviderUtils.h"
 
 
 static int _CACHE_TYPE_ROW_CONTENTS = 0;/**< 缓存类型：row里面的内容 */
@@ -22,6 +23,12 @@ static int _CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG = 3;/**< 缓存类型：row里面
 static int _CACHE_TYPE_CELL_POSITION = 4;/**< 缓存类型：cell position */
 static int _CACHE_TYPE_CELL_TAG = 5;/**< 缓存类型：cell tag，如果没有内容则为NSNull，有内容则为NSString */
 static int _CACHE_TYPE_SECTION_TAG = 6;/**< 缓存类型：section tag，如果没有内容则为NSNull，有内容则为NSString */
+
+
+typedef NS_ENUM(NSInteger, _AOZTableViewProviderType) {
+    _AOZTableViewProviderTypeString,
+    _AOZTableViewProviderTypeData,
+};
 
 
 #pragma mark -
@@ -166,8 +173,6 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     
     if ([cell respondsToSelector:@selector(setContents:positions:indexPath:tag:)]) {
         [cell setContents:contents positions:cellPositions indexPath:indexPath tag:cellTag];
-    } else if ([cell respondsToSelector:@selector(setContents:positions:indexPath:)]) {
-        [cell setContents:contents positions:cellPositions indexPath:indexPath];
     } else if ([cell respondsToSelector:@selector(setContents:)]) {
         [cell setContents:contents];
     }
@@ -210,6 +215,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     Class cellClass = (cellClassStr.length > 0? NSClassFromString(cellClassStr): NULL);
     NSInteger cellPositions = [contentsTurple.forth integerValue];
     CGFloat height = 0;
+    NSString *tag = contentsTurple.fifth;
     
     //如果有代理，则先从代理查询
     if ([_delegate respondsToSelector:@selector(tableViewProvider:heightForRowAtIndexPath:contents:cellClass:)]) {
@@ -218,16 +224,19 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     }
     
     //向cellClass本身查询单元格高度
-    if ([((id) cellClass) respondsToSelector:@selector(heightForCell:positions:indexPath:)]) {
-        NSMethodSignature *signiture = [cellClass methodSignatureForSelector:@selector(heightForCell:positions:indexPath:)];
+    if ([((id) cellClass) respondsToSelector:@selector(heightForCell:positions:indexPath:tag:)]) {
+        NSMethodSignature *signiture = [cellClass methodSignatureForSelector:@selector(heightForCell:positions:indexPath:tag:)];
         NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signiture];
         [invocation setTarget:cellClass];
-        [invocation setSelector:@selector(heightForCell:positions:indexPath:)];
+        [invocation setSelector:@selector(heightForCell:positions:indexPath:tag:)];
         if (contents) {
             [invocation setArgument:&contents atIndex:2];
         }
         [invocation setArgument:&cellPositions atIndex:3];
         [invocation setArgument:&indexPath atIndex:4];
+        if (tag) {
+            [invocation setArgument:&tag atIndex:5];
+        }
         [invocation retainArguments];
         [invocation invoke];
         [invocation getReturnValue:&height];
@@ -248,7 +257,13 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if ([cell respondsToSelector:@selector(willDisplayCell)]) {
+    if ([cell respondsToSelector:@selector(willDisplayCell:positions:indexPath:tag:)]) {
+        AOZTurple5 *contentsTurple = [self _rowContentsAtIndexPath:indexPath];
+        id contents = contentsTurple.first;
+        NSInteger cellPositions = [contentsTurple.forth integerValue];
+        NSString *tag = contentsTurple.fifth;
+        [((AOZTableViewCell *) cell) willDisplayCell:contents positions:cellPositions indexPath:indexPath tag:tag];
+    } else if ([cell respondsToSelector:@selector(willDisplayCell)]) {
         [((AOZTableViewCell *) cell) willDisplayCell];
     }
     if ([_delegate respondsToSelector:@selector(tableViewProvider:willDisplayCell:forRowAtIndexPath:contents:)]) {
@@ -493,14 +508,6 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
                 contentsEmptyFlag = (contents == nil);
                 cellPosition_part = AOZTableViewCellPositionPartOnly;
             }
-            
-            if ([rowCollection.dataConfig.tag isKindOfClass:[NSString class]] && rowCollection.dataConfig.tag.length > 0) {
-                cellTag = rowCollection.dataConfig.tag;
-            } else if ([rowCollection.elementSourceKey isKindOfClass:[NSString class]] && rowCollection.elementSourceKey.length > 0) {
-                cellTag = rowCollection.elementSourceKey;
-            } else if ([rowCollection.dataConfig.sourceKey isKindOfClass:[NSString class]] && rowCollection.dataConfig.sourceKey.length > 0) {
-                cellTag = rowCollection.dataConfig.sourceKey;
-            }
         } else if (![sectionCollection.dataConfig.source isEqual:[NSNull null]]) {
             //如果在section里面设置了数据源，则使用section的设置
             if ([sectionCollection.dataConfig.source isKindOfClass:[NSArray class]]) {
@@ -553,11 +560,17 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
                 contentsEmptyFlag = (contents == nil);
                 cellPosition_part = AOZTableViewCellPositionPartOnly;
             }
-            if ([sectionCollection.dataConfig.tag isKindOfClass:[NSString class]] && sectionCollection.dataConfig.tag.length > 0) {
-                cellTag = sectionCollection.dataConfig.tag;
-            } else if ([sectionCollection.dataConfig.sourceKey isKindOfClass:[NSString class]] && sectionCollection.dataConfig.sourceKey.length > 0) {
-                cellTag = sectionCollection.dataConfig.sourceKey;
-            }
+        }
+        if ([rowCollection.dataConfig.tag isKindOfClass:[NSString class]] && rowCollection.dataConfig.tag.length > 0) {
+            cellTag = rowCollection.dataConfig.tag;
+        } else if ([sectionCollection.dataConfig.tag isKindOfClass:[NSString class]] && sectionCollection.dataConfig.tag.length > 0) {
+            cellTag = sectionCollection.dataConfig.tag;
+        } else if ([rowCollection.elementSourceKey isKindOfClass:[NSString class]] && rowCollection.elementSourceKey.length > 0) {
+            cellTag = rowCollection.elementSourceKey;
+        } else if ([rowCollection.dataConfig.sourceKey isKindOfClass:[NSString class]] && rowCollection.dataConfig.sourceKey.length > 0) {
+            cellTag = rowCollection.dataConfig.sourceKey;
+        } else if ([sectionCollection.dataConfig.sourceKey isKindOfClass:[NSString class]] && sectionCollection.dataConfig.sourceKey.length > 0) {
+            cellTag = sectionCollection.dataConfig.sourceKey;
         }
         
         //将取到的结果放入缓存，并记录cellClass和cellClassStr
@@ -622,7 +635,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%zd-%zd", _CACHE_TYPE_SECTION_TAG, mode]];
 }
 
-#pragma mark public: general
+#pragma mark public: parse config
 - (BOOL)parseConfigFile:(NSError **)pError {
     return [self parseConfigWithError:pError];
 }
@@ -675,12 +688,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     return YES;
 }
 
-- (void)connectToTableView:(UITableView *)tableView {
-    _tableView = tableView;
-    _tableView.dataSource = self;
-    _tableView.delegate = self;
-}
-
+#pragma mark public: reload
 - (void)reloadTableView {
     [_tableView reloadData];
 }
@@ -704,12 +712,17 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     }
 }
 
+#pragma mark public: row and section contents
 - (id)rowContentsAtIndexPath:(NSIndexPath *)indexPath {
     return [self _rowContentsAtIndexPath:indexPath].first;
 }
 
 - (NSString *)rowTagAtIndexPath:(NSIndexPath *)indexPath {
     return [self _rowContentsAtIndexPath:indexPath].fifth;
+}
+
+- (NSInteger)rowPositionsAtIndexPath:(NSIndexPath *)indexPath {
+    return [[self _rowContentsAtIndexPath:indexPath].forth integerValue];
 }
 
 - (id)sectionContentsAtSection:(NSInteger)section {
@@ -751,6 +764,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     return sectionTag;
 }
 
+#pragma mark public: indexPaths for touches or gesture recognizers
 - (NSIndexPath *)indexPathForTouchEvent:(UIEvent *)event {
     if (event == nil) {
         return nil;
@@ -768,10 +782,19 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
     return [_tableView indexPathForRowAtPoint:touchPoint];
 }
 
+#pragma mark public: about UITableView
+- (void)connectToTableView:(UITableView *)tableView {
+    _tableView = tableView;
+    _tableView.dataSource = self;
+    _tableView.delegate = self;
+}
+
 - (void)scrollToLastCell:(UITableViewScrollPosition)scrollPosition animated:(BOOL)animated {
     NSInteger lastSectionIndex = [_tableView numberOfSections] - 1;
     NSInteger lastRowIndex = [_tableView numberOfRowsInSection:lastSectionIndex] - 1;
-    [_tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:lastRowIndex inSection:lastSectionIndex] atScrollPosition:scrollPosition animated:animated];
+    if (lastRowIndex >= 0 && lastSectionIndex >= 0) {
+        [_tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:lastRowIndex inSection:lastSectionIndex] atScrollPosition:scrollPosition animated:animated];
+    }
 }
 
 - (void)registerCellClass:(Class)cellClass {

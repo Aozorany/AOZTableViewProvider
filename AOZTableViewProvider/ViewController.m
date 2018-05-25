@@ -16,7 +16,10 @@
 
 NSString *configString = @"\
 section -s _multipleArray -c TableViewCell -t sectionTag\n\
-    row -es subArray -ec TableViewCell";
+    row -es subArray -ec TableViewCell\n\
+section\n\
+    row -c AOZTableViewSwitchCell\n\
+    row -c AOZTableViewDetailCell";
 
 
 #pragma mark -
@@ -79,13 +82,18 @@ section -s _multipleArray -c TableViewCell -t sectionTag\n\
 }
 
 #pragma mark delegate: AOZTableViewProviderDelegate
-- (Class)tableViewProvider:(AOZTableViewProvider *)provider cellClassForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents isEmptyCell:(BOOL)isEmptyCell {
-    if (isEmptyCell) { return TableViewCell.class; }
-
-    if (indexPath.row % 2) {
-        return TableViewCell.class;
+- (BOOL)tableViewProvider:(AOZTableViewProvider *)provider willSetCellForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cell:(UITableViewCell *)cell {
+    if ([cell isKindOfClass:[AOZTableViewSwitchCell class]]) {
+        ((AOZTableViewSwitchCell *) cell).textLabel.text = @"textLabel";
+        [((AOZTableViewSwitchCell *) cell) setSwitchViewState:AOZTableViewSwitchCellStateOn];
+        [((AOZTableViewSwitchCell *) cell) setSwitchViewOnTintColor:[UIColor purpleColor]];
+        ((AOZTableViewSwitchCell *) cell).actionTarget = self;
+        ((AOZTableViewSwitchCell *) cell).switchViewValueChangedAction = @selector(onCellSwitchValueChanged:event:);
+    } else if ([cell isKindOfClass:[AOZTableViewDetailCell class]]) {
+        ((AOZTableViewDetailCell *) cell).textLabel.text = @"textLabel";
+        ((AOZTableViewDetailCell *) cell).detailTextLabel.text = @"detailTextLabel";
     }
-    return TableViewCell2.class;
+    return YES;
 }
 
 - (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForRowAtIndexPath:(NSIndexPath *)indexPath contents:(id)contents cellClass:(Class)cellClass {
@@ -117,6 +125,11 @@ section -s _multipleArray -c TableViewCell -t sectionTag\n\
     
     [_tableViewProvider setNeedsReloadForCurrentMode];
     [_tableViewProvider reloadTableView];
+}
+
+- (void)onCellSwitchValueChanged:(UISwitch *)sender event:(UIEvent *)event {
+    NSIndexPath *indexPath = [_tableViewProvider indexPathForTouchEvent:event];
+    NSLog(@"%@, %d", indexPath, sender.on);
 }
 
 @end
