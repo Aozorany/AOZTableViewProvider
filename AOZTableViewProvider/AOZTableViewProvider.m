@@ -607,7 +607,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 /** 取出当前mode下，某个indexPath对应的内容 */
 - (id)_contentAtIndexPath:(NSIndexPath *)indexPath type:(int)cacheType {
   if (indexPath == nil) { return nil; }
-  NSMutableDictionary *detailsDictionary = _cacheDictionary[[NSString stringWithFormat:@"%zd-%zd", cacheType, _mode]];
+  NSMutableDictionary *detailsDictionary = _cacheDictionary[[NSString stringWithFormat:@"%d-%zd", cacheType, _mode]];
   return detailsDictionary[[NSString stringWithFormat:@"%zd-%zd", indexPath.section, indexPath.row]];
 }
 
@@ -615,7 +615,7 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 - (void)_setContent:(id<NSCopying>)content indexPath:(NSIndexPath *)indexPath type:(int)cacheType {
   if (content == nil || indexPath == nil) { return; }
   
-  NSString *cacheKey = [NSString stringWithFormat:@"%zd-%zd", cacheType, _mode];
+  NSString *cacheKey = [NSString stringWithFormat:@"%d-%zd", cacheType, _mode];
   NSMutableDictionary *detailsDictionary = _cacheDictionary[cacheKey];
   if (detailsDictionary == nil) {
     detailsDictionary = [[NSMutableDictionary alloc] init];
@@ -626,13 +626,13 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
 
 /** 为某个mode移除全部缓存 */
 - (void)_removeAllCachesForMode:(NSInteger)mode {
-  [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%zd-%zd", _CACHE_TYPE_ROW_CONTENTS, mode]];
-  [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%zd-%zd", _CACHE_TYPE_SECTION_CONTENTS, mode]];
-  [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%zd-%zd", _CACHE_TYPE_CELL_CLASS, mode]];
-  [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%zd-%zd", _CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG, mode]];
-  [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%zd-%zd", _CACHE_TYPE_CELL_POSITION, mode]];
-  [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%zd-%zd", _CACHE_TYPE_CELL_TAG, mode]];
-  [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%zd-%zd", _CACHE_TYPE_SECTION_TAG, mode]];
+  [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%d-%zd", _CACHE_TYPE_ROW_CONTENTS, mode]];
+  [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%d-%zd", _CACHE_TYPE_SECTION_CONTENTS, mode]];
+  [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%d-%zd", _CACHE_TYPE_CELL_CLASS, mode]];
+  [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%d-%zd", _CACHE_TYPE_ROW_CONTENTS_EMPTY_FLAG, mode]];
+  [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%d-%zd", _CACHE_TYPE_CELL_POSITION, mode]];
+  [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%d-%zd", _CACHE_TYPE_CELL_TAG, mode]];
+  [_cacheDictionary removeObjectForKey:[NSString stringWithFormat:@"%d-%zd", _CACHE_TYPE_SECTION_TAG, mode]];
 }
 
 #pragma mark public: parse config
