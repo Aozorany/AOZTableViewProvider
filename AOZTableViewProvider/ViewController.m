@@ -14,14 +14,6 @@
 #import "TableViewCell2.h"
 
 
-NSString *configString = @"\
-section -s _multipleArray -c TableViewCell -t sectionTag\n\
-    row -es subArray -ec TableViewCell\n\
-section\n\
-    row -c AOZTableViewSwitchCell\n\
-    row -c AOZTableViewDetailCell";
-
-
 #pragma mark -
 @interface ViewController () <AOZTableViewProviderDelegate>
 @end
@@ -69,7 +61,12 @@ section\n\
 //    [_tableViewProvider parseConfigWithError:NULL];
 //    _tableViewProvider.mode = 0;
 //    [_tableViewProvider reloadTableView];
-    
+    NSString *configString = @"\
+    section -s _multipleArray -c TableViewCell -t sectionTag\n\
+      row -es subArray -ec TableViewCell\n\
+    section\n\
+      row -c AOZTableViewSwitchCell\n\
+      row -c AOZTableViewDetailCell";
     _tableViewProvider = [[AOZTableViewProvider alloc] initWithConfigString:configString dataProvider:self tableView:mainTableView];
     [_tableViewProvider parseConfigWithError:nil];
     _tableViewProvider.delegate = self;

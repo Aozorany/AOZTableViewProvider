@@ -88,4 +88,7 @@
 - (CGFloat)tableViewProvider:(AOZTableViewProvider *)provider heightForFooterInSection:(NSInteger)section;/**< Invoked in tableViewDelegate's heightForFooterInSection method */
 - (NSString *)tableViewProvider:(AOZTableViewProvider *)tableViewProvider titleForHeaderInSection:(NSInteger)section;
 
+#pragma mark delegate: UITableViewDelegate: accessory actions
+- (void)tableViewProvider:(AOZTableViewProvider *)provider accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath;
+
 @end

@@ -346,6 +346,13 @@ id _collectionForIndex(id parentCollection, NSInteger index) {
   return 0;
 }
 
+#pragma mark delegate: UITableViewDelegate: accessory actions
+- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
+  if ([_delegate respondsToSelector:@selector(tableViewProvider:accessoryButtonTappedForRowWithIndexPath:)]) {
+    [_delegate tableViewProvider:self accessoryButtonTappedForRowWithIndexPath:indexPath];
+  }
+}
+
 #pragma mark delegate: UIScrollViewDelegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
   if ([_scrollViewDelegate respondsToSelector:@selector(scrollViewDidScroll:)]) {
